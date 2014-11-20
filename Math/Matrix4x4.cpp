@@ -38,7 +38,7 @@ void Matrix4x4::SetEntry(int position, float value) {
 }
 	
 float Matrix4x4::GetEntry(int position) const {
-    if(position>=0 && position<=15)
+    if (position >= 0 && position <= 15)
         return entries[position];
 
     return 0.0f;
