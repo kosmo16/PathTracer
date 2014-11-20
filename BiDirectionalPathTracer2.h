@@ -18,7 +18,7 @@ public:
       \param maxReflections maximum number of ray reflections
       \param exposure exposure of colors
       */
-    LightIntensity TracePath(const Ray&ray, Scene*scene, const Vector3 cameraPosition,
+    LightIntensity TracePath(const Ray &ray, Scene *scene, const Vector3 cameraPosition,
                             int maxReflections);
 };
 
