@@ -39,7 +39,9 @@ HEADERS += Math/Vector2.h \
     StreamPhotonMap.h \
     rendererpanel.h \
     rendereroptions.h \
-    BidirectionalPathTracer/BiDirectionalPathTracer.h
+    BidirectionalPathTracer/BiDirectionalPathTracer.h \
+    BidirectionalPathTracer/brdf.h \
+    BidirectionalPathTracer/BlinnPhongBrdf.h
 
 SOURCES += Math/Vector2.cpp \
            Math/Vector3.cpp \
@@ -70,4 +72,6 @@ SOURCES += Math/Vector2.cpp \
     StreamPhotonMap.cpp \
     rendererpanel.cpp \
     rendereroptions.cpp \
-    BidirectionalPathTracer/BiDirectionalPathTracer.cpp
+    BidirectionalPathTracer/BiDirectionalPathTracer.cpp \
+    BidirectionalPathTracer/brdf.cpp \
+    BidirectionalPathTracer/BlinnPhongBrdf.cpp

@@ -63,7 +63,7 @@ void MainWindow::renderScene()
     int liczbaodbic=0;
     int liczbafotonow=0;
     int liczbafotonowPM=0;
- //pêtla przebiegów renderingu
+ //pÄ™tla przebiegÃ³w renderingu
 
 
  for (int przebieg=0; przebieg<11; przebieg++){
@@ -259,7 +259,7 @@ void MainWindow::renderScene()
     // Render image using selected method
     if (StreamRenderer == m_rendererPanel->renderingMethod()) {
         RendererParams params = m_rendererPanel->getRendererParams();
-        //podmiana parametrów renderingu
+        //podmiana parametrÃ³w renderingu
         if(przebieg>=0){
              liczbafotonow=10;
              liczbaodbic=7;
