@@ -39,7 +39,7 @@ HEADERS += Math/Vector2.h \
     StreamPhotonMap.h \
     rendererpanel.h \
     rendereroptions.h \
-    BiDirectionalPathTracer.h
+    BidirectionalPathTracer/BiDirectionalPathTracer.h
 
 SOURCES += Math/Vector2.cpp \
            Math/Vector3.cpp \
@@ -70,4 +70,4 @@ SOURCES += Math/Vector2.cpp \
     StreamPhotonMap.cpp \
     rendererpanel.cpp \
     rendereroptions.cpp \
-    BiDirectionalPathTracer.cpp
+    BidirectionalPathTracer/BiDirectionalPathTracer.cpp
