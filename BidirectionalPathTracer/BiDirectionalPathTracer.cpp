@@ -1,30 +1,47 @@
-#include "BiDirectionalPathTracer.h"
+#include "BidirectionalPathTracer.h"
 
-BiDirectionalPathTracer::BiDirectionalPathTracer()
+BidirectionalPathTracer::BidirectionalPathTracer()
 {
 }
 
-LightIntensity BiDirectionalPathTracer::TracePath(const Ray &ray, Scene *scene, const Vector3 cameraPosition, int maxReflections)
+LightIntensity BidirectionalPathTracer::CalculateLightIntensity(Scene *scene, const Ray &ray)
 {
-    for (int i = 0; i < scene->lights.count(); i++)
-    {
+    LightIntenisty Li;
 
+    std::vector<Node> eyePath;
+    GeneratePath(eyePath, scene, ray, EYE_REFLECTIONS);
+
+    std::vector<Node> lightPath;
+    float Le;
+    Ray lightRay; // float Le = GetRandomLightRay(lightRay);
+    GeneratePath(lightPath, scene, lightRay, LIGHT_REFLECTIONS);
+
+    for (int i = 0; i < eyePath.size(); i++)
+    {
+        for (int j = 0; j < lightPath.size(); j++)
+        {
+            if (IsVisible(scene, eyePath[i].intersectionResult.LPOINT, lightPath.intersectionResult[j].LPOINT))
+            {
+                Li += Le * EvalPath(scene, eyePath, i, lightPath, j) / WeightPath(i, j);
+            }
+        }
     }
 }
 
-void BiDirectionalPathTracer::GetPath(const Ray &ray, Scene *scene, const Vector3 cameraPosition, int maxReflections)
+float BidirectionalPathTracer::EvalPath(Scene *scene, std::vector eyePath, int i, std::vector lightPath, int j)
 {
-    LightIntensity resultIntensity;
 
-    const int remainingEyeReflections = maxReflections;
-    const int remainingLightReflections = maxReflections;
-    int eyeReflectionsCount = 0;
+}
 
-    // Searching for intersection with any object if exists
+float BidirectionalPathTracer::WeightPath(int i, int j)
+{
+    return (float) (i + j);
+}
+
+bool BidirectionalPathTracer::FindIntersectionInScene(Scene *scene, const Ray &ray, const IntersectionResult &intersection)
+{
     int objectId = -1;
     float closestDistToIntersection = FLT_MAX;
-    IntersectionResult closestIntersection;
-
 
     for (int i = 0; i < scene->geometry.count(); i++)
     {
@@ -35,61 +52,59 @@ void BiDirectionalPathTracer::GetPath(const Ray &ray, Scene *scene, const Vector
             if (closestDistToIntersection > result.distance)
             {
                 closestDistToIntersection = result.distance;
-                objectId = j;
-                closestIntersection = result;
+                objectId = i;
+                intersection = result;
             }
         }
     }
 
-    if(objectId != -1) {
-        //        if(closestIntersection.object->GetMaterial()->type==REFLECTIVE && reflections>0) {
-        //            Vector3 reflected = ray.direction.Reflect(closestIntersection.intersectionLPOINTNormal);
-        //            reflected.Normalize();
-        //            Ray newRay(closestIntersection.LPOINT+reflected*BIAS, reflected);
+    return objectId != -1;
+}
 
-        //            resultIntensity += TraceRay(newRay, scene, cameraPosition, reflections-1, exposure, globalMap, causticMap);
-        //        }
-        //        else if(closestIntersection.object->GetMaterial()->type==REFRACTIVE && reflections>0) {
-        //            float reflectionCoef = max(0.0, min(1.0, 0.05+0.11*(pow(1+ray.direction.DotProduct(closestIntersection.intersectionLPOINTNormal), 1))));
-        //            LightIntensity reflectedIntensity;
-        //            LightIntensity refractedIntensity;
+bool BidirectionalPathTracer::IsVisible (Scene *scene, Vector3 a, Vector3 b)
+{
+    Vector3 dir = b - a;
+    float dist = dir.GetLength();
+    dir.Normalize();
+    Ray ray = Ray(a, dir);
 
-        //            RefractiveMaterial* mat = (RefractiveMaterial*)closestIntersection.object->GetMaterial();
+    for (int i = 0; i < scene->geometry.count(); i++)
+    {
+        IntersectionResult result = scene->geometry.at(i)->Intersects(ray, dist);
 
-        //            Vector3 refracted;
-        //            if(closestIntersection.type==HIT)
-        //                refracted = ray.direction.Refract(closestIntersection.intersectionLPOINTNormal,
-        //                                                  mat->etaRate);
-        //            else
-        //                refracted = ray.direction.Refract(-closestIntersection.intersectionLPOINTNormal,
-        //                                                  1.0f/mat->etaRate);
-        //            refracted.Normalize();
-
-        //            Ray newRay(closestIntersection.LPOINT+refracted*BIAS, refracted);
-
-        //            refractedIntensity += TraceRay(newRay, scene, cameraPosition, reflections-1, exposure, globalMap, causticMap);
-
-        //            Vector3 reflected = ray.direction.Reflect(closestIntersection.intersectionLPOINTNormal);
-        //            reflected.Normalize();
-        //            newRay = Ray(closestIntersection.LPOINT+reflected*BIAS, reflected);
-
-        //            reflectedIntensity += TraceRay(newRay, scene, cameraPosition, reflections-1, exposure, globalMap, causticMap);
-
-
-        //            resultIntensity = reflectionCoef*reflectedIntensity + (1-reflectionCoef)*refractedIntensity;
-        //        }
-        //        else {
-        //            LightIntensity fromLights;
-        //            for(int j=0;j<scene->lights.count();j++) {
-        //                fromLights += scene->lights.at(j)->GetLightIntensity(cameraPosition, &closestIntersection, scene->geometry);
-        //            }
-        //            resultIntensity += fromLights;
-        //        }
-
-        //        if(closestIntersection.object->GetMaterial()->texture) {
-        //            resultIntensity*=closestIntersection.object->GetMaterial()->texture->SampleSpherical(closestIntersection.object->MapToLocal(closestIntersection.LPOINT));
-        //        }
-        //    }
-        //    return resultIntensity;
+        if (result.type != MISS)
+        {
+            return false;
+        }
     }
+
+    return true;
+}
+
+void BidirectionalPathTracer::GeneratePath(std::vector<Node> &path, Scene *scene, const Ray &rayIn, const int &maxReflections)
+{
+    IntersectionResult intersection;
+
+    int reflections = 0;
+
+     if (FindIntersectionInScene(scene, rayIn, intersection))
+     {
+         //////////////////////////////TODO////////////////////////////////
+         float weight = 0.0f;
+         Ray rayOut;
+         //TODO Odbicie BRDF -> weight = BRDF(rayIn, intersection, rayOut)
+         //////////////////////////////////////////////////////////////////
+         path.push_back(Node(intersection, weight));
+
+         while (reflections < maxReflections && FindIntersectionInScene(scene, rayOut, intersection))
+         {
+             //////////////////////////////TODO////////////////////////////////
+             //TODO Odbicie BRDF -> weight = BRDF(rayIn, intersection, rayOut)
+             //////////////////////////////////////////////////////////////////
+             path.push_back(Node(intersection, weight));
+             reflections++;
+         }
+     }
+
+     return path;
 }
