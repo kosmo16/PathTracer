@@ -108,8 +108,9 @@ void Camera::RenderScene(Scene* scene, unsigned int ns) {
     if(img) {
         img->Clear(LightIntensity(0,0,0));
 
-
+#ifdef PARALLEL
         #pragma omp parallel for schedule(dynamic, 50)
+#endif
         for(unsigned int i=0;i<img->GetWidth()*img->GetHeight();i++) {
             float x = i % img->GetWidth();
             float y = i / img->GetWidth();
@@ -326,7 +327,9 @@ StartCounter();
 
         time.restart();
 StartCounter();
+#ifdef PARALLEL
 #pragma omp parallel for schedule(dynamic, 50)
+#endif
         for(unsigned int i=0;i<img->GetWidth()*img->GetHeight();i++) {
             float x = i % img->GetWidth();
             float y = i / img->GetWidth();
@@ -378,7 +381,9 @@ void Camera::VisualizePhotonMap(Scene *scene, int numPhotons, int maxReflections
 
 
         time.restart();
+#ifdef PARALLEL
         #pragma omp parallel for
+#endif
         for(unsigned int i=0;i<img->GetWidth()*img->GetHeight();i++) {
             float x = i % img->GetWidth();
             float y = i / img->GetWidth();
@@ -475,7 +480,9 @@ void Camera::VisualizeStreamPhotonMap(Scene *scene, int numPhotons, int maxRefle
 
 
         time.restart();
+#ifdef PARALLEL
         #pragma omp parallel for
+#endif
         for(unsigned int i=0;i<img->GetWidth()*img->GetHeight();i++) {
             float x = i % img->GetWidth();
             float y = i / img->GetWidth();

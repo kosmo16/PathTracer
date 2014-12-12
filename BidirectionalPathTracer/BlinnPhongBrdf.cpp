@@ -1,5 +1,12 @@
 #include "BlinnPhongBrdf.h"
 
+#include <cmath>
+
+using namespace std;
+
+const int BlinnPhongBrdf::n;
+const float BlinnPhongBrdf::R_d;
+
 BlinnPhongBrdf::BlinnPhongBrdf()
 {
 }
@@ -17,7 +24,7 @@ float BlinnPhongBrdf::computeRatio(
     float normalizationFactor = 0.0397436 * n + 0.0856832;
     float f0 = fZero(n);
 
-    float rho = R_d * M_1_PI * (1.0f - fDiff(f0, N, L)) + normalizationFactor * (fSpec(f0, E, H) * power(N.dotProduct(H), n)) / (max(N.dotProduct(L), N.dotProduct(E)));
+    float rho = R_d * M_1_PI * (1.0f - fDiff(f0, N, L)) + normalizationFactor * (fSpec(f0, E, H) * power(N.DotProduct(H), n)) / (max(N.DotProduct(L), N.DotProduct(E)));
     return rho;
 }
 

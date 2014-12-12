@@ -10,6 +10,8 @@
 
 class PhotonMap;
 
+//#define PARALLEL
+
 /**
   Camera class
   */

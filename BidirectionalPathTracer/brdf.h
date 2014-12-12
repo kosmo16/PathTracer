@@ -32,7 +32,7 @@ protected:
     static float to5power(float x);
     static float FresnelFunction(float f0, const Vector3 & A, const Vector3 & B);
 
-    static float fZero(int n) const;
+    static float fZero(int n);
 
 public:
     Brdf();

@@ -6,8 +6,11 @@
 class BlinnPhongBrdf : public Brdf
 {
 private:
-    float fDiff(float f0, const Vector3 & N, const Vector3 & L);
-    float fSpec(float f0, const Vector3 & E, const Vector3 & H);
+    static const int n = 12;
+    static const float R_d = 1.2345f;
+
+    static float fDiff(float f0, const Vector3 & N, const Vector3 & L);
+    static float fSpec(float f0, const Vector3 & E, const Vector3 & H);
 
 public:
     BlinnPhongBrdf();
