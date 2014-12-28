@@ -4,6 +4,10 @@ NormalPdf::NormalPdf()
 {
 }
 
+NormalPdf::~NormalPdf()
+{
+}
+
 // -PI_2 <= f <= PI_2
 float randomFloat()
 {

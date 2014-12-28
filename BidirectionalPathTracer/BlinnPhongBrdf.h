@@ -14,6 +14,7 @@ private:
 
 public:
     BlinnPhongBrdf();
+    virtual ~BlinnPhongBrdf();
 
     virtual float computeRatio(
             const Vector3 & incomingDirection,

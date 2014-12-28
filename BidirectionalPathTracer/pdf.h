@@ -7,6 +7,7 @@ class Pdf
 {
 public:
     Pdf();
+    virtual ~Pdf();
 
     virtual Vector3 computeDirection(const Vector3 & incomingDirection, const Vector3 & normal) const = 0;
 };

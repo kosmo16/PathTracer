@@ -13,6 +13,7 @@ class NormalPdf : public Pdf
 {
 public:
     NormalPdf();
+    virtual ~NormalPdf();
 
     virtual Vector3 computeDirection(const Vector3 & incomingDirection, const Vector3 & normal) const;
 };

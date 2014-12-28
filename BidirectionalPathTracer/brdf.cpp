@@ -4,6 +4,10 @@ Brdf::Brdf()
 {
 }
 
+Brdf::~Brdf()
+{
+}
+
 float Brdf::fZero(int n)
 {
     float f0 = float(1 - n) / float(1 + n);

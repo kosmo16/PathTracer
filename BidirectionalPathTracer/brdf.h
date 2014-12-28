@@ -36,8 +36,12 @@ protected:
 
 public:
     Brdf();
+    virtual ~Brdf();
 
-    virtual float computeRatio(const Vector3 & incomingDirection, const Vector3 & outcomingDirection) const = 0;
+    virtual float computeRatio(
+            const Vector3 & incomingDirection,
+            const Vector3 & outcomingDirection,
+            const Vector3 & normal) const = 0;
 };
 
 #endif
