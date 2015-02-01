@@ -41,7 +41,7 @@ public:
       \param ray ray to trace
       \param scene scene
       */
-    LightIntensity CalculateLightIntensity(Scene *scene, const Ray &ray);
+    LightIntensity CalculateLightIntensity(Scene *scene, const Ray &ray, const Vector3 cameraPosition);
     std::vector<Node> GeneratePath(std::vector<Node> &path, Scene *scene, const Ray &rayIn, const int &maxReflections);
     bool FindIntersectionInScene(Scene *scene, const Ray &ray, IntersectionResult &intersection);
     float WeightPath(int i, int j);

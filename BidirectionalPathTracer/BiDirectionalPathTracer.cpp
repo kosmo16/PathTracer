@@ -9,7 +9,7 @@ BidirectionalPathTracer::BidirectionalPathTracer(Brdf * const brdf, Pdf * const 
 {
 }
 
-LightIntensity BidirectionalPathTracer::CalculateLightIntensity(Scene *scene, const Ray &ray)
+LightIntensity BidirectionalPathTracer::CalculateLightIntensity(Scene *scene, const Ray &ray, const Vector3 cameraPosition)
 {
     LightIntensity Li;
 
@@ -31,6 +31,8 @@ LightIntensity BidirectionalPathTracer::CalculateLightIntensity(Scene *scene, co
             }
         }
     }
+
+    return Li;
 }
 
 float BidirectionalPathTracer::EvalPath(Scene *scene, const std::vector<Node> &eyePath, int i, const std::vector<Node> &lightPath, int j)
