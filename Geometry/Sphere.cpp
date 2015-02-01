@@ -49,7 +49,7 @@ IntersectionResult Sphere::Intersects(const Ray &ray, float range) const {
     return result;
 }
 
-Vector3 Sphere::MapToLocal(Vector3 &vec) const {
+Vector3 Sphere::MapToLocal(const Vector3 &vec) const {
     Vector3 local = vec;
     local -= position;
     local/=radius;

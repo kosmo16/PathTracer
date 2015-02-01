@@ -40,7 +40,7 @@ public:
       Maps given vector to local vector in coordinantes of geometry.
       Used in spherical mapping
       */
-    virtual Vector3 MapToLocal(Vector3& vec) const {
+    virtual Vector3 MapToLocal(const Vector3& vec) const {
         return vec;
     }
 

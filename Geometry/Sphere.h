@@ -20,7 +20,7 @@ public:
     float radius;
 
     IntersectionResult Intersects(const Ray& ray, float range=0.0f) const;
-    Vector3 MapToLocal(Vector3 &vec) const;
+    Vector3 MapToLocal(const Vector3 &vec) const;
 };
 
 QDebug operator<<(QDebug dbg, const Sphere &s);
