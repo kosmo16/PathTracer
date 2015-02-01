@@ -157,6 +157,13 @@ void Camera::RenderScene(Scene* scene, unsigned int ns) {
     }
 }
 
+float floatRand()
+{
+    static float RAND_MAX_F = static_cast<float>(RAND_MAX);
+    static float ONE_RAND_MAX_F = 1.0f / RAND_MAX_F;
+    return static_cast <float>(qrand()) * ONE_RAND_MAX_F;
+}
+
 void Camera::RenderSceneStream(Scene* scene, unsigned int ns, unsigned int m_numEmittedGlobalPhotons,
                                unsigned int m_numEmittedCausticPhotons, int numAssociatedPhotons, float radius, int reflections) {
     QTime time;
@@ -256,17 +263,19 @@ StartCounter();
 
                     Ray ray(Vector3(origin.x, origin.y, origin.z), Vector3(direction.x, direction.y, direction.z));
                     currentPixel+=rayTracer.TraceRayStream(ray, scene, position, 6, 1050, &photonMap, &causticPhotonMap); // default exposure = 750
-                    img->SetPixel(i,j,currentPixel/numSamples);
+                    img->SetPixel(i,j,currentPixel);
                 }
             }
         }
         // stochastic oversampling for multiple samples per pixel
         else
         {
+            float one_numSamples = 1.0f / numSamples;
+
             float losoweX, losoweY;
             float pxWidth = 2.0f / img->GetWidth();
             float pxHeight = 2.0f / img->GetHeight();
-            for(int j=0; j<img->GetHeight();j++)
+            for(int j=0;j<img->GetHeight();j++)
             {
                 for(int i=0;i<img->GetWidth();i++)
                 {
@@ -276,13 +285,13 @@ StartCounter();
                     {
                         //obliczanie losowej pozycji wewnatrz piksela
 
-                        losoweX = -1.0 + (i+ (static_cast <float>(qrand()/static_cast <float> (RAND_MAX))) )*pxWidth;
-                        losoweY = 1.0 - (j+ (static_cast <float>(qrand()/static_cast <float> (RAND_MAX))) )*pxHeight;
+                        losoweX = -1.0 + (i + floatRand()) * pxWidth;
+                        losoweY = 1.0 - (j + floatRand()) * pxHeight;
                         losoweX /= projectionMatrix.entries[0];
                         losoweY /= projectionMatrix.entries[5];
 
                         Vector4 origin(0,0,0,1);
-                        Vector4 direction(losoweX,losoweY, 1, 0);
+                        Vector4 direction(losoweX, losoweY, 1, 0);
 
                         origin = invVPMatrix*Vector4(origin);
                         direction = invVPMatrix*Vector4(direction);
@@ -291,7 +300,7 @@ StartCounter();
                         currentPixel+=rayTracer.TraceRayStream(ray, scene, position, 6, 1050, &photonMap, &causticPhotonMap); // default exposure = 750
                     }
                     //qDebug()<<tempprobek;
-                    img->SetPixel(i,j,currentPixel/numSamples);
+                    img->SetPixel(i,j,currentPixel*one_numSamples);
                 }
             }
         }
