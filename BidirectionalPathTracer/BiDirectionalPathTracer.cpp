@@ -3,6 +3,12 @@
 const int BidirectionalPathTracer::EYE_REFLECTIONS;
 const int BidirectionalPathTracer::LIGHT_REFLECTIONS;
 
+
+Ray BidirectionalPathTracer::GetRandomLightRay(Scene *scene)
+{
+    //TODO
+}
+
 BidirectionalPathTracer::BidirectionalPathTracer(Brdf * const brdf, Pdf * const pdf)
     : brdf(brdf),
       pdf(pdf)
@@ -17,8 +23,8 @@ LightIntensity BidirectionalPathTracer::CalculateLightIntensity(Scene *scene, co
     GeneratePath(eyePath, scene, ray, EYE_REFLECTIONS);
 
     std::vector<Node> lightPath;
-    float Le;
-    Ray lightRay; // float Le = GetRandomLightRay(lightRay);
+    float Le = 1.0f;
+    Ray lightRay = GetRandomLightRay(scene);
     GeneratePath(lightPath, scene, lightRay, LIGHT_REFLECTIONS);
 
     for (int i = 0; i < eyePath.size(); i++)

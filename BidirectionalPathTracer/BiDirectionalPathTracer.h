@@ -35,7 +35,7 @@ public:
     LightIntensity TracePath(const Ray &ray, Scene *scene, const Vector3 cameraPosition, int maxReflections);
 
     void GetPath(const Ray &ray, Scene *scene, const Vector3 cameraPosition, int maxReflections);
-
+    Ray GetRandomLightRay(Scene *scene);
     /**
       Calculate Light Intenisty using Bidirectional Path Tracing
       \param ray ray to trace
