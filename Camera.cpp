@@ -1,21 +1,25 @@
 #include "Camera.h"
-//#include <algorithm>
-#include <cfloat>
+
+#include "BidirectionalPathTracer/BiDirectionalPathTracer.h"
+#include "BidirectionalPathTracer/BlinnPhongBrdf.h"
+#include "BidirectionalPathTracer/NormalPdf.h"
 #include "PhotonMap.h"
 #include "StreamPhotonMap.h"
-#include "BidirectionalPathTracer/BiDirectionalPathTracer.h"
-#include <QTime>
-#include <windows.h>
 
+#include <QTime>
+//#include <algorithm>
+#include <cfloat>
+#include <windows.h>
 #include <iostream>
 #include <fstream>
-using namespace std;
 
+using namespace std;
 
 //miara czasu
 double PCFreq = 0.0;
 __int64 CounterStart = 0;
 ofstream mojStrumien("wyniki.csv");
+
 void StartCounter()
 {
     LARGE_INTEGER li;
@@ -27,6 +31,7 @@ void StartCounter()
     QueryPerformanceCounter(&li);
     CounterStart = li.QuadPart;
 }
+
 double GetCounter()
 {
     LARGE_INTEGER li;
@@ -35,9 +40,8 @@ double GetCounter()
 }
 //miara czasu
 
-
 #define BIAS 0.001f
-using namespace std;
+
 Camera::Camera()
 {
     position.Zero();
@@ -59,7 +63,6 @@ Camera::Camera(Vector3 positon, Vector3 target, float nearPlane, float farPlane,
     img=0;
     renderFileName = "render";
 }
-
 
 /**
   Recalculates camera projection and view matrices.
@@ -96,8 +99,11 @@ void Camera::Recalculate() {
 
 void Camera::RenderScene(Scene* scene, unsigned int ns) {
 
-    QTime time;
-    BidirectionalPathTracer bidirectionalPathTracer(new Brdf(), new Pdf());
+    // QTime time;
+
+    BlinnPhongBrdf brdf;
+    NormalPdf pdf;
+    BidirectionalPathTracer bidirectionalPathTracer(&brdf, &pdf);
 
     StartCounter();
 
