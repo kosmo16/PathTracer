@@ -14,8 +14,8 @@
 class BidirectionalPathTracer
 {
 private:
-    static const int EYE_REFLECTIONS = 2;
-    static const int LIGHT_REFLECTIONS = 2;
+    static const int EYE_REFLECTIONS = 5;
+    static const int LIGHT_REFLECTIONS = 5;
 
     Brdf * const brdf;
     Pdf * const pdf;
@@ -29,12 +29,12 @@ public:
       \param scene scene
       \param cameraPosition position of camera
       \param maxReflections maximum number of ray reflections
-      \param exposure exposure of colors
       */
-    LightIntensity TracePath(const Ray &ray, Scene *scene, const Vector3 cameraPosition, int maxReflections);
+    LightIntensity TracePath(const Ray &ray, Scene *scene, const Vector3 cameraPosition);
+    LightIntensity GetIntensity(const Node & node);
 
     void GetPath(const Ray &ray, Scene *scene, const Vector3 cameraPosition, int maxReflections);
-    Ray GetRandomLightRay(Scene *scene);
+    AmbientLight *GetRandomLightRay(Scene *scene, Ray &randomLightRay);
     /**
       Calculate Light Intenisty using Bidirectional Path Tracing
       \param ray ray to trace

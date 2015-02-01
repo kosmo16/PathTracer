@@ -114,8 +114,6 @@ void Camera::RenderScene(Scene* scene, unsigned int ns) {
 
     int numSamples=ns;
 
-    qDebug()<<"Rock 'n' Roll";
-
     if(img) {
         img->Clear(LightIntensity(0,0,0));
 
@@ -146,8 +144,8 @@ void Camera::RenderScene(Scene* scene, unsigned int ns) {
                     Ray ray(Vector3(origin.x, origin.y, origin.z), Vector3(direction.x, direction.y, direction.z));
 
                     //and trace it
-                    currentPixel += bidirectionalPathTracer.CalculateLightIntensity(scene, ray, position);
-                    //currentPixel+=rayTracer.TraceRay(ray, scene, position, 6);
+                    //currentPixel += bidirectionalPathTracer.CalculateLightIntensity(scene, ray, position);
+                    currentPixel+=rayTracer.TraceRay(ray, scene, position, 6);
                 }
             }
             img->SetPixel(x,y,currentPixel/(numSamples*numSamples));
@@ -171,12 +169,17 @@ void Camera::RenderSceneStream(Scene* scene, unsigned int ns, unsigned int m_num
                                unsigned int m_numEmittedCausticPhotons, int numAssociatedPhotons, float radius, int reflections) {
     QTime time;
 
+    BlinnPhongBrdf brdf;
+    NormalPdf pdf;
+    BidirectionalPathTracer bidirectionalPathTracer(&brdf, &pdf);
+
     // liczenie czasu nowe
     StartCounter();
     Recalculate();
 
     float pixelW = 1.0f/img->GetWidth();
     float pixelH = 1.0f/img->GetHeight();
+
 
     int numSamples=ns;
     if(img) {
@@ -265,7 +268,8 @@ StartCounter();
                     direction = invVPMatrix*Vector4(direction);
 
                     Ray ray(Vector3(origin.x, origin.y, origin.z), Vector3(direction.x, direction.y, direction.z));
-                    currentPixel+=rayTracer.TraceRayStream(ray, scene, position, 6, 1050, &photonMap, &causticPhotonMap); // default exposure = 750
+                    //bidirectionalPathTracer.CalculateLightIntensity(scene, ray, position);
+                    currentPixel+=rayTracer.TracePath(ray, scene, position,5);//.TraceRayStream(ray, scene, position, 6, 1050, &photonMap, &causticPhotonMap); // default exposure = 750
                     img->SetPixel(i,j,currentPixel);
                 }
             }

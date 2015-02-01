@@ -11,51 +11,61 @@ BidirectionalPathTracer::BidirectionalPathTracer(Brdf * const brdf, Pdf * const 
 {
 }
 
-Ray BidirectionalPathTracer::GetRandomLightRay(Scene *scene)
+LightIntensity BidirectionalPathTracer::TracePath(const Ray &ray, Scene *scene, const Vector3 cameraPosition)
 {
-    QList<AmbientLight*> & lights = scene->lights;
-    int numberOfLights = lights.size();
-    AmbientLight* randomLight = lights[rand() % numberOfLights];
-    Ray randomLightRay = randomLight->GetPhoton(false);
-    return randomLightRay;
-}
-
-LightIntensity BidirectionalPathTracer::CalculateLightIntensity(Scene *scene, const Ray &ray, const Vector3 cameraPosition)
-{
-    LightIntensity Li;
+    LightIntensity resultIntensity;
 
     std::vector<Node> eyePath;
     GeneratePath(eyePath, scene, ray, EYE_REFLECTIONS);
 
     std::vector<Node> lightPath;
-    float Le = 1.0f;
-    Ray lightRay = GetRandomLightRay(scene);
+    Ray lightRay;
+    AmbientLight* light = GetRandomLightRay(scene, lightRay);
     GeneratePath(lightPath, scene, lightRay, LIGHT_REFLECTIONS);
+    double Le = 1.0; // powinno byc od swiatla atentuation
 
     for (int i = 0; i < eyePath.size(); i++)
     {
-        Li += scene->lights.at(0)->GetLightIntensity(cameraPosition, &eyePath[i].intersectionResult, scene->geometry) / eyePath.size();
-
-        const IntersectionResult &eyeIntersection = eyePath[i].intersectionResult;
-        const Geometry * const &geometry = eyeIntersection.object;
-        const Texture * const & texture = geometry->GetMaterial()->texture;
-
-        if(texture) {
-            Li *= texture->SampleSpherical(geometry->MapToLocal(eyeIntersection.LPOINT));
+        for (int j = 0; j < lightPath.size(); j++)
+        {
+            if (IsVisible(scene, eyePath[i].intersectionResult.LPOINT, lightPath[j].intersectionResult.LPOINT))
+            {
+                resultIntensity += Le * EvalPath(scene, eyePath, i, lightPath, j) / WeightPath(i, j);
+            }
         }
 
-        //        const IntersectionResult &lightIntersection = lightPath[i].intersectionResult;
+        //Direct ilumination
+        LightIntensity fromLights;
+        for (int j = 0; j < scene->lights.size(); j++) {
+            fromLights += scene->lights.at(j)->GetLightIntensity(cameraPosition, &eyePath[i].intersectionResult, scene->geometry);
+        }
 
-        //        for (int j = 0; j < lightPath.size(); j++)
-        //        {
-        //            if (IsVisible(scene, eyeIntersection.LPOINT, lightIntersection.LPOINT))
-        //            {
-        //                Li += Le * EvalPath(scene, eyePath, i, lightPath, j) / WeightPath(i, j);
-        //            }
-        //        }
+        resultIntensity += fromLights;
     }
 
-    return Li;
+    return resultIntensity;
+}
+
+AmbientLight* BidirectionalPathTracer::GetRandomLightRay(Scene *scene, Ray &randomLightRay)
+{
+    QList<AmbientLight*> & lights = scene->lights;
+    int numberOfLights = lights.size();
+    AmbientLight* randomLight = lights[rand() % numberOfLights];
+    randomLightRay = randomLight->GetPhoton(false);
+    return randomLight;
+}
+
+LightIntensity BidirectionalPathTracer::GetIntensity(const Node & node)
+{
+    if (node.intersectionResult.object->GetMaterial()->type==REFRACTIVE
+            || node.intersectionResult.object->GetMaterial()->type==REFLECTIVE)
+    {
+        return node.weight * L(1.0, 1.0, 1.0);
+    }
+    else
+    {
+        return node.weight * (DiffuseMaterial*)closestIntersection.object->GetMaterial()->diffuse;
+    }
 }
 
 void BidirectionalPathTracer::changeL(const Geometry* const &intersectionObject, LightIntensity &L, const IntersectionResult &intersection)
@@ -110,14 +120,6 @@ LightIntensity BidirectionalPathTracer::EvalPath(Scene *scene,
 {
     LightIntensity L(1.0, 1.0, 1.0);
 
-    for (int eyeNodeNumber = 0; eyeNodeNumber <= i; ++eyeNodeNumber) {
-        const Node & eyeNode = eyePath[eyeNodeNumber];
-        const IntersectionResult & intersection = eyeNode.intersectionResult;
-        const Geometry * const & intersectionObject = intersection.object;
-
-        changeL(intersectionObject, L, intersection);
-    }
-
     // sciezka cienia
     const Node & eyeNode = eyePath[i];
     const Node & lightNode = lightPath[lightPath.size() - 1];
@@ -126,14 +128,16 @@ LightIntensity BidirectionalPathTracer::EvalPath(Scene *scene,
     {
         return LightIntensity();
     }
-    // L *= ;
+
+    for (int eyeNodeNumber = 0; eyeNodeNumber <= i; ++eyeNodeNumber) {
+        const Node & eyeNode = eyePath[eyeNodeNumber];
+
+        L *= GetIntensity(eyeNode);
+    }
 
     for (int lightNodeNumber = lightPath.size() - 1; lightNodeNumber >= j; --lightNodeNumber) {
         const Node & lightNode = lightPath[lightNodeNumber];
-        const IntersectionResult & intersection = lightNode.intersectionResult;
-        const Geometry * const & intersectionObject = intersection.object;
-
-        changeL(intersectionObject, L, intersection);
+        L *= GetIntensity(lightNode);
     }
 
     return L;
