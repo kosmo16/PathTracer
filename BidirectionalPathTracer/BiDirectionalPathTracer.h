@@ -45,7 +45,9 @@ public:
     std::vector<Node> GeneratePath(std::vector<Node> &path, Scene *scene, const Ray &rayIn, const int &maxReflections);
     bool FindIntersectionInScene(Scene *scene, const Ray &ray, IntersectionResult &intersection);
     float WeightPath(int i, int j);
-    float EvalPath(Scene *scene, const std::vector<Node> &eyePath, int i, const std::vector<Node> &lightPath, int j);
+    LightIntensity EvalPath(Scene *scene,
+                            const std::vector<Node> &eyePath, int i,
+                            const std::vector<Node> &lightPath, int j);
     bool IsVisible(Scene *scene, const Vector3 &a, const Vector3 &b);
 };
 
