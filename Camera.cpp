@@ -113,6 +113,9 @@ void Camera::RenderScene(Scene* scene, unsigned int ns) {
     float pixelH = 1.0f/img->GetHeight();
 
     int numSamples=ns;
+
+    qDebug()<<"Rock 'n' Roll";
+
     if(img) {
         img->Clear(LightIntensity(0,0,0));
 
@@ -143,8 +146,8 @@ void Camera::RenderScene(Scene* scene, unsigned int ns) {
                     Ray ray(Vector3(origin.x, origin.y, origin.z), Vector3(direction.x, direction.y, direction.z));
 
                     //and trace it
-                    //currentPixel += bidirectionalPathTracer.CalculateLightIntensity(scene, ray, position);
-                    currentPixel+=rayTracer.TraceRay(ray, scene, position, 6);
+                    currentPixel += bidirectionalPathTracer.CalculateLightIntensity(scene, ray, position);
+                    //currentPixel+=rayTracer.TraceRay(ray, scene, position, 6);
                 }
             }
             img->SetPixel(x,y,currentPixel/(numSamples*numSamples));

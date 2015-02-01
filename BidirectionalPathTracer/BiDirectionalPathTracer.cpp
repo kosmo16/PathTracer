@@ -32,13 +32,20 @@ LightIntensity BidirectionalPathTracer::CalculateLightIntensity(Scene *scene, co
 
     for (int i = 0; i < eyePath.size(); i++)
     {
-        for (int j = 0; j < lightPath.size(); j++)
-        {
-            if (IsVisible(scene, eyePath[i].intersectionResult.LPOINT, lightPath[j].intersectionResult.LPOINT))
-            {
-                Li += Le * EvalPath(scene, eyePath, i, lightPath, j) / WeightPath(i, j);
-            }
+        Li += scene->lights.at(0)->GetLightIntensity(cameraPosition, &eyePath[i].intersectionResult, scene->geometry) / eyePath.size();
+
+        if(eyePath[i].intersectionResult.object->GetMaterial()->texture) {
+            Li *= eyePath[i].intersectionResult.object->GetMaterial()->texture->SampleSpherical(eyePath[i].intersectionResult.object->MapToLocal(eyePath[i].intersectionResult.LPOINT));
         }
+
+
+        //        for (int j = 0; j < lightPath.size(); j++)
+//        {
+//            if (IsVisible(scene, eyePath[i].intersectionResult.LPOINT, lightPath[j].intersectionResult.LPOINT))
+//            {
+//                Li += Le * EvalPath(scene, eyePath, i, lightPath, j) / WeightPath(i, j);
+//            }
+//        }
     }
 
     return Li;
