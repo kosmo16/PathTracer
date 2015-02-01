@@ -269,7 +269,7 @@ StartCounter();
 
                     Ray ray(Vector3(origin.x, origin.y, origin.z), Vector3(direction.x, direction.y, direction.z));
                     //bidirectionalPathTracer.CalculateLightIntensity(scene, ray, position);
-                    currentPixel+=rayTracer.TracePath(ray, scene, position,5);//.TraceRayStream(ray, scene, position, 6, 1050, &photonMap, &causticPhotonMap); // default exposure = 750
+                    currentPixel+=rayTracer.TraceRayStream(ray, scene, position, 6, 1050, &photonMap, &causticPhotonMap); // default exposure = 750
                     img->SetPixel(i,j,currentPixel);
                 }
             }

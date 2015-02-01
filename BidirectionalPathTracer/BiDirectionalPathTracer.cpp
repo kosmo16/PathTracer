@@ -60,11 +60,11 @@ LightIntensity BidirectionalPathTracer::GetIntensity(const Node & node)
     if (node.intersectionResult.object->GetMaterial()->type==REFRACTIVE
             || node.intersectionResult.object->GetMaterial()->type==REFLECTIVE)
     {
-        return node.weight * L(1.0, 1.0, 1.0);
+        return node.weight * LightIntensity(1.0, 1.0, 1.0);
     }
     else
     {
-        return node.weight * (DiffuseMaterial*)closestIntersection.object->GetMaterial()->diffuse;
+        return node.weight * ((DiffuseMaterial*)node.intersectionResult.object->GetMaterial())->diffuse;
     }
 }
 
