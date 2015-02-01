@@ -43,7 +43,7 @@ float BidirectionalPathTracer::WeightPath(int i, int j)
     return (float) (i + j);
 }
 
-bool BidirectionalPathTracer::FindIntersectionInScene(Scene *scene, const Ray &ray, IntersectionResult intersection)
+bool BidirectionalPathTracer::FindIntersectionInScene(Scene *scene, const Ray &ray, IntersectionResult &intersection)
 {
     int objectId = -1;
     float closestDistToIntersection = FLT_MAX;
@@ -136,7 +136,6 @@ void BidirectionalPathTracer::GetPath(const Ray &ray, Scene *scene, const Vector
     int objectId = -1;
     float closestDistToIntersection = FLT_MAX;
     IntersectionResult closestIntersection;
-
 
     for (int i = 0; i < scene->geometry.count(); i++)
     {

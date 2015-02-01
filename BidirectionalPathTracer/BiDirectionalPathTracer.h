@@ -1,5 +1,5 @@
-#ifndef BIDIRECTIONALPATHTRACER_H
-#define BIDIRECTIONALPATHTRACER_H
+#ifndef __BIDIRECTIONAL_PATHTRACER_H__
+#define __BIDIRECTIONAL_PATHTRACER_H__
 
 #include "LightIntensity.h"
 #include "Lights/POINTLight.h"
@@ -32,11 +32,9 @@ public:
       \param maxReflections maximum number of ray reflections
       \param exposure exposure of colors
       */
-    LightIntensity TracePath(const Ray &ray, Scene *scene, const Vector3 cameraPosition,
-                            int maxReflections);
+    LightIntensity TracePath(const Ray &ray, Scene *scene, const Vector3 cameraPosition, int maxReflections);
 
-    void GetPath(const Ray &ray, Scene *scene, const Vector3 cameraPosition,
-                            int maxReflections);
+    void GetPath(const Ray &ray, Scene *scene, const Vector3 cameraPosition, int maxReflections);
 
     /**
       Calculate Light Intenisty using Bidirectional Path Tracing
@@ -45,10 +43,10 @@ public:
       */
     LightIntensity CalculateLightIntensity(Scene *scene, const Ray &ray);
     std::vector<Node> GeneratePath(std::vector<Node> &path, Scene *scene, const Ray &rayIn, const int &maxReflections);
-    bool FindIntersectionInScene(Scene *scene, const Ray &ray, IntersectionResult intersection);
+    bool FindIntersectionInScene(Scene *scene, const Ray &ray, IntersectionResult &intersection);
     float WeightPath(int i, int j);
     float EvalPath(Scene *scene, const std::vector<Node> &eyePath, int i, const std::vector<Node> &lightPath, int j);
     bool IsVisible(Scene *scene, const Vector3 &a, const Vector3 &b);
 };
 
-#endif // BIDIRECTIONALPATHTRACER_H
+#endif
