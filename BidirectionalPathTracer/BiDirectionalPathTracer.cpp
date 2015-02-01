@@ -44,9 +44,33 @@ LightIntensity BidirectionalPathTracer::CalculateLightIntensity(Scene *scene, co
     return Li;
 }
 
-float BidirectionalPathTracer::EvalPath(Scene *scene, const std::vector<Node> &eyePath, int i, const std::vector<Node> &lightPath, int j)
+LightIntensity BidirectionalPathTracer::EvalPath(Scene *scene,
+                                                 const std::vector<Node> &eyePath, int i,
+                                                 const std::vector<Node> &lightPath, int j)
 {
+    LightIntensity L(1.0, 1.0, 1.0);
 
+    for (int eyeNodeNumber = 0; eyeNodeNumber <= i; ++eyeNodeNumber) {
+        const Node & eyeNode = eyePath[eyeNodeNumber];
+        // L *= ;
+    }
+
+    // sciezka cienia
+    const Node & eyeNode = eyePath[i];
+    const Node & lightNode = lightPath[lightPath.size() - 1];
+    bool isShadowVisible = IsVisible(scene, eyeNode.intersectionResult.LPOINT, lightNode.intersectionResult.LPOINT);
+    if(!isShadowVisible)
+    {
+        return LightIntensity();
+    }
+    // L *= ;
+
+    for (int lightNodeNumber = lightPath.size() - 1; lightNodeNumber >= j; --lightNodeNumber) {
+        const Node & lightNode = lightPath[lightNodeNumber];
+        // L *= ;
+    }
+
+    return L;
 }
 
 float BidirectionalPathTracer::WeightPath(int i, int j)
@@ -108,24 +132,25 @@ bool BidirectionalPathTracer::IsVisible(Scene *scene, const Vector3 &a, const Ve
 std::vector<Node> BidirectionalPathTracer::GeneratePath(std::vector<Node> &path, Scene *scene, const Ray &rayIn, const int &maxReflections)
 {
     IntersectionResult intersection;
-    Vector3 &origin = intersection.LPOINT;
-    Vector3 &normal = intersection.intersectionLPOINTNormal;
+    const Vector3 &origin = intersection.LPOINT;
+    const Vector3 &normal = intersection.intersectionLPOINTNormal;
+    const Vector3 &rayInDirection = rayIn.direction;
 
     int reflections = 0;
 
      if (FindIntersectionInScene(scene, rayIn, intersection))
      {
-         Vector3 outDirection = pdf->computeDirection(rayIn, normal);
+         Vector3 outDirection = pdf->computeDirection(rayInDirection, normal);
          Ray rayOut(origin, outDirection);
-         float weight = brdf->computeRatio(rayIn, rayOut, normal);
+         float weight = brdf->computeRatio(rayInDirection, rayOut.direction, normal);
          path.push_back(Node(intersection, weight));
          path.push_back(Node(intersection, weight));
 
          while (reflections < maxReflections && FindIntersectionInScene(scene, rayOut, intersection))
          {
-             Vector3 outDirection = pdf->computeDirection(rayIn, normal);
+             Vector3 outDirection = pdf->computeDirection(rayInDirection, normal);
              Ray rayOut(origin, outDirection);
-             float weight = brdf->computeRatio(rayIn, rayOut, normal);
+             float weight = brdf->computeRatio(rayInDirection, rayOut.direction, normal);
              path.push_back(Node(intersection, weight));
              path.push_back(Node(intersection, weight));
              reflections++;
