@@ -4,7 +4,9 @@
 #include "LightIntensity.h"
 #include "Lights/POINTLight.h"
 #include "Math/Ray.h"
+#include "brdf.h"
 #include "Node.h"
+#include "pdf.h"
 #include "Scene.h"
 
 #include <cfloat>
@@ -16,8 +18,11 @@ private:
     static const int EYE_REFLECTIONS = 2;
     static const int LIGHT_REFLECTIONS = 2;
 
+    Brdf * const brdf;
+    Pdf * const pdf;
+
 public:
-    BidirectionalPathTracer();
+    BidirectionalPathTracer(Brdf * const brdf, Pdf * const pdf);
 
     /**
       Traces ray with use of photon map.

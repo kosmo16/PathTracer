@@ -3,7 +3,9 @@
 const int BidirectionalPathTracer::EYE_REFLECTIONS;
 const int BidirectionalPathTracer::LIGHT_REFLECTIONS;
 
-BidirectionalPathTracer::BidirectionalPathTracer()
+BidirectionalPathTracer::BidirectionalPathTracer(Brdf * const brdf, Pdf * const pdf)
+    : brdf(brdf),
+      pdf(pdf)
 {
 }
 
@@ -95,23 +97,25 @@ bool BidirectionalPathTracer::IsVisible(Scene *scene, const Vector3 &a, const Ve
 std::vector<Node> BidirectionalPathTracer::GeneratePath(std::vector<Node> &path, Scene *scene, const Ray &rayIn, const int &maxReflections)
 {
     IntersectionResult intersection;
+    Vector3 &origin = intersection.LPOINT;
+    Vector3 &normal = intersection.intersectionLPOINTNormal;
 
     int reflections = 0;
 
      if (FindIntersectionInScene(scene, rayIn, intersection))
      {
-         //////////////////////////////TODO////////////////////////////////
-         float weight = 0.0f;
-         Ray rayOut;
-         //TODO Odbicie BRDF -> weight = BRDF(rayIn, intersection, rayOut)
-         //////////////////////////////////////////////////////////////////
+         Vector3 outDirection = pdf->computeDirection(rayIn, normal);
+         Ray rayOut(origin, outDirection);
+         float weight = brdf->computeRatio(rayIn, rayOut, normal);
+         path.push_back(Node(intersection, weight));
          path.push_back(Node(intersection, weight));
 
          while (reflections < maxReflections && FindIntersectionInScene(scene, rayOut, intersection))
          {
-             //////////////////////////////TODO////////////////////////////////
-             //TODO Odbicie BRDF -> weight = BRDF(rayIn, intersection, rayOut)
-             //////////////////////////////////////////////////////////////////
+             Vector3 outDirection = pdf->computeDirection(rayIn, normal);
+             Ray rayOut(origin, outDirection);
+             float weight = brdf->computeRatio(rayIn, rayOut, normal);
+             path.push_back(Node(intersection, weight));
              path.push_back(Node(intersection, weight));
              reflections++;
          }
