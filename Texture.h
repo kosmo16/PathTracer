@@ -22,8 +22,8 @@ public:
         return height;
     }
 
-    Color Sample(float u, float v);
-    Color SampleSpherical(const Vector3& pos);
+    Color Sample(float u, float v) const;
+    Color SampleSpherical(const Vector3& pos) const;
 
     void SetPixel(unsigned x, unsigned y, Color color);
 

@@ -13,7 +13,6 @@
 
 class BidirectionalPathTracer
 {
-
 private:
     static const int EYE_REFLECTIONS = 2;
     static const int LIGHT_REFLECTIONS = 2;
@@ -42,13 +41,14 @@ public:
       \param scene scene
       */
     LightIntensity CalculateLightIntensity(Scene *scene, const Ray &ray, const Vector3 cameraPosition);
-    std::vector<Node> GeneratePath(std::vector<Node> &path, Scene *scene, const Ray &rayIn, const int &maxReflections);
+    std::vector<Node>& GeneratePath(std::vector<Node> &path, Scene *scene, const Ray &rayIn, const int &maxReflections);
     bool FindIntersectionInScene(Scene *scene, const Ray &ray, IntersectionResult &intersection);
     float WeightPath(int i, int j);
     LightIntensity EvalPath(Scene *scene,
                             const std::vector<Node> &eyePath, int i,
                             const std::vector<Node> &lightPath, int j);
     bool IsVisible(Scene *scene, const Vector3 &a, const Vector3 &b);
+    void changeL(const Geometry* const &intersectionObject, LightIntensity &L, const IntersectionResult &intersection);
 };
 
 #endif

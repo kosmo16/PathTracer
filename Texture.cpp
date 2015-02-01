@@ -30,7 +30,7 @@ Texture::~Texture() {
         delete image;
 }
 
-Color Texture::Sample(float u, float v) {
+Color Texture::Sample(float u, float v) const {
     static const float FACTOR = 1.0f / 255.0f;
 
     if(image) {
@@ -48,7 +48,7 @@ Color Texture::Sample(float u, float v) {
     return Color();
 }
 
-Color Texture::SampleSpherical(const Vector3 &pos) {
+Color Texture::SampleSpherical(const Vector3 &pos) const {
     float theta = acos(pos.y);
     float phi = atan2(pos.x, pos.z);
     if(phi<0.0) {
