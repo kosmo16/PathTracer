@@ -59,7 +59,9 @@ LightIntensity BidirectionalPathTracer::EvalPath(Scene *scene,
 
     for (int eyeNodeNumber = 0; eyeNodeNumber <= i; ++eyeNodeNumber) {
         const Node & eyeNode = eyePath[eyeNodeNumber];
-        // L *= ;
+        const IntersectionResult & intersection = eyeNode.intersectionResult;
+        const Geometry * const & intersectionObject = intersection.object;
+        L *= intersectionObject->GetMaterial()->texture->SampleSpherical(intersectionObject->MapToLocal(intersection.LPOINT));
     }
 
     // sciezka cienia
@@ -74,7 +76,9 @@ LightIntensity BidirectionalPathTracer::EvalPath(Scene *scene,
 
     for (int lightNodeNumber = lightPath.size() - 1; lightNodeNumber >= j; --lightNodeNumber) {
         const Node & lightNode = lightPath[lightNodeNumber];
-        // L *= ;
+        const IntersectionResult & intersection = lightNode.intersectionResult;
+        const Geometry * const & intersectionObject = intersection.object;
+        L *= intersectionObject->GetMaterial()->texture->SampleSpherical(intersectionObject->MapToLocal(intersection.LPOINT));
     }
 
     return L;

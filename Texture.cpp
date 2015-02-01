@@ -17,7 +17,6 @@ Texture::Texture(unsigned int w, unsigned int h) {
     height = h;
 }
 
-
 void Texture::Load(const char* name) {
     if(image)
         delete image;
@@ -32,15 +31,17 @@ Texture::~Texture() {
 }
 
 Color Texture::Sample(float u, float v) {
+    static const float FACTOR = 1.0f / 255.0f;
+
     if(image) {
         int x, y;
         x = u*width;
         y = v*height;
 
         QRgb pixel = image->pixel(x,y);
-        Color result(float(qRed(pixel))/255,
-                     float(qGreen(pixel))/255,
-                     float(qBlue(pixel))/255);
+        Color result(float(qRed(pixel)) * FACTOR,
+                     float(qGreen(pixel)) * FACTOR,
+                     float(qBlue(pixel)) * FACTOR);
 
         return result;
     }
@@ -51,11 +52,11 @@ Color Texture::SampleSpherical(const Vector3 &pos) {
     float theta = acos(pos.y);
     float phi = atan2(pos.x, pos.z);
     if(phi<0.0) {
-        phi += 2*M_PI;
+        phi += M_PI + M_PI;
     }
 
-    float u = phi*(1.0f/(2*M_PI));
-    float v = 1.0f - theta * (1.0f/M_PI);
+    float u = phi * M_2_PI;
+    float v = 1.0f - theta * M_1_PI;
 
     return Sample(1.0f-u,1.0f-v);
 }
@@ -67,7 +68,6 @@ void Texture::SetPixel(unsigned x, unsigned y, Color color) {
 void Texture::SaveToFile(QString filename) {
     image->save(filename);
 }
-
 
 float Texture::GetWhiteToBlackPixelRatio() const {
     float all = width*height;
