@@ -3,16 +3,19 @@
 const int BidirectionalPathTracer::EYE_REFLECTIONS;
 const int BidirectionalPathTracer::LIGHT_REFLECTIONS;
 
-
-Ray BidirectionalPathTracer::GetRandomLightRay(Scene *scene)
-{
-    //TODO
-}
-
 BidirectionalPathTracer::BidirectionalPathTracer(Brdf * const brdf, Pdf * const pdf)
     : brdf(brdf),
       pdf(pdf)
 {
+}
+
+Ray BidirectionalPathTracer::GetRandomLightRay(Scene *scene)
+{
+    QList<AmbientLight*> & lights = scene->lights;
+    int numberOfLights = lights.size();
+    AmbientLight* randomLight = lights[rand() % numberOfLights];
+    Ray randomLightRay = randomLight->GetPhoton(false);
+    return randomLightRay;
 }
 
 LightIntensity BidirectionalPathTracer::CalculateLightIntensity(Scene *scene, const Ray &ray, const Vector3 cameraPosition)
