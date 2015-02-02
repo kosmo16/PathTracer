@@ -191,6 +191,63 @@ bool BidirectionalPathTracer::IsVisible(Scene *scene, const Vector3 &a, const Ve
     return true;
 }
 
+Ray *BidirectionalPathTracer::RussianRoulette(IntersectionResult intersection, std::vector<Node> &path, const Vector3 &normal, const Vector3 &rayInDirection)
+{
+    Ray * rayOut;
+
+    const Vector3 &origin = intersection.LPOINT;
+    const Material* const &material = intersection.object->GetMaterial();
+
+    if(material->type == REFLECTIVE)
+    {
+        Vector3 reflected = rayInDirection.Reflect(normal);
+        reflected.Normalize();
+        rayOut = new Ray(origin + reflected * BIAS, reflected);
+        path.push_back(Node(intersection, 1.0));
+    }
+    else if(material->type == REFRACTIVE) {
+        double reflectionCoef = std::max(0.0, std::min(1.0, 0.05 + 0.11 * (1 + rayInDirection.DotProduct(normal))));
+
+        RefractiveMaterial* mat = (RefractiveMaterial*)material;
+
+        Vector3 refracted;
+
+        if(intersection.type == HIT)
+        {
+            refracted = rayInDirection.Refract(normal, mat->etaRate);
+        }
+        else
+        {
+            refracted = rayInDirection.Refract(-normal, 1.0f / mat->etaRate);
+        }
+
+        refracted.Normalize();
+
+        if (rand() > RAND_MAX / 2)
+        {
+
+            rayOut = new Ray(origin + refracted * BIAS, refracted);
+            path.push_back(Node(intersection, (1.0-reflectionCoef)));
+        }
+        else
+        {
+            Vector3 reflected = rayInDirection.Reflect(normal);
+            reflected.Normalize();
+            rayOut = new Ray(origin + reflected * BIAS, reflected);
+            path.push_back(Node(intersection, reflectionCoef));
+        }
+    }
+    else
+    {
+        Vector3 outDirection = pdf->computeDirection(rayInDirection, normal);
+        Ray rayOut(origin, outDirection);
+        float weight = brdf->computeRatio(rayInDirection, rayOut.direction, normal);
+        path.push_back(Node(intersection, weight));
+    }
+
+    return rayOut;
+}
+
 std::vector<Node>& BidirectionalPathTracer::GeneratePath(std::vector<Node> &path, Scene *scene, const Ray &rayIn, const int &maxReflections)
 {
     IntersectionResult intersection;
@@ -204,13 +261,13 @@ std::vector<Node>& BidirectionalPathTracer::GeneratePath(std::vector<Node> &path
         bool intersectionInScene = false;
         do
         {
-            Vector3 outDirection = pdf->computeDirection(rayInDirection, normal);
-            Ray rayOut(origin, outDirection);
-            float weight = brdf->computeRatio(rayInDirection, rayOut.direction, normal);
-            path.push_back(Node(intersection, weight));
+            Ray * rayOut = RussianRoulette(intersection, path, normal, rayInDirection);
             reflections++;
 
-            intersectionInScene = FindIntersectionInScene(scene, rayOut, intersection);
+            if (rayOut != NULL)
+            {
+                intersectionInScene = FindIntersectionInScene(scene, *rayOut, intersection);
+            }
         }
         while (reflections <= maxReflections && intersectionInScene);
     }

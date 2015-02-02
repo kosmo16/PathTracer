@@ -10,6 +10,8 @@
 #include "Scene.h"
 
 #include <cfloat>
+#include <algorithm>
+#include <cmath>
 
 class BidirectionalPathTracer
 {
@@ -49,6 +51,7 @@ public:
                             const std::vector<Node> &lightPath, int j);
     bool IsVisible(Scene *scene, const Vector3 &a, const Vector3 &b);
     void changeL(const Geometry* const &intersectionObject, LightIntensity &L, const IntersectionResult &intersection);
+    Ray * RussianRoulette(IntersectionResult intersection, std::vector<Node> &path, const Vector3 &normal, const Vector3 &rayInDirection);
 };
 
 #endif
