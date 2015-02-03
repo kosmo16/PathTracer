@@ -1,6 +1,11 @@
 #ifndef LIGHTINTENSITY_H
 #define LIGHTINTENSITY_H
 
+#include <qlogging.h>
+#include <iostream>
+
+using namespace std;
+
 /**
   Defines light intensity (equivalent to color) with all operations.
   */
@@ -43,6 +48,7 @@ public:
 
     friend LightIntensity operator*(float num, const LightIntensity& li);
 
+    friend ostream& operator<<(ostream &str, const LightIntensity &intensity);
 
     double r;
     double g;

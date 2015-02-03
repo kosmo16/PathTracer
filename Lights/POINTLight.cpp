@@ -29,7 +29,7 @@ POINTLight::~POINTLight() {
 }
 
 bool POINTLight::IsInShadow(IntersectionResult *ir, QList<Geometry *> &geometry) {
-    //chec if ray from light to intersection LPOINT intersects some geometry
+    //check if ray from light to intersection LPOINT intersects some geometry
     Ray lightToLPOINT(position, ir->LPOINT-position);
     float dist = (position-ir->LPOINT).GetLength() - 0.001;
 
@@ -84,15 +84,14 @@ LightIntensity POINTLight::GetLightIntensity(Vector3 cameraPosition, Intersectio
     return result;
 }
 
-
 //generate photon from unit sphere
 Ray POINTLight::GetPhoton(bool useProjectionMap) const {
     float x,y,z;
     bool ok=false;
     do {
-        x = 2.0f*((float)qrand())/RAND_MAX-1.0f;
-        y = 2.0f*((float)qrand())/RAND_MAX-1.0f;
-        z = 2.0f*((float)qrand())/RAND_MAX-1.0f;
+        x = 2.0f * floatRand() - 1.0f;
+        y = 2.0f * floatRand() - 1.0f;
+        z = 2.0f * floatRand() - 1.0f;
 
         if(x*x+y*y+z*z<=1) {
             if(useProjectionMap && projectionMap) {
@@ -115,45 +114,57 @@ Ray POINTLight::GetPhoton(bool useProjectionMap) const {
         }
     }
     while(!ok);
-
-
+    
     return Ray(position, Vector3(x,y,z));
 }
-
 
 void POINTLight::CreateProjectionMap(const Scene* scene) {
     if(projectionMap)
         delete projectionMap;
 
-
+    const QList<Geometry*> &geometry = scene->geometry;
+    const int geometryCount = geometry.count();
     projectionMap = new Texture(512,512);
 
-    //for each pixel in projection map
-    for(int y=0;y<projectionMap->GetHeight();y++) {
-        for(int x=0;x<projectionMap->GetWidth();x++) {
-            float u = (float)x/projectionMap->GetWidth();
-            float v = (float)y/projectionMap->GetHeight();
+    int height = projectionMap->GetHeight();
+    int width = projectionMap->GetWidth();
+    float one_height = 1.0f / height;
+    float one_width = 1.0f / width;
 
-            u = 1.0f-u;
-            v = 1.0f-v;
+    qDebug() << "POINTLight::CreateProjectionMap tworzenie";
+
+    //for each pixel in projection map
+    for(int y=0;y<height;y++) {
+        qDebug() << "POINTLight::CreateProjectionMap y = " << y << "pocz";
+        for(int x=0;x<width;x++) {
+//            qDebug() << "POINTLight::CreateProjectionMap x = " << x << "pocz";
+            float u = one_height * x;
+            float v = one_width * y;
+
+            u = 1.0f - u;
+            v = 1.0f - v;
 
             //calculate spherical coordinates
-            float phi = u*2*M_PI;
-            float theta = (1.0f-v)*M_PI;
+            float phi = u * 2.0f * M_PI;
+            float theta = (1.0f - v) * M_PI;
 
+            float sin_phi = sin(phi);
+            float cos_phi = cos(phi);
+            float sin_theta = sin(theta);
+            float cos_theta = cos(theta);
 
-            Vector3 direction(sin(theta)*sin(phi), cos(theta), sin(theta)*cos(phi));
+            Vector3 direction(sin_theta * sin_phi, cos_theta, sin_theta * cos_phi);
 
             //chec if ray for given pixel intersects reflective/refractive geometry
             Ray ray(position, direction);
 
+//            qDebug() << "POINTLight::CreateProjectionMap szukanie przeciec";
+
             int closest=-1;
             float closestDist=FLT_MAX;
             IntersectionResult closestIntersection;
-
-            IntersectionResult result;
-            for(int j=0;j<scene->geometry.count();j++) {
-                result = scene->geometry.at(j)->Intersects(ray);
+            for(int j=0;j<geometryCount;j++) {
+                IntersectionResult result = geometry.at(j)->Intersects(ray);
                 if(result.type!=MISS) {
                     if(closestDist>result.distance) {
                         closestDist = result.distance;
@@ -163,16 +174,22 @@ void POINTLight::CreateProjectionMap(const Scene* scene) {
                 }
             }
 
-            if(closest!=-1 && (closestIntersection.object->GetMaterial()->type == REFRACTIVE || closestIntersection.object->GetMaterial()->type == REFLECTIVE))
+//            qDebug() << "POINTLight::CreateProjectionMap ustawianie piksela";
+
+            const MaterialType &material = closestIntersection.object->GetMaterial()->type;
+            if(closest!=-1 && (material == REFRACTIVE || material == REFLECTIVE))
                 projectionMap->SetPixel(x,y,Color(1,1,1));
             else
                 projectionMap->SetPixel(x,y,Color(0,0,0));
+//            qDebug() << "POINTLight::CreateProjectionMap x = " << x << "kon";
         }
+//        qDebug() << "POINTLight::CreateProjectionMap y = " << y << "kon";
     }
+
+    qDebug() << "POINTLight::CreateProjectionMap zapisywanie do pliku";
 
     projectionMap->SaveToFile("projectionMap.png");
 }
-
 
 float POINTLight::GetProjectionMapRatio() const {
     if(projectionMap)

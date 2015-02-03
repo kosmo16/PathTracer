@@ -57,8 +57,9 @@ Ray AreaLight::GetPhoton(bool useProjectionMap) const {
 }
 
 void AreaLight::CreateProjectionMap(const Scene* scene) {
-    for(int i=0;i<lights.count();i++) {
-        //qDebug()<<i;
+    int lightsCount = lights.count();
+    for(int i=0;i<lightsCount;i++) {
+        qDebug() << "AreaLight::CreateProjectionMap " << i << "/" << lightsCount;
         lights.at(i)->CreateProjectionMap(scene);
     }
 }

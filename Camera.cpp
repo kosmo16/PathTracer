@@ -158,13 +158,6 @@ void Camera::RenderScene(Scene* scene, unsigned int ns) {
     }
 }
 
-float floatRand()
-{
-    static float RAND_MAX_F = static_cast<float>(RAND_MAX);
-    static float ONE_RAND_MAX_F = 1.0f / RAND_MAX_F;
-    return static_cast <float>(qrand()) * ONE_RAND_MAX_F;
-}
-
 void Camera::RenderSceneStream(Scene* scene, unsigned int ns, unsigned int m_numEmittedGlobalPhotons,
                                unsigned int m_numEmittedCausticPhotons, int numAssociatedPhotons, float radius, int reflections) {
     QTime time;

@@ -20,24 +20,27 @@ LightIntensity BidirectionalPathTracer::TracePath(const Ray &ray, Scene *scene, 
 
     std::vector<Node> lightPath;
     Ray lightRay;
-    AmbientLight* light = GetRandomLightRay(scene, lightRay);
+    // AmbientLight* light = GetRandomLightRay(scene, lightRay);
     GeneratePath(lightPath, scene, lightRay, LIGHT_REFLECTIONS);
     double Le = 1.0; // powinno byc od swiatla atentuation
 
-    for (int i = 0; i < eyePath.size(); i++)
+    for (std::vector<Node>::size_type i = 0; i < eyePath.size(); i++)
     {
-        for (int j = 0; j < lightPath.size(); j++)
+        for (std::vector<Node>::size_type j = 0; j < lightPath.size(); j++)
         {
             if (IsVisible(scene, eyePath[i].intersectionResult.LPOINT, lightPath[j].intersectionResult.LPOINT))
             {
                 resultIntensity += Le * EvalPath(scene, eyePath, i, lightPath, j) / WeightPath(i, j);
+                cout << "TracePath - path - resultIntensity: " << resultIntensity << "\n";
             }
         }
 
         //Direct ilumination
         LightIntensity fromLights;
-        for (int j = 0; j < scene->lights.size(); j++) {
+        for (int j = 0; j < scene->lights.size(); j++)
+        {
             fromLights += scene->lights.at(j)->GetLightIntensity(cameraPosition, &eyePath[i].intersectionResult, scene->geometry);
+            cout << "TracePath - direct - fromLights: " << fromLights << "\n";
         }
 
         resultIntensity += fromLights;
@@ -55,17 +58,22 @@ AmbientLight* BidirectionalPathTracer::GetRandomLightRay(Scene *scene, Ray &rand
     return randomLight;
 }
 
-LightIntensity BidirectionalPathTracer::GetIntensity(const Node & node)
+LightIntensity BidirectionalPathTracer::GetIntensity(const Node &node)
 {
-    if (node.intersectionResult.object->GetMaterial()->type==REFRACTIVE
-            || node.intersectionResult.object->GetMaterial()->type==REFLECTIVE)
+    LightIntensity intensity;
+    const Material* const &material = node.intersectionResult.object->GetMaterial();
+    const MaterialType& type = material->type;
+    if (type == REFRACTIVE || type == REFLECTIVE)
     {
-        return node.weight * LightIntensity(1.0, 1.0, 1.0);
+        intensity = node.weight * LightIntensity(1.0, 1.0, 1.0);
+        cout << "GetIntensity - true - intensity: " << intensity << "\n";
     }
     else
     {
-        return node.weight * ((DiffuseMaterial*)node.intersectionResult.object->GetMaterial())->diffuse;
+        intensity = node.weight * ((DiffuseMaterial*)material)->diffuse;
+        cout << "GetIntensity - false - intensity: " << intensity << "\n";
     }
+    return intensity;
 }
 
 //void BidirectionalPathTracer::changeL(const Geometry* const &intersectionObject, LightIntensity &L, const IntersectionResult &intersection)
@@ -129,15 +137,20 @@ LightIntensity BidirectionalPathTracer::EvalPath(Scene *scene,
         return LightIntensity();
     }
 
-    for (int eyeNodeNumber = 0; eyeNodeNumber <= i; ++eyeNodeNumber) {
+    for (int eyeNodeNumber = 0; eyeNodeNumber <= i; ++eyeNodeNumber)
+    {
         const Node & eyeNode = eyePath[eyeNodeNumber];
 
         L *= GetIntensity(eyeNode);
+        cout << "EvalPath - eyeNode - L: " << L << "\n";
     }
 
-    for (int lightNodeNumber = lightPath.size() - 1; lightNodeNumber >= j; --lightNodeNumber) {
+    for (int lightNodeNumber = lightPath.size() - 1; lightNodeNumber >= j; --lightNodeNumber)
+    {
         const Node & lightNode = lightPath[lightNodeNumber];
+
         L *= GetIntensity(lightNode);
+        cout << "EvalPath - lightNode - L: " << L << "\n";
     }
 
     return L;
@@ -205,7 +218,8 @@ Ray *BidirectionalPathTracer::RussianRoulette(IntersectionResult intersection, s
         rayOut = new Ray(origin + reflected * BIAS, reflected);
         path.push_back(Node(intersection, 1.0));
     }
-    else if(material->type == REFRACTIVE) {
+    else if(material->type == REFRACTIVE)
+    {
         double reflectionCoef = std::max(0.0, std::min(1.0, 0.05 + 0.11 * (1 + rayInDirection.DotProduct(normal))));
 
         RefractiveMaterial* mat = (RefractiveMaterial*)material;
@@ -253,7 +267,7 @@ std::vector<Node>& BidirectionalPathTracer::GeneratePath(std::vector<Node> &path
     IntersectionResult intersection;
     if (FindIntersectionInScene(scene, rayIn, intersection))
     {
-        const Vector3 &origin = intersection.LPOINT;
+        // const Vector3 &origin = intersection.LPOINT;
         const Vector3 &normal = intersection.intersectionLPOINTNormal;
         const Vector3 &rayInDirection = rayIn.direction;
 

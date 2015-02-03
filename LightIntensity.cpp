@@ -12,6 +12,11 @@ LightIntensity LightIntensity::operator*(float num) const {
     return LightIntensity(r*num, g*num, b*num);
 }
 
+ostream& operator<<(ostream &str, const LightIntensity &intensity)
+{
+    return str << "LI[" << intensity.r << ", " << intensity.g << ", " << intensity.b << "]";
+}
+
 LightIntensity LightIntensity::operator*(const LightIntensity& rhs) const {
     return LightIntensity(r*rhs.r, g*rhs.g, b*rhs.b);
 }

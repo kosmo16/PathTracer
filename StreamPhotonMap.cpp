@@ -19,11 +19,11 @@ StreamPhotonMap::~StreamPhotonMap() {
     delete kdTree;
 }
 
-
 void StreamPhotonMap::GeneratePhotonMap(Scene *scene, int numPhotons, int maxReflections, bool caustic) {
     int numPOINTLights=0;
     //count how much LPOINTs lights are in scene
     for(int i=0;i<scene->lights.count();i++) {
+        // qDebug() << "swiatlo " << i << "/" << scene->lights.count() << "\n";
         if(scene->lights.at(i)->type==LPOINT || scene->lights.at(i)->type == AREA) {
             numPOINTLights++;
             if(caustic) {
@@ -44,10 +44,9 @@ void StreamPhotonMap::GeneratePhotonMap(Scene *scene, int numPhotons, int maxRef
 
             qDebug()<<"emituje fotony dla zrodla";
 
-        qDebug()<<"dla kazdego fotonu ze zrodla ma byc " <<maxReflections << "odbic";
+            qDebug()<<"dla kazdego fotonu ze zrodla ma byc " <<maxReflections << "odbic";
             GeneratePhotons(scene->lights.at(i), &scene->geometry, numPhotons, caustic, maxReflections);
     }
-
 
     //build kdtree from photons
     kdTree->Build(photons);
@@ -111,7 +110,7 @@ void StreamPhotonMap::GeneratePhotons(AmbientLight *light, QList<Geometry*>* geo
 
 //traces photon stream
 void StreamPhotonMap::TracePhoton(LightIntensity photonEnergy, const Ray &startRay, QList<Geometry *> *geometry,
-                            QList<Stream *> *photons, Stream* parent, int reflections) {
+                                  QList<Stream *> *photons, Stream* parent, int reflections) {
 
     int closest=-1;
     float closestDist=FLT_MAX;
@@ -130,14 +129,12 @@ void StreamPhotonMap::TracePhoton(LightIntensity photonEnergy, const Ray &startR
         }
     }
 
-
     if(closest!=-1) {
         //if photon intersects with reflective object and we can still reflect photon
         if(closestIntersection.object->GetMaterial()->type==REFLECTIVE && reflections>0) {
             Vector3 reflected = startRay.direction.Reflect(closestIntersection.intersectionLPOINTNormal);
             reflected.Normalize();
             Ray newRay(closestIntersection.LPOINT+reflected*BIAS, reflected);
-
 
             //zlicz energie stowarzyszonych fotonow i przekaz ja do wiodacego fotonu (koncentracja energii dla uwydatnienia kaustyki)
             LightIntensity tempE;
@@ -156,11 +153,9 @@ void StreamPhotonMap::TracePhoton(LightIntensity photonEnergy, const Ray &startR
 
             Vector3 refracted;
             if(closestIntersection.type==HIT)
-                refracted = startRay.direction.Refract(closestIntersection.intersectionLPOINTNormal,
-                                                  mat->etaRate);
+                refracted = startRay.direction.Refract(closestIntersection.intersectionLPOINTNormal, mat->etaRate);
             else
-                refracted = startRay.direction.Refract(-closestIntersection.intersectionLPOINTNormal,
-                                                  1.0f/mat->etaRate);
+                refracted = startRay.direction.Refract(-closestIntersection.intersectionLPOINTNormal, 1.0f/mat->etaRate);
             refracted.Normalize();
 
             Ray newRay(closestIntersection.LPOINT+refracted*BIAS, refracted);
@@ -239,10 +234,9 @@ void StreamPhotonMap::TracePhoton(LightIntensity photonEnergy, const Ray &startR
                     }
                 }
 
-                //jesli promieñ nowego fotonu trafil w geometrie
+                //jesli promieÃ± nowego fotonu trafil w geometrie
                 if(tempClosestIntersection.type!=MISS)
                 {
-
                     //qDebug()<<"znalazlem przeciecie stowarzyszonego";
                     DiffuseMaterial* tempMat = (DiffuseMaterial*)tempClosestIntersection.object->GetMaterial();
 
@@ -253,7 +247,7 @@ void StreamPhotonMap::TracePhoton(LightIntensity photonEnergy, const Ray &startR
                         //qDebug()<<"foton stowarzyszony zablokowany";
                         continue;
                     }
-                    //jesli przeciecie w odleglosci mniejszej niz promieñ strumienia to sprawdz material
+                    //jesli przeciecie w odleglosci mniejszej niz promieÃ± strumienia to sprawdz material
                     else if(tempMat->type == DIFFUSE)
                     {
                         //qDebug()<<"foton stowarzyszony trafil w powierzchnie dyfuzyjna"<<tempMat->diffuse.r<<tempMat->diffuse.g<<tempMat->diffuse.b;
@@ -278,7 +272,6 @@ void StreamPhotonMap::TracePhoton(LightIntensity photonEnergy, const Ray &startR
                         //qDebug()<<"foton stowarzyszony trafil w powierzchnie niedyfuzyjna";
                     }
                 }
-
             }
             //qDebug()<<"wyemitowalem"<<ileAssoc<<"fotonow stowarzyszonych";
 
@@ -311,7 +304,6 @@ void StreamPhotonMap::TracePhoton(LightIntensity photonEnergy, const Ray &startR
                 }
             }
         }
-
     }
     else{//jesli nie trafilismy w nic lub blad numeryczny szukania przeciecia
         //qDebug()<<"pudlo";
