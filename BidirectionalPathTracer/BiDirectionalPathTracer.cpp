@@ -204,14 +204,16 @@ bool BidirectionalPathTracer::FindIntersectionInScene(Scene *scene, const Ray &r
         }
     }
 
-    if(intersection.LPOINT.x != intersection.LPOINT.x
-            || intersection.LPOINT.y != intersection.LPOINT.y
-            || intersection.LPOINT.z != intersection.LPOINT.z)
+    if(intersection.intersectionLPOINTNormal.x != intersection.intersectionLPOINTNormal.x
+            || intersection.intersectionLPOINTNormal.y != intersection.intersectionLPOINTNormal.y
+            || intersection.intersectionLPOINTNormal.z != intersection.intersectionLPOINTNormal.z)
     {
-        qDebug() << "211. BidirectionalPathTracer::FindIntersectionInScene - NaN";
-        qDebug() << "212. BidirectionalPathTracer::FindIntersectionInScene - intersection: " << intersection;
-        qDebug() << "213. BidirectionalPathTracer::FindIntersectionInScene - objectId: " << objectId;
-        qDebug() << "214. BidirectionalPathTracer::FindIntersectionInScene - object: " << scene->geometry;
+//        qDebug() << "211. BidirectionalPathTracer::FindIntersectionInScene - NaN";
+//        qDebug() << "212. BidirectionalPathTracer::FindIntersectionInScene - intersection: " << intersection;
+//        qDebug() << "213. BidirectionalPathTracer::FindIntersectionInScene - objectId: " << objectId;
+//        qDebug() << "214. BidirectionalPathTracer::FindIntersectionInScene - object: " << scene->geometry;
+//        throw 1l;
+        return false;
     }
 
     return objectId != -1;
@@ -249,7 +251,7 @@ Ray* BidirectionalPathTracer::RussianRoulette(const IntersectionResult &intersec
 
     if(material->type == REFLECTIVE)
     {
-        if(DEBUGRR) qDebug() << "BidirectionalPathTracer::RussianRoulette - 1";
+        if(DEBUG) qDebug() << "BidirectionalPathTracer::RussianRoulette - 1";
         Vector3 reflected = rayInDirection.Reflect(normal);
         reflected.Normalize();
         rayOut = new Ray(origin + reflected * BIAS, reflected);
@@ -276,13 +278,13 @@ Ray* BidirectionalPathTracer::RussianRoulette(const IntersectionResult &intersec
 
         if (rand() > RAND_MAX / 2)
         {
-            if(DEBUGRR) qDebug() << "BidirectionalPathTracer::RussianRoulette - 2";
+            if(DEBUG) qDebug() << "BidirectionalPathTracer::RussianRoulette - 2";
             rayOut = new Ray(origin + refracted * BIAS, refracted);
             path.push_back(Node(intersection, (1.0-reflectionCoef)));
         }
         else
         {
-            if(DEBUGRR) qDebug() << "BidirectionalPathTracer::RussianRoulette - 3";
+            if(DEBUG) qDebug() << "BidirectionalPathTracer::RussianRoulette - 3";
             Vector3 reflected = rayInDirection.Reflect(normal);
             reflected.Normalize();
             rayOut = new Ray(origin + reflected * BIAS, reflected);
