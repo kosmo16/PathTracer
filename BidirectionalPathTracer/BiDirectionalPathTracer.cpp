@@ -14,15 +14,6 @@ BidirectionalPathTracer::BidirectionalPathTracer(Brdf * const brdf, Pdf * const 
 {
 }
 
-LightIntensity BidirectionalPathTracer::getLightIntensity(const Vector3 &previousPosition,
-                                                          const IntersectionResult &currentPosition,
-                                                          const LightIntensity &incomingColor) const
-{
-    LightIntensity lightIntensity;
-
-    return lightIntensity;
-}
-
 LightIntensity BidirectionalPathTracer::TracePath(const Ray &ray, Scene *scene, const Vector3 cameraPosition)
 {
     std::vector<Node> eyePath;

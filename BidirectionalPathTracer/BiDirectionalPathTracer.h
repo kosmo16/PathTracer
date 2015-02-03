@@ -52,10 +52,6 @@ private:
                           const Vector3 &normal,
                           const Vector3 &rayInDirection);
 
-    LightIntensity getLightIntensity(const Vector3 &previousPosition,
-                                     const IntersectionResult &currentPosition,
-                                     const LightIntensity &incomingColor) const;
-
 public:
     BidirectionalPathTracer(Brdf * const brdf, Pdf * const pdf);
 
