@@ -68,51 +68,51 @@ LightIntensity BidirectionalPathTracer::GetIntensity(const Node & node)
     }
 }
 
-void BidirectionalPathTracer::changeL(const Geometry* const &intersectionObject, LightIntensity &L, const IntersectionResult &intersection)
-{
-    const Vector3 &origin = intersection.LPOINT;
-    const Material* const &material = intersectionObject->GetMaterial();
+//void BidirectionalPathTracer::changeL(const Geometry* const &intersectionObject, LightIntensity &L, const IntersectionResult &intersection)
+//{
+//    const Vector3 &origin = intersection.LPOINT;
+//    const Material* const &material = intersectionObject->GetMaterial();
 
-    /*
-    const Vector3 &normal = intersection.intersectionLPOINTNormal;
+//    /*
+//    const Vector3 &normal = intersection.intersectionLPOINTNormal;
 
-    if(material->type == REFLECTIVE && reflections > 0) {
-        Vector3 reflected = ray.direction.Reflect(normal);
-        reflected.Normalize();
-        Ray newRay(origin + reflected * BIAS, reflected);
+//    if(material->type == REFLECTIVE && reflections > 0) {
+//        Vector3 reflected = ray.direction.Reflect(normal);
+//        reflected.Normalize();
+//        Ray newRay(origin + reflected * BIAS, reflected);
 
-        // resultIntensity += TraceRay(newRay, scene, cameraPosition, reflections - 1, exposure, globalMap, causticMap);
-    }
-    else if(material->type == REFRACTIVE && reflections > 0) {
-        float reflectionCoef = max(0.0, min(1.0, 0.05 + 0.11 * (1 + ray.direction.DotProduct(normal))));
-        LightIntensity reflectedIntensity;
-        LightIntensity refractedIntensity;
+//        // resultIntensity += TraceRay(newRay, scene, cameraPosition, reflections - 1, exposure, globalMap, causticMap);
+//    }
+//    else if(material->type == REFRACTIVE && reflections > 0) {
+//        float reflectionCoef = max(0.0, min(1.0, 0.05 + 0.11 * (1 + ray.direction.DotProduct(normal))));
+//        LightIntensity reflectedIntensity;
+//        LightIntensity refractedIntensity;
 
-        RefractiveMaterial* mat = (RefractiveMaterial*)material;
+//        RefractiveMaterial* mat = (RefractiveMaterial*)material;
 
-        Vector3 refracted;
-        if(intersection.type == HIT)
-            refracted = ray.direction.Refract(normal, mat->etaRate);
-        else
-            refracted = ray.direction.Refract(-normal, 1.0f / mat->etaRate);
-        refracted.Normalize();
+//        Vector3 refracted;
+//        if(intersection.type == HIT)
+//            refracted = ray.direction.Refract(normal, mat->etaRate);
+//        else
+//            refracted = ray.direction.Refract(-normal, 1.0f / mat->etaRate);
+//        refracted.Normalize();
 
-        Ray newRay(origin + refracted * BIAS, refracted);
+//        Ray newRay(origin + refracted * BIAS, refracted);
 
-        // refractedIntensity += TraceRay(newRay, scene, cameraPosition, reflections - 1, exposure, globalMap, causticMap);
+//        // refractedIntensity += TraceRay(newRay, scene, cameraPosition, reflections - 1, exposure, globalMap, causticMap);
 
-        Vector3 reflected = ray.direction.Reflect(normal);
-        reflected.Normalize();
-        newRay = Ray(origin + reflected * BIAS, reflected);
+//        Vector3 reflected = ray.direction.Reflect(normal);
+//        reflected.Normalize();
+//        newRay = Ray(origin + reflected * BIAS, reflected);
 
-        // reflectedIntensity += TraceRay(newRay, scene, cameraPosition, reflections - 1, exposure, globalMap, causticMap);
+//        // reflectedIntensity += TraceRay(newRay, scene, cameraPosition, reflections - 1, exposure, globalMap, causticMap);
 
-        // resultIntensity = reflectionCoef*reflectedIntensity + (1-reflectionCoef)*refractedIntensity;
-    }
-    */
+//        // resultIntensity = reflectionCoef*reflectedIntensity + (1-reflectionCoef)*refractedIntensity;
+//    }
+//    */
 
-    L *= material->texture->SampleSpherical(intersectionObject->MapToLocal(origin));
-}
+//    L *= material->texture->SampleSpherical(intersectionObject->MapToLocal(origin));
+//}
 
 LightIntensity BidirectionalPathTracer::EvalPath(Scene *scene,
                                                  const std::vector<Node> &eyePath, int i,
@@ -240,7 +240,7 @@ Ray *BidirectionalPathTracer::RussianRoulette(IntersectionResult intersection, s
     else
     {
         Vector3 outDirection = pdf->computeDirection(rayInDirection, normal);
-        Ray rayOut(origin, outDirection);
+        Ray rayOut(origin +  outDirection * BIAS, outDirection);
         float weight = brdf->computeRatio(rayInDirection, rayOut.direction, normal);
         path.push_back(Node(intersection, weight));
     }
