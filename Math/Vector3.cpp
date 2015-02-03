@@ -243,3 +243,8 @@ QDebug operator<<(QDebug dbg, const Vector3 &v) {
     return dbg.space();
 }
 
+ostream& operator<<(ostream &str, const Vector3 &v) {
+    str << "(" << v.x << ", " << v.y << ", " << v.z << ")";
+    return str;
+}
+

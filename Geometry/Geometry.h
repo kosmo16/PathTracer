@@ -1,5 +1,6 @@
 #ifndef GEOMETRY_H
 #define GEOMETRY_H
+
 #include "Math/Ray.h"
 #include "LightIntensity.h"
 #include "Material.h"
@@ -7,7 +8,6 @@
 /**
     Base class that represents geometry.
     Contains method to check if it intersects given ray.
-
   */
 class Geometry {
 public:

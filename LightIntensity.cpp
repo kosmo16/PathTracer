@@ -14,7 +14,49 @@ LightIntensity LightIntensity::operator*(float num) const {
 
 ostream& operator<<(ostream &str, const LightIntensity &intensity)
 {
-    return str << "LI[" << intensity.r << ", " << intensity.g << ", " << intensity.b << "]";
+    str << "17. LI[" << intensity.r << ", " << intensity.g << ", " << intensity.b << "]";
+    if(intensity.r != intensity.r)
+    {
+        cerr << "\n20. r = NaN\n";
+        throw 1u;
+//        exit(0);
+    }
+    if(intensity.g != intensity.g)
+    {
+        cerr << "\n26. g = NaN\n";
+        throw 1l;
+//        exit(0);
+    }
+    if(intensity.b != intensity.b)
+    {
+        cerr << "\n32. b = NaN\n";
+        throw 1ul;
+//        exit(0);
+    }
+    return str;
+}
+
+QDebug operator<<(QDebug dbg, const LightIntensity &intensity) {
+    dbg.nospace() << "40. LI[" << intensity.r << ", " << intensity.g << ", " << intensity.b << "]";
+    if(intensity.r != intensity.r)
+    {
+        // cerr << intensity << "\n43. r = NaN\n";
+        throw 1u;
+//        exit(0);
+    }
+    if(intensity.g != intensity.g)
+    {
+        // cerr << intensity << "\n49. g = NaN\n";
+        throw 1l;
+//        exit(0);
+    }
+    if(intensity.b != intensity.b)
+    {
+        // cerr << intensity << "\n55. b = NaN\n";
+        throw 1ul;
+//        exit(0);
+    }
+    return dbg.space();
 }
 
 LightIntensity LightIntensity::operator*(const LightIntensity& rhs) const {

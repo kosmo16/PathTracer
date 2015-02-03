@@ -1,7 +1,7 @@
 #ifndef LIGHTINTENSITY_H
 #define LIGHTINTENSITY_H
 
-#include <qlogging.h>
+#include <QDebug>
 #include <iostream>
 
 using namespace std;
@@ -49,6 +49,7 @@ public:
     friend LightIntensity operator*(float num, const LightIntensity& li);
 
     friend ostream& operator<<(ostream &str, const LightIntensity &intensity);
+    friend QDebug operator<<(QDebug dbg, const LightIntensity &intensity);
 
     double r;
     double g;
