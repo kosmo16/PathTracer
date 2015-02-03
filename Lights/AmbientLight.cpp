@@ -16,13 +16,13 @@ AmbientLight::AmbientLight(Color c) : color(c) {
     type = AMBIENT;
 }
 
-bool AmbientLight::IsInShadow(IntersectionResult*, QList<Geometry *>&) {
+bool AmbientLight::IsInShadow(const IntersectionResult* const &ir, const QList<Geometry *> &geometry) const {
     return false;
 }
 
-LightIntensity AmbientLight::GetLightIntensity(Vector3 cameraPosition,
-                                               IntersectionResult *ir,
-                                               QList<Geometry *> &geometry) {
+LightIntensity AmbientLight::GetLightIntensity(const Vector3 &cameraPosition,
+                                               const IntersectionResult* const &ir,
+                                               const QList<Geometry *> &geometry) const {
     Q_UNUSED(cameraPosition);
     Q_UNUSED(ir);
     Q_UNUSED(geometry);

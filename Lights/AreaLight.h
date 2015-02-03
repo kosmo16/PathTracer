@@ -15,13 +15,15 @@ public:
     AreaLight(Vector3 center, Vector2 size, Color color, Vector3 attenuation, int density);
     ~AreaLight();
 
-    LightIntensity GetLightIntensity(Vector3 cameraPosition, IntersectionResult *ir, QList<Geometry *> &geometry);
+    LightIntensity GetLightIntensity(const Vector3 &cameraPosition,
+                                     const IntersectionResult* const &ir,
+                                     const QList<Geometry *> &geometry) const;
     Ray GetPhoton(bool useProjectionMap=false) const;
     void CreateProjectionMap(const Scene* scene);
     float GetProjectionMapRatio() const;
 
 protected:
-    bool IsInShadow(IntersectionResult *ir, QList<Geometry *> &geometry);
+    bool IsInShadow(const IntersectionResult* const &ir, const QList<Geometry *> &geometry) const;
 private:
     QVector<POINTLight*> lights;
     QVector<bool> inShadows;

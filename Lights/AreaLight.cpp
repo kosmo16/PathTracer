@@ -28,13 +28,14 @@ AreaLight::~AreaLight() {
     inShadows.clear();
 }
 
-bool AreaLight::IsInShadow(IntersectionResult *ir, QList<Geometry *> &geometry) {
+bool AreaLight::IsInShadow(const IntersectionResult* const &ir, const QList<Geometry *> &geometry) const {
     return false;
 }
 
-LightIntensity AreaLight::GetLightIntensity(Vector3 cameraPosition,
-                                            IntersectionResult *ir,
-                                            QList<Geometry *> &geometry) {
+LightIntensity AreaLight::GetLightIntensity(const Vector3 &cameraPosition,
+                                            const IntersectionResult* const &ir,
+                                            const QList<Geometry *> &geometry) const {
+//    qDebug() << "AL";
     LightIntensity result;
     for(int i=0;i<lights.count();i++) {
         //if(!inShadows.at(i))

@@ -14,18 +14,32 @@ BidirectionalPathTracer::BidirectionalPathTracer(Brdf * const brdf, Pdf * const 
 {
 }
 
+LightIntensity BidirectionalPathTracer::getStartLightIntensity(const Scene* const &scene, const std::vector<Node> &lightPath, Ray lightRay, const std::vector<Node> &eyePath)
+{
+    const AmbientLight* const &light = GetRandomLightRay(scene, lightRay);
+    const Vector3 &position = lightPath[1].intersectionResult.LPOINT;
+    const IntersectionResult* const &ir = &lightPath[0].intersectionResult;
+    const QList<Geometry *> &geometry = scene->geometry;
+//    qDebug() << "6";
+    LightIntensity startLightIntensity = light->GetLightIntensity(position, ir, geometry);
+//    qDebug() << "7";
+
+    return startLightIntensity;
+}
+
 LightIntensity BidirectionalPathTracer::TracePath(const Ray &ray, Scene *scene, const Vector3 cameraPosition)
 {
-    LightIntensity resultIntensity;
-
     std::vector<Node> eyePath;
     GeneratePath(eyePath, scene, ray, EYE_REFLECTIONS);
 
     std::vector<Node> lightPath;
     Ray lightRay;
-    // AmbientLight* light = GetRandomLightRay(scene, lightRay);
     GeneratePath(lightPath, scene, lightRay, LIGHT_REFLECTIONS);
-    float Le = 1.0f; // powinno byc od swiatla atentuation
+    LightIntensity resultIntensity;
+//    LightIntensity startLightIntensity = getStartLightIntensity(scene, lightPath, lightRay, eyePath);
+//    resultIntensity = startLightIntensity;
+
+    float Le = 1.0f; // powinno byc od swiatla attenuation
 
     for (std::vector<Node>::size_type i = 0; i < eyePath.size(); i++)
     {
@@ -36,20 +50,20 @@ LightIntensity BidirectionalPathTracer::TracePath(const Ray &ray, Scene *scene, 
             if (IsVisible(scene, eyePoint, lightPoint))
             {
                 float weightPath = WeightPath(i, j);
-                if(DEBUG) qDebug() << "36. BidirectionalPathTracer::TracePath - path - weightPath: " << weightPath << "\n";
-                if(DEBUG) qDebug() << "37. BidirectionalPathTracer::TracePath - path - resultIntensity: " << resultIntensity << "\n";
+                if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer::TracePath - path - weightPath: " << weightPath;
+                if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer::TracePath - path - resultIntensity: " << resultIntensity;
                 try
                 {
                     const LightIntensity evalPath = EvalPath(scene, eyePath, i, lightPath, j);
-                    if(DEBUG) qDebug() << "41. BidirectionalPathTracer::TracePath - path - evalPath: " << evalPath;
+                    if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer::TracePath - path - evalPath: " << evalPath;
                     resultIntensity += Le * evalPath / weightPath;
-                    if(DEBUG) qDebug() << "43. BidirectionalPathTracer::TracePath - path - resultIntensity: " << resultIntensity;
+                    if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer::TracePath - path - resultIntensity: " << resultIntensity;
                 }
                 catch(long error)
                 {
-                    if(DEBUG) qDebug() << "47. BidirectionalPathTracer - blad: " << error << "\n";
-                    if(DEBUG) qDebug() << "48. BidirectionalPathTracer - i: " << i << ", j: " << j << "\n";
-                    if(DEBUG) qDebug() << "49. BidirectionalPathTracer - eyePoint: " << eyePoint << ", lightPoint: " << lightPoint << "\n";
+                    if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer - blad: " << error;
+                    if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer - i: " << i << ", j: " << j;
+                    if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer - eyePoint: " << eyePoint << ", lightPoint: " << lightPoint;
                     throw '1';
                 }
             }
@@ -60,18 +74,35 @@ LightIntensity BidirectionalPathTracer::TracePath(const Ray &ray, Scene *scene, 
         for (int j = 0; j < scene->lights.size(); j++)
         {
             fromLights += scene->lights.at(j)->GetLightIntensity(cameraPosition, &eyePath[i].intersectionResult, scene->geometry);
-            if(DEBUG) qDebug() << "60. BidirectionalPathTracer::TracePath - direct - fromLights: " << fromLights;
+            if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer::TracePath - direct - fromLights: " << fromLights;
         }
 
         resultIntensity += fromLights;
     }
 
+    static LightIntensity minIntensity(INFINITY, INFINITY, INFINITY);
+    static LightIntensity maxIntensity(-INFINITY, -INFINITY, -INFINITY);
+    bool change = false;
+    if(minIntensity.r > resultIntensity.r) minIntensity.r = resultIntensity.r, change = true;
+    if(minIntensity.g > resultIntensity.g) minIntensity.g = resultIntensity.g, change = true;
+    if(minIntensity.b > resultIntensity.b) minIntensity.b = resultIntensity.b, change = true;
+    if(maxIntensity.r < resultIntensity.r) maxIntensity.r = resultIntensity.r, change = true;
+    if(maxIntensity.g < resultIntensity.g) maxIntensity.g = resultIntensity.g, change = true;
+    if(maxIntensity.b < resultIntensity.b) maxIntensity.b = resultIntensity.b, change = true;
+    static int counter = 0;
+    if(++counter > 100000 && change)
+    {
+        qDebug() << __LINE__ << ". BidirectionalPathTracer::TracePath - min: " << minIntensity << ", max: " << maxIntensity << ", counter: " << counter;
+    }
+
+//    resultIntensity += 2.22452f;
+//    resultIntensity *= 0.5f * M_1_PI;
     return resultIntensity;
 }
 
-AmbientLight* BidirectionalPathTracer::GetRandomLightRay(Scene *scene, Ray &randomLightRay)
+AmbientLight* BidirectionalPathTracer::GetRandomLightRay(const Scene* const &scene, Ray &randomLightRay)
 {
-    QList<AmbientLight*> & lights = scene->lights;
+    const QList<AmbientLight*> & lights = scene->lights;
     int numberOfLights = lights.size();
     AmbientLight* randomLight = lights[rand() % numberOfLights];
     randomLightRay = randomLight->GetPhoton(false);
@@ -86,85 +117,48 @@ LightIntensity BidirectionalPathTracer::GetIntensity(const Node &node)
     if (type == REFRACTIVE || type == REFLECTIVE)
     {
         intensity = node.weight * LightIntensity(1.0, 1.0, 1.0);
-        if(DEBUG) qDebug() << "86. BidirectionalPathTracer::GetIntensity - true - intensity: " << intensity;
+        if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer::GetIntensity - true - intensity: " << intensity;
     }
     else
     {
         float weight = node.weight;
         const Color &color = ((DiffuseMaterial*)material)->diffuse;
         intensity = weight * color;
-        if(DEBUG) qDebug() << "93. BidirectionalPathTracer::GetIntensity - false - weight: " << weight << ", color: " << color << ", intensity: " << intensity;
+        if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer::GetIntensity - false - weight: " << weight << ", color: " << color << ", intensity: " << intensity;
     }
     return intensity;
 }
-
-//void BidirectionalPathTracer::changeL(const Geometry* const &intersectionObject, LightIntensity &L, const IntersectionResult &intersection)
-//{
-//    const Vector3 &origin = intersection.LPOINT;
-//    const Material* const &material = intersectionObject->GetMaterial();
-
-//    /*
-//    const Vector3 &normal = intersection.intersectionLPOINTNormal;
-
-//    if(material->type == REFLECTIVE && reflections > 0) {
-//        Vector3 reflected = ray.direction.Reflect(normal);
-//        reflected.Normalize();
-//        Ray newRay(origin + reflected * BIAS, reflected);
-
-//        // resultIntensity += TraceRay(newRay, scene, cameraPosition, reflections - 1, exposure, globalMap, causticMap);
-//    }
-//    else if(material->type == REFRACTIVE && reflections > 0) {
-//        float reflectionCoef = max(0.0, min(1.0, 0.05 + 0.11 * (1 + ray.direction.DotProduct(normal))));
-//        LightIntensity reflectedIntensity;
-//        LightIntensity refractedIntensity;
-
-//        RefractiveMaterial* mat = (RefractiveMaterial*)material;
-
-//        Vector3 refracted;
-//        if(intersection.type == HIT)
-//            refracted = ray.direction.Refract(normal, mat->etaRate);
-//        else
-//            refracted = ray.direction.Refract(-normal, 1.0f / mat->etaRate);
-//        refracted.Normalize();
-
-//        Ray newRay(origin + refracted * BIAS, refracted);
-
-//        // refractedIntensity += TraceRay(newRay, scene, cameraPosition, reflections - 1, exposure, globalMap, causticMap);
-
-//        Vector3 reflected = ray.direction.Reflect(normal);
-//        reflected.Normalize();
-//        newRay = Ray(origin + reflected * BIAS, reflected);
-
-//        // reflectedIntensity += TraceRay(newRay, scene, cameraPosition, reflections - 1, exposure, globalMap, causticMap);
-
-//        // resultIntensity = reflectionCoef*reflectedIntensity + (1-reflectionCoef)*refractedIntensity;
-//    }
-//    */
-
-//    L *= material->texture->SampleSpherical(intersectionObject->MapToLocal(origin));
-//}
 
 LightIntensity BidirectionalPathTracer::EvalPath(Scene *scene,
                                                  const std::vector<Node> &eyePath, int i,
                                                  const std::vector<Node> &lightPath, int j)
 {
     LightIntensity L(1.0, 1.0, 1.0);
+    //    L = getline TODO
 
     // sciezka cienia
     const Node & eyeNode = eyePath[i];
     const Node & lightNode = lightPath[lightPath.size() - 1];
     bool isShadowVisible = IsVisible(scene, eyeNode.intersectionResult.LPOINT, lightNode.intersectionResult.LPOINT);
+    //    static int shadow = 0, noShadow = 0;
     if(!isShadowVisible)
     {
+        //        ++noShadow;
+        //        qDebug() << __LINE__ << ". BidirectionalPathTracer::EvalPath - nie ma cienia (n: " << noShadow << ", y: " << shadow << ")";
         return LightIntensity();
     }
+    //    else
+    //    {
+    //        ++shadow;
+    //        qDebug() << __LINE__ << ". BidirectionalPathTracer::EvalPath - jest cien (n: " << noShadow << ", y: " << shadow << ")";
+    //    }
 
     for (int eyeNodeNumber = 0; eyeNodeNumber <= i; ++eyeNodeNumber)
     {
         const Node & eyeNode = eyePath[eyeNodeNumber];
 
         L *= GetIntensity(eyeNode);
-        if(DEBUG) qDebug() << "164. BidirectionalPathTracer::EvalPath - eyeNode - L: " << L;
+        if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer::EvalPath - eyeNode - L: " << L;
     }
 
     for (int lightNodeNumber = lightPath.size() - 1; lightNodeNumber >= j; --lightNodeNumber)
@@ -172,10 +166,10 @@ LightIntensity BidirectionalPathTracer::EvalPath(Scene *scene,
         const Node & lightNode = lightPath[lightNodeNumber];
 
         L *= GetIntensity(lightNode);
-        if(DEBUG) qDebug() << "172. BidirectionalPathTracer::EvalPath - lightNode - L: " << L;
+        if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer::EvalPath - lightNode - L: " << L;
     }
 
-    if(DEBUG) qDebug() << "175. BidirectionalPathTracer::EvalPath - L: " << L;
+    if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer::EvalPath - L: " << L;
     return L;
 }
 
@@ -208,11 +202,11 @@ bool BidirectionalPathTracer::FindIntersectionInScene(Scene *scene, const Ray &r
             || intersection.intersectionLPOINTNormal.y != intersection.intersectionLPOINTNormal.y
             || intersection.intersectionLPOINTNormal.z != intersection.intersectionLPOINTNormal.z)
     {
-//        qDebug() << "211. BidirectionalPathTracer::FindIntersectionInScene - NaN";
-//        qDebug() << "212. BidirectionalPathTracer::FindIntersectionInScene - intersection: " << intersection;
-//        qDebug() << "213. BidirectionalPathTracer::FindIntersectionInScene - objectId: " << objectId;
-//        qDebug() << "214. BidirectionalPathTracer::FindIntersectionInScene - object: " << scene->geometry;
-//        throw 1l;
+        //        qDebug() << __LINE__ << ". BidirectionalPathTracer::FindIntersectionInScene - NaN";
+        //        qDebug() << __LINE__ << ". BidirectionalPathTracer::FindIntersectionInScene - intersection: " << intersection;
+        //        qDebug() << __LINE__ << ". BidirectionalPathTracer::FindIntersectionInScene - objectId: " << objectId;
+        //        qDebug() << __LINE__ << ". BidirectionalPathTracer::FindIntersectionInScene - object: " << scene->geometry;
+        //        throw 1l;
         return false;
     }
 
@@ -251,7 +245,7 @@ Ray* BidirectionalPathTracer::RussianRoulette(const IntersectionResult &intersec
 
     if(material->type == REFLECTIVE)
     {
-        if(DEBUG) qDebug() << "BidirectionalPathTracer::RussianRoulette - 1";
+        if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer::RussianRoulette - 1";
         Vector3 reflected = rayInDirection.Reflect(normal);
         reflected.Normalize();
         rayOut = new Ray(origin + reflected * BIAS, reflected);
@@ -278,13 +272,13 @@ Ray* BidirectionalPathTracer::RussianRoulette(const IntersectionResult &intersec
 
         if (rand() > RAND_MAX / 2)
         {
-            if(DEBUG) qDebug() << "BidirectionalPathTracer::RussianRoulette - 2";
+            if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer::RussianRoulette - 2";
             rayOut = new Ray(origin + refracted * BIAS, refracted);
             path.push_back(Node(intersection, (1.0-reflectionCoef)));
         }
         else
         {
-            if(DEBUG) qDebug() << "BidirectionalPathTracer::RussianRoulette - 3";
+            if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer::RussianRoulette - 3";
             Vector3 reflected = rayInDirection.Reflect(normal);
             reflected.Normalize();
             rayOut = new Ray(origin + reflected * BIAS, reflected);
@@ -293,17 +287,17 @@ Ray* BidirectionalPathTracer::RussianRoulette(const IntersectionResult &intersec
     }
     else
     {
-        if(DEBUG) qDebug() << "BidirectionalPathTracer::RussianRoulette - 4";
+        if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer::RussianRoulette - 4";
         Vector3 outDirection = pdf->computeDirection(rayInDirection, normal);
         Ray rayOut(origin + outDirection * BIAS, outDirection);
         float weight = brdf->computeRatio(rayInDirection, rayOut.direction, normal);
         if(weight != weight)
         {
-            if(DEBUGRR) qDebug() << "BidirectionalPathTracer::RussianRoulette - rayInDirection: " << rayInDirection;
-            if(DEBUGRR) qDebug() << "BidirectionalPathTracer::RussianRoulette - normal: " << normal;
-            if(DEBUGRR) qDebug() << "BidirectionalPathTracer::RussianRoulette - outDirection: " << outDirection;
-            if(DEBUGRR) qDebug() << "BidirectionalPathTracer::RussianRoulette - rayOut: " << rayOut;
-            if(DEBUGRR) qDebug() << "BidirectionalPathTracer::RussianRoulette - weight: " << weight;
+            if(DEBUGRR) qDebug() << __LINE__ << ". BidirectionalPathTracer::RussianRoulette - rayInDirection: " << rayInDirection;
+            if(DEBUGRR) qDebug() << __LINE__ << ". BidirectionalPathTracer::RussianRoulette - normal: " << normal;
+            if(DEBUGRR) qDebug() << __LINE__ << ". BidirectionalPathTracer::RussianRoulette - outDirection: " << outDirection;
+            if(DEBUGRR) qDebug() << __LINE__ << ". BidirectionalPathTracer::RussianRoulette - rayOut: " << rayOut;
+            if(DEBUGRR) qDebug() << __LINE__ << ". BidirectionalPathTracer::RussianRoulette - weight: " << weight;
             throw 1l;
         }
         path.push_back(Node(intersection, weight));
@@ -320,8 +314,8 @@ std::vector<Node>& BidirectionalPathTracer::GeneratePath(std::vector<Node> &path
         // const Vector3 &origin = intersection.LPOINT;
         const Vector3 &normal = intersection.intersectionLPOINTNormal;
         const Vector3 &rayInDirection = rayIn.direction;
-        if(DEBUG) qDebug() << "306. BidirectionalPathTracer::GeneratePath - normal: " << normal;
-        if(DEBUG) qDebug() << "307. BidirectionalPathTracer::GeneratePath - rayInDirection: " << rayInDirection;
+        if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer::GeneratePath - normal: " << normal;
+        if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer::GeneratePath - rayInDirection: " << rayInDirection;
 
         int reflections = 0;
         bool intersectionInScene = false;
@@ -342,11 +336,11 @@ std::vector<Node>& BidirectionalPathTracer::GeneratePath(std::vector<Node> &path
             }
             catch(long error)
             {
-                qDebug() << "333. BidirectionalPathTracer::GeneratePath - error: " << error;
-                qDebug() << "334. BidirectionalPathTracer::GeneratePath - intersection: " << intersection;
-                qDebug() << "335. BidirectionalPathTracer::GeneratePath - rayIn: " << rayIn;
-                qDebug() << "336. BidirectionalPathTracer::GeneratePath - normal: " << normal;
-                qDebug() << "337. BidirectionalPathTracer::GeneratePath - rayInDirection: " << rayInDirection;
+                qDebug() << __LINE__ << ". BidirectionalPathTracer::GeneratePath - error: " << error;
+                qDebug() << __LINE__ << ". BidirectionalPathTracer::GeneratePath - intersection: " << intersection;
+                qDebug() << __LINE__ << ". BidirectionalPathTracer::GeneratePath - rayIn: " << rayIn;
+                qDebug() << __LINE__ << ". BidirectionalPathTracer::GeneratePath - normal: " << normal;
+                qDebug() << __LINE__ << ". BidirectionalPathTracer::GeneratePath - rayInDirection: " << rayInDirection;
                 throw '1';
             }
         }

@@ -28,7 +28,7 @@ POINTLight::~POINTLight() {
     }
 }
 
-bool POINTLight::IsInShadow(IntersectionResult *ir, QList<Geometry *> &geometry) {
+bool POINTLight::IsInShadow(const IntersectionResult* const &ir, const QList<Geometry *> &geometry) const {
     //check if ray from light to intersection LPOINT intersects some geometry
     Ray lightToLPOINT(position, ir->LPOINT-position);
     float dist = (position-ir->LPOINT).GetLength() - 0.001;
@@ -46,8 +46,10 @@ Vector3 POINTLight::GetPosition() const {
     return position;
 }
 
-LightIntensity POINTLight::GetLightIntensity(Vector3 cameraPosition, IntersectionResult *ir,
-                                             QList<Geometry *> &geometry) {
+LightIntensity POINTLight::GetLightIntensity(const Vector3 &cameraPosition,
+                                             const IntersectionResult* const &ir,
+                                             const QList<Geometry *> &geometry) const {
+//    qDebug() << "PL";
     LightIntensity result(0,0,0);
 
     if(IsInShadow(ir, geometry)){ //commenting this disable sharp shadows (hence know geometry blocking is being checked)
@@ -199,9 +201,8 @@ void POINTLight::CreateProjectionMap(const Scene* scene) {
         if(DEBUGY) qDebug() << "POINTLight::CreateProjectionMap y = " << y << "kon";
     }
 
-    if(DEBUG) qDebug() << "POINTLight::CreateProjectionMap zapisywanie do pliku";
-
-    projectionMap->SaveToFile("projectionMap.png");
+//    if(DEBUG) qDebug() << "POINTLight::CreateProjectionMap zapisywanie do pliku";
+//    projectionMap->SaveToFile("projectionMap.png");
 }
 
 #undef DEBUG

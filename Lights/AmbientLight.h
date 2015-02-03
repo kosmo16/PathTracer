@@ -36,7 +36,9 @@ public:
     /**
       Get light intensity for given intersection LPOINT and camera
      */
-    virtual LightIntensity GetLightIntensity(Vector3 cameraPosition, IntersectionResult* ir, QList<Geometry*>& geometry);
+    virtual LightIntensity GetLightIntensity(const Vector3 &cameraPosition,
+                                             const IntersectionResult* const &ir,
+                                             const QList<Geometry *> &geometry) const;
     /**
       Generates photon from light (only from LPOINT and area lights)
       */
@@ -49,7 +51,7 @@ public:
 
 protected:
     //checks if intersection LPOINT is in shadow by this light.
-    virtual bool IsInShadow(IntersectionResult* ir, QList<Geometry*>& geometry);
+    virtual bool IsInShadow(const IntersectionResult* const &ir, const QList<Geometry *> &geometry) const;
 };
 
 #endif // AMBIENTLIGHT_H

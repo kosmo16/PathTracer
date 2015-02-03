@@ -35,8 +35,8 @@ public:
     LightIntensity TracePath(const Ray &ray, Scene *scene, const Vector3 cameraPosition);
     LightIntensity GetIntensity(const Node & node);
 
-    void GetPath(const Ray &ray, Scene *scene, const Vector3 cameraPosition, int maxReflections);
-    AmbientLight *GetRandomLightRay(Scene *scene, Ray &randomLightRay);
+    AmbientLight* GetRandomLightRay(const Scene* const &scene, Ray &randomLightRay);
+
     /**
       Calculate Light Intenisty using Bidirectional Path Tracing
       \param ray ray to trace
@@ -55,6 +55,7 @@ public:
                           std::vector<Node> &path,
                           const Vector3 &normal,
                           const Vector3 &rayInDirection);
+    LightIntensity getStartLightIntensity(const Scene* const &scene, const std::vector<Node> &lightPath, Ray lightRay, const std::vector<Node> &eyePath);
 };
 
 #endif
