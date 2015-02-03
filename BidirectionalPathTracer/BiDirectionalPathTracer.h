@@ -22,6 +22,40 @@ private:
     Brdf * const brdf;
     Pdf * const pdf;
 
+    LightIntensity GetIntensity(const Node & node);
+
+    AmbientLight* GetRandomLightRay(const Scene* const &scene, Ray &randomLightRay);
+
+    /**
+      Calculate Light Intenisty using Bidirectional Path Tracing
+      \param ray ray to trace
+      \param scene scene
+      */
+    LightIntensity CalculateLightIntensity(Scene *scene, const Ray &ray, const Vector3 cameraPosition);
+
+    std::vector<Node>& GeneratePath(std::vector<Node> &path, Scene *scene, const Ray &rayIn, const int &maxReflections);
+
+    bool FindIntersectionInScene(Scene *scene, const Ray &ray, IntersectionResult &intersection);
+
+    float WeightPath(int i, int j);
+
+    LightIntensity EvalPath(Scene *scene,
+                            const std::vector<Node> &eyePath, int i,
+                            const std::vector<Node> &lightPath, int j);
+
+    bool IsVisible(Scene *scene, const Vector3 &a, const Vector3 &b);
+
+    void changeL(const Geometry* const &intersectionObject, LightIntensity &L, const IntersectionResult &intersection);
+
+    Ray * RussianRoulette(const IntersectionResult &intersection,
+                          std::vector<Node> &path,
+                          const Vector3 &normal,
+                          const Vector3 &rayInDirection);
+
+    LightIntensity getLightIntensity(const Vector3 &previousPosition,
+                                     const IntersectionResult &currentPosition,
+                                     const LightIntensity &incomingColor) const;
+
 public:
     BidirectionalPathTracer(Brdf * const brdf, Pdf * const pdf);
 
@@ -33,29 +67,7 @@ public:
       \param maxReflections maximum number of ray reflections
       */
     LightIntensity TracePath(const Ray &ray, Scene *scene, const Vector3 cameraPosition);
-    LightIntensity GetIntensity(const Node & node);
 
-    AmbientLight* GetRandomLightRay(const Scene* const &scene, Ray &randomLightRay);
-
-    /**
-      Calculate Light Intenisty using Bidirectional Path Tracing
-      \param ray ray to trace
-      \param scene scene
-      */
-    LightIntensity CalculateLightIntensity(Scene *scene, const Ray &ray, const Vector3 cameraPosition);
-    std::vector<Node>& GeneratePath(std::vector<Node> &path, Scene *scene, const Ray &rayIn, const int &maxReflections);
-    bool FindIntersectionInScene(Scene *scene, const Ray &ray, IntersectionResult &intersection);
-    float WeightPath(int i, int j);
-    LightIntensity EvalPath(Scene *scene,
-                            const std::vector<Node> &eyePath, int i,
-                            const std::vector<Node> &lightPath, int j);
-    bool IsVisible(Scene *scene, const Vector3 &a, const Vector3 &b);
-    void changeL(const Geometry* const &intersectionObject, LightIntensity &L, const IntersectionResult &intersection);
-    Ray * RussianRoulette(const IntersectionResult &intersection,
-                          std::vector<Node> &path,
-                          const Vector3 &normal,
-                          const Vector3 &rayInDirection);
-    LightIntensity getStartLightIntensity(const Scene* const &scene, const std::vector<Node> &lightPath, Ray lightRay, const std::vector<Node> &eyePath);
 };
 
 #endif

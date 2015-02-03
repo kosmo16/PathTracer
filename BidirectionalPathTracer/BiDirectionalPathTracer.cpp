@@ -14,17 +14,13 @@ BidirectionalPathTracer::BidirectionalPathTracer(Brdf * const brdf, Pdf * const 
 {
 }
 
-LightIntensity BidirectionalPathTracer::getStartLightIntensity(const Scene* const &scene, const std::vector<Node> &lightPath, Ray lightRay, const std::vector<Node> &eyePath)
+LightIntensity BidirectionalPathTracer::getLightIntensity(const Vector3 &previousPosition,
+                                                          const IntersectionResult &currentPosition,
+                                                          const LightIntensity &incomingColor) const
 {
-    const AmbientLight* const &light = GetRandomLightRay(scene, lightRay);
-    const Vector3 &position = lightPath[1].intersectionResult.LPOINT;
-    const IntersectionResult* const &ir = &lightPath[0].intersectionResult;
-    const QList<Geometry *> &geometry = scene->geometry;
-//    qDebug() << "6";
-    LightIntensity startLightIntensity = light->GetLightIntensity(position, ir, geometry);
-//    qDebug() << "7";
+    LightIntensity lightIntensity;
 
-    return startLightIntensity;
+    return lightIntensity;
 }
 
 LightIntensity BidirectionalPathTracer::TracePath(const Ray &ray, Scene *scene, const Vector3 cameraPosition)
@@ -36,8 +32,6 @@ LightIntensity BidirectionalPathTracer::TracePath(const Ray &ray, Scene *scene, 
     Ray lightRay;
     GeneratePath(lightPath, scene, lightRay, LIGHT_REFLECTIONS);
     LightIntensity resultIntensity;
-//    LightIntensity startLightIntensity = getStartLightIntensity(scene, lightPath, lightRay, eyePath);
-//    resultIntensity = startLightIntensity;
 
     float Le = 1.0f; // powinno byc od swiatla attenuation
 
@@ -134,24 +128,15 @@ LightIntensity BidirectionalPathTracer::EvalPath(Scene *scene,
                                                  const std::vector<Node> &lightPath, int j)
 {
     LightIntensity L(1.0, 1.0, 1.0);
-    //    L = getline TODO
 
     // sciezka cienia
     const Node & eyeNode = eyePath[i];
     const Node & lightNode = lightPath[lightPath.size() - 1];
     bool isShadowVisible = IsVisible(scene, eyeNode.intersectionResult.LPOINT, lightNode.intersectionResult.LPOINT);
-    //    static int shadow = 0, noShadow = 0;
     if(!isShadowVisible)
     {
-        //        ++noShadow;
-        //        qDebug() << __LINE__ << ". BidirectionalPathTracer::EvalPath - nie ma cienia (n: " << noShadow << ", y: " << shadow << ")";
         return LightIntensity();
     }
-    //    else
-    //    {
-    //        ++shadow;
-    //        qDebug() << __LINE__ << ". BidirectionalPathTracer::EvalPath - jest cien (n: " << noShadow << ", y: " << shadow << ")";
-    //    }
 
     for (int eyeNodeNumber = 0; eyeNodeNumber <= i; ++eyeNodeNumber)
     {
