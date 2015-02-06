@@ -41,7 +41,7 @@ private:
 
     LightIntensity EvalPath(Scene *scene,
                             const std::vector<Node> &eyePath, int i,
-                            const std::vector<Node> &lightPath, int j);
+                            const std::vector<Node> &lightPath, int j, AmbientLight *light, const Vector3 &cameraPosition);
 
     bool IsVisible(Scene *scene, const Vector3 &a, const Vector3 &b);
 

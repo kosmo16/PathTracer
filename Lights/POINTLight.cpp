@@ -86,6 +86,49 @@ LightIntensity POINTLight::GetLightIntensity(const Vector3 &cameraPosition,
     return result;
 }
 
+LightIntensity POINTLight::GetLightIntensity(const Vector3 &cameraPosition,
+                                         const IntersectionResult* const &ir,
+                                         const QList<Geometry *> &geometry,
+                                         const Vector3 &position,
+                                         const LightIntensity &color) const
+{
+    //    qDebug() << "PL";
+        LightIntensity result(0,0,0);
+
+        if(IsInShadow(ir, geometry)){ //commenting this disable sharp shadows (hence know geometry blocking is being checked)
+            LightIntensity shadow(0.0,0.0,0.0);
+            return shadow;
+        }
+
+        Vector3 normal = ir->intersectionLPOINTNormal;
+        Vector3 light(position - ir->LPOINT);
+
+        float lightDistance = light.GetLength();
+        normal.Normalize();
+        light.Normalize();
+
+        Material* mat = ir->object->GetMaterial();
+        //if geometry has diffuse material calculate phong lighting
+        if(mat->type==DIFFUSE) {
+            DiffuseMaterial* diffMat = (DiffuseMaterial*)mat;
+            float diffuseFactor = normal.DotProduct(light);
+
+            if(diffuseFactor > 0.0f) {
+                float specPower = diffMat->specularCoeff;
+                Vector3 eye = cameraPosition - ir->LPOINT;
+                eye.Normalize();
+                Vector3 reflected = (-light).Reflect(normal);
+                float specFactor = pow(max(reflected.DotProduct(eye), 0.0f), specPower);
+
+                result += diffMat->diffuse*color*diffuseFactor;
+                result += diffMat->specular*color*specFactor;
+            }
+            //result /= (attenuation.x+attenuation.y*lightDistance+attenuation.z*lightDistance*lightDistance);
+        }
+
+        return result;
+}
+
 //generate photon from unit sphere
 Ray POINTLight::GetPhoton(bool useProjectionMap) const {
     float x,y,z;

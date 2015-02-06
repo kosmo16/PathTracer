@@ -298,7 +298,8 @@ StartCounter();
                         direction = invVPMatrix*Vector4(direction);
 
                         Ray ray(Vector3(origin.x, origin.y, origin.z), Vector3(direction.x, direction.y, direction.z));
-                        currentPixel+=rayTracer.TraceRayStream(ray, scene, position, 6, 1050, &photonMap, &causticPhotonMap); // default exposure = 750
+                        currentPixel+=bidirectionalPathTracer.TracePath(ray, scene, position);
+                        //currentPixel+=rayTracer.TraceRayStream(ray, scene, position, 6, 1050, &photonMap, &causticPhotonMap); // default exposure = 750
                     }
                     //qDebug()<<tempprobek;
                     img->SetPixel(i,j,currentPixel*one_numSamples);

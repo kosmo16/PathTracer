@@ -44,6 +44,20 @@ LightIntensity AreaLight::GetLightIntensity(const Vector3 &cameraPosition,
     return result;///lights.count();
 }
 
+LightIntensity AreaLight::GetLightIntensity(const Vector3 &cameraPosition,
+                                         const IntersectionResult* const &ir,
+                                         const QList<Geometry *> &geometry,
+                                         const Vector3 &position,
+                                         const LightIntensity &color) const {
+    //    qDebug() << "AL";
+        LightIntensity result;
+        for(int i=0;i<lights.count();i++) {
+            //if(!inShadows.at(i))
+            result+=lights.at(i)->GetLightIntensity(cameraPosition, ir, geometry, position, color);
+        }
+        return result;///lights.count();
+}
+
 Ray AreaLight::GetPhoton(bool useProjectionMap) const {
 
     int i = qrand()%lights.count();

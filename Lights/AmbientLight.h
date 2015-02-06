@@ -39,6 +39,17 @@ public:
     virtual LightIntensity GetLightIntensity(const Vector3 &cameraPosition,
                                              const IntersectionResult* const &ir,
                                              const QList<Geometry *> &geometry) const;
+
+    /**
+      Get light intensity for given intersection LPOINT and camera
+     */
+    virtual LightIntensity GetLightIntensity(const Vector3 &cameraPosition,
+                                             const IntersectionResult* const &ir,
+                                             const QList<Geometry *> &geometry,
+                                             const Vector3 &position,
+                                             const LightIntensity &color) const;
+
+
     /**
       Generates photon from light (only from LPOINT and area lights)
       */

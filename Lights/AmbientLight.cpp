@@ -29,6 +29,18 @@ LightIntensity AmbientLight::GetLightIntensity(const Vector3 &cameraPosition,
     return color;
 }
 
+LightIntensity AmbientLight::GetLightIntensity(const Vector3 &cameraPosition,
+                                         const IntersectionResult* const &ir,
+                                         const QList<Geometry *> &geometry,
+                                         const Vector3 &position,
+                                         const LightIntensity &color) const {
+    Q_UNUSED(cameraPosition);
+    Q_UNUSED(ir);
+    Q_UNUSED(geometry);
+    Q_UNUSED(position);
+    return color;
+}
+
 Ray AmbientLight::GetPhoton(bool useProjectionMap) const {
     return Ray();
 }

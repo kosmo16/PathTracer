@@ -18,6 +18,13 @@ public:
     LightIntensity GetLightIntensity(const Vector3 &cameraPosition,
                                      const IntersectionResult* const &ir,
                                      const QList<Geometry *> &geometry) const;
+
+    LightIntensity GetLightIntensity(const Vector3 &cameraPosition,
+                                             const IntersectionResult* const &ir,
+                                             const QList<Geometry *> &geometry,
+                                             const Vector3 &position,
+                                             const LightIntensity &color) const;
+
     Ray GetPhoton(bool useProjectionMap=false) const;
     void CreateProjectionMap(const Scene* scene);
     float GetProjectionMapRatio() const;
