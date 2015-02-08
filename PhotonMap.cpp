@@ -1,6 +1,7 @@
 #include "PhotonMap.h"
 
 #include "Lights/AreaLight.h"
+#include "Math/randomUtils.h"
 #include "KDTree.h"
 
 #include <cfloat>
@@ -171,17 +172,17 @@ void PhotonMap::TracePhoton(LightIntensity photonEnergy, const Ray &startRay, QL
 }
 
 float PhotonMap::PropabilityOfAbsorption() {
-    return ((float)qrand())/RAND_MAX;
+    return randomUnsignedFloat(1.0f);
 }
 
 Vector3 PhotonMap::LambertReflectionDirection(const IntersectionResult &ir) {
 
     float x,y,z;
     do {
-        x = 2.0f*((float)qrand())/RAND_MAX-1.0f;
-        y = 2.0f*((float)qrand())/RAND_MAX-1.0f;
-        z = 2.0f*((float)qrand())/RAND_MAX-1.0f;
-    } while(x*x+y*y+z*z>1);
+        x = randomSignedFloat(1.0f);
+        y = randomSignedFloat(1.0f);
+        z = randomSignedFloat(1.0f);
+    } while(x*x + y*y + z*z > 1.0f);
 
     Vector3 direction(x,y,z);
 

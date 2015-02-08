@@ -58,7 +58,7 @@ AmbientLight* BidirectionalPathTracer::GetRandomLightRay(const Scene* const &sce
 {
     const QList<AmbientLight*> & lights = scene->lights;
     int numberOfLights = lights.size();
-    AmbientLight* randomLight = lights[rand() % numberOfLights];
+    AmbientLight* randomLight = lights[qrand() % numberOfLights];
     randomLightRay = randomLight->GetPhoton(false);
     return randomLight;
 }
@@ -233,7 +233,7 @@ Ray* BidirectionalPathTracer::RussianRoulette(const IntersectionResult &intersec
 
         refracted.Normalize();
 
-        if (rand() % 2 == 0)
+        if (qrand() % 2 == 0)
         {
             if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer::RussianRoulette - 2";
             rayOut = new Ray(origin + refracted * BIAS, refracted);

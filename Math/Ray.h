@@ -1,8 +1,10 @@
 #ifndef RAY_H
 #define RAY_H
 
-#include "Vector3.h"
+#include "Vector4.h"
+
 #include <QDebug>
+
 class Geometry;
 
 class Ray
@@ -11,8 +13,9 @@ public:
     Vector3 origin;
     Vector3 direction;
 
-    Ray(void);
-    Ray(const Vector3& orig, const Vector3& dir);    
+    Ray();
+    Ray(const Vector3 &orig, const Vector3 &dir);
+    Ray(const Vector4 &orig, const Vector4 &dir);
 };
 
 enum IntersectionType {

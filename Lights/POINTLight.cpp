@@ -1,9 +1,12 @@
 #include "POINTLight.h"
-#include <algorithm>
-#include <cfloat>
-#include <Scene.h>
 
-using namespace std;
+#include "Math/randomUtils.h"
+#include "Scene.h"
+
+//#include <algorithm>
+#include <cfloat>
+
+//using namespace std;
 
 POINTLight::POINTLight() : AmbientLight()
 {
@@ -130,14 +133,17 @@ LightIntensity POINTLight::GetLightIntensity(const Vector3 &cameraPosition,
 
 //generate photon from unit sphere
 Ray POINTLight::GetPhoton(bool useProjectionMap) const {
-    float x,y,z;
-    bool ok=false;
+    float x, y, z;
+    bool ok = false;
     do {
-        x = 2.0f * floatRand() - 1.0f;
-        y = 2.0f * floatRand() - 1.0f;
-        z = 2.0f * floatRand() - 1.0f;
+        x = randomSignedFloat(1.0f);
+        y = randomSignedFloat(1.0f);
+        z = randomSignedFloat(1.0f);
+        // x = 2.0f * floatRand() - 1.0f;
+        // y = 2.0f * floatRand() - 1.0f;
+        // z = 2.0f * floatRand() - 1.0f;
 
-        if(x*x+y*y+z*z<=1) {
+        if(x*x + y*y + z*z <= 1.0f) {
             if(useProjectionMap && projectionMap) {
                 Vector3 dir(x,y,z);
                 dir.Normalize();
@@ -149,7 +155,7 @@ Ray POINTLight::GetPhoton(bool useProjectionMap) const {
 */
                 //if we use projection map
                 //generated photon must be directed into reflective/refractive geometry
-                if(projectionMap->SampleSpherical(dir)==Color(1,1,1))
+                if(projectionMap->SampleSpherical(dir) == Color(1, 1, 1))
                     ok = true;
             }
             else {

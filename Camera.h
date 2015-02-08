@@ -137,10 +137,10 @@ public:
 
     int renderingTime() const { return m_renderingTime; } // default time in ms /divide by 1000 to get s
 
-    LightIntensity getLightIntensity(float x, float y,
-                                     float pxWidth, float pxHeight,
-                                     const Scene * const &scene,
-                                     const BidirectionalPathTracer &bidirectionalPathTracer) const;
+    LightIntensity getPixelColor(float x, float y,
+                                 float pxWidth, float pxHeight,
+                                 const Scene * const &scene,
+                                 const BidirectionalPathTracer &bidirectionalPathTracer) const;
 private:
     Vector3 position;
     Vector3 target;

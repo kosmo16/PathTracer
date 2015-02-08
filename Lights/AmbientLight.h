@@ -15,8 +15,6 @@ enum LightSourceType {
     AMBIENT
 };
 
-float floatRand();
-
 /**
   Ambient Light, base class of all lights
   */

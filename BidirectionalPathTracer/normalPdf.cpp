@@ -1,25 +1,13 @@
 #include "normalPdf.h"
 
+#include "Math/randomUtils.h"
+
 NormalPdf::NormalPdf()
 {
 }
 
 NormalPdf::~NormalPdf()
 {
-}
-
-// -PI_2 <= f <= PI_2
-float randomFloat()
-{
-    static const float F_RAND_MAX = float(RAND_MAX);
-    static const float F_RAND_MAX_2 = 0.5f * F_RAND_MAX;
-    static const float FACTOR = M_PI_2 / F_RAND_MAX;
-
-    // f = (rand() - 0.5f * RAND_MAX) * (M_PI_2 / RAND_MAX)
-    float f = rand();
-    f -= F_RAND_MAX_2;
-    f *= FACTOR;
-    return f;
 }
 
 Vector3 rotate(float angle, Vector3 axis, const Vector3 & v)
@@ -61,7 +49,8 @@ Vector3 NormalPdf::computeDirection(const Vector3 & incomingDirection, const Vec
 
     // parametr ~ kat wzgledem normalnej
     // -PI_2 <= t <= PI_2
-    float t = randomFloat();
+    float t = randomSignedFloat(M_PI_2);
+    // float t = randomFloat();
 
     const Vector3 & outcomingDirection = rotate(t, A, N);
     return outcomingDirection;

@@ -1,6 +1,7 @@
 #include "StreamPhotonMap.h"
 
 #include "Lights/AreaLight.h"
+#include "Math/randomUtils.h"
 #include "KDTree.h"
 
 #include <cfloat>
@@ -196,14 +197,14 @@ void StreamPhotonMap::TracePhoton(LightIntensity photonEnergy, const Ray &startR
             //qDebug()<<"dotychczas w strumieniu bylo: "<<parent->associatedPhoton.count();
             //qDebug()<<"dotychczasowy promien strumienia: "<<radius;
             for(int j=0;j<parent->associatedPhoton.count();j++) {
-                float x,y,z;
-                do {//((float)qrand())/RAND_MAX-1.0f;
-                    x = 2.0f*(static_cast <float>(qrand()/static_cast <float>(RAND_MAX)))-1.0f;
-                    y = 2.0f*(static_cast <float>(qrand()/static_cast <float>(RAND_MAX)))-1.0f;
-                    z = 2.0f*(static_cast <float>(qrand()/static_cast <float>(RAND_MAX)))-1.0f;
-                } while(x*x+y*y+z*z>1);
+                float x ,y, z;
+                do {
+                    x = randomSignedFloat(1.0f);
+                    y = randomSignedFloat(1.0f);
+                    z = randomSignedFloat(1.0f);
+                } while(x*x + y*y + z*z > 1.0f);
                 //pozycja punktu koncowego wektora wyznaczajacego nowy foton stowarzyszony
-                Vector3 newAssociatedPos(x,y,z);
+                Vector3 newAssociatedPos(x, y, z);
                 newAssociatedPos*=radius;
                 newAssociatedPos += closestIntersection.LPOINT;
 
@@ -311,19 +312,18 @@ void StreamPhotonMap::TracePhoton(LightIntensity photonEnergy, const Ray &startR
 }
 
 float StreamPhotonMap::PropabilityOfAbsorption() {
-    return ((float)qrand())/RAND_MAX;
+    return randomUnsignedFloat(1.0f);
 }
 
 Vector3 StreamPhotonMap::LambertReflectionDirection(const IntersectionResult &ir) {
-
-    float x,y,z;
+    float x, y, z;
     do {
-        x = 2.0f*((float)qrand())/RAND_MAX-1.0f;
-        y = 2.0f*((float)qrand())/RAND_MAX-1.0f;
-        z = 2.0f*((float)qrand())/RAND_MAX-1.0f;
-    } while(x*x+y*y+z*z>1);
+        x = randomSignedFloat(1.0f);
+        y = randomSignedFloat(1.0f);
+        z = randomSignedFloat(1.0f);
+    } while(x*x + y*y + z*z > 1.0f);
 
-    Vector3 direction(x,y,z);
+    Vector3 direction(x, y, z);
 
     if(direction.DotProduct(ir.intersectionLPOINTNormal)<0)
         direction*=-1;

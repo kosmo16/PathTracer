@@ -2,6 +2,7 @@
 
 #include "BidirectionalPathTracer/BlinnPhongBrdf.h"
 #include "BidirectionalPathTracer/NormalPdf.h"
+#include "Math/randomUtils.h"
 #include "PhotonMap.h"
 #include "StreamPhotonMap.h"
 
@@ -152,10 +153,10 @@ void Camera::RenderScene(Scene* scene, unsigned int ns) {
     }
 }
 
-LightIntensity Camera::getLightIntensity(float x, float y,
-                                         float pxWidth, float pxHeight,
-                                         const Scene* const &scene,
-                                         const BidirectionalPathTracer &bidirectionalPathTracer) const
+LightIntensity Camera::getPixelColor(float x, float y,
+                                     float pxWidth, float pxHeight,
+                                     const Scene* const &scene,
+                                     const BidirectionalPathTracer &bidirectionalPathTracer) const
 {
     float pX = x * pxWidth - 1.0f;
     float pY = y * pxHeight - 1.0f;
@@ -166,10 +167,10 @@ LightIntensity Camera::getLightIntensity(float x, float y,
     Vector4 origin(0, 0, 0, 1);
     Vector4 direction(pX, pY, 1, 0);
 
-    origin = invVPMatrix*Vector4(origin);
-    direction = invVPMatrix*Vector4(direction);
+    origin = invVPMatrix * Vector4(origin);
+    direction = invVPMatrix * Vector4(direction);
 
-    Ray ray(Vector3(origin.x, origin.y, origin.z), Vector3(direction.x, direction.y, direction.z));
+    Ray ray(origin, direction);
     // LightIntensity intensity = rayTracer.TraceRayStream(ray, scene, position, 6, 1050, &photonMap, &causticPhotonMap); // default exposure = 750
     LightIntensity intensity = bidirectionalPathTracer.TracePath(ray, scene, position);
 
@@ -241,7 +242,7 @@ void Camera::RenderSceneStream(Scene* scene, unsigned int ns, unsigned int m_num
                     //dla kazdego piksela rzutuj promien przez jego srodek
                     float dx = 0.5f;
                     float dy = 0.5f;
-                    LightIntensity intensity = getLightIntensity(dx + i, dy + j, pxWidth, pxHeight, scene, bidirectionalPathTracer);
+                    LightIntensity intensity = getPixelColor(dx + i, dy + j, pxWidth, pxHeight, scene, bidirectionalPathTracer);
                     currentPixel += intensity;
                 }
                 //stochastic oversampling for multiple samples per pixel
@@ -251,9 +252,11 @@ void Camera::RenderSceneStream(Scene* scene, unsigned int ns, unsigned int m_num
                     for(int n=0;n<numSamples;n++)
                     {
                         //obliczanie losowej pozycji wewnatrz piksela
-                        float dx = floatRand();
-                        float dy = floatRand();
-                        LightIntensity intensity = getLightIntensity(dx + i, dy + j, pxWidth, pxHeight, scene, bidirectionalPathTracer);
+                        float dx = randomSignedFloat(1.0f);
+                        float dy = randomSignedFloat(1.0f);
+                        // float dx = floatRand();
+                        // float dy = floatRand();
+                        LightIntensity intensity = getPixelColor(dx + i, dy + j, pxWidth, pxHeight, scene, bidirectionalPathTracer);
                         currentPixel += intensity;
                     }
                 }
