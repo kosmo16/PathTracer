@@ -1,7 +1,9 @@
-#include "StreamPhotonMap.h"
-#include <cfloat>
-#include "KDTree.h"
+#include "Math/randomUtils.h"
 #include "Lights/AreaLight.h"
+#include "KDTree.h"
+#include "StreamPhotonMap.h"
+
+#include <cfloat>
 
 #define BIAS 0.001f
 
@@ -19,7 +21,7 @@ StreamPhotonMap::~StreamPhotonMap() {
     delete kdTree;
 }
 
-void StreamPhotonMap::GeneratePhotonMap(Scene *scene, int numPhotons, int maxReflections, bool caustic) {
+void StreamPhotonMap::GeneratePhotonMap(const Scene* const &scene, int numPhotons, int maxReflections, bool caustic) {
     int numPOINTLights=0;
     //count how much LPOINTs lights are in scene
     for(int i=0;i<scene->lights.count();i++) {
@@ -54,7 +56,7 @@ void StreamPhotonMap::GeneratePhotonMap(Scene *scene, int numPhotons, int maxRef
 }
 
 //generate streams for given light
-void StreamPhotonMap::GeneratePhotons(AmbientLight *light, QList<Geometry*>* geometry, int numPhotons, bool caustic, int maxReflections) {
+void StreamPhotonMap::GeneratePhotons(AmbientLight *light, const QList<Geometry*>* const &geometry, int numPhotons, bool caustic, int maxReflections) {
 
     QList<Stream*> tempPhotons;
     //qDebug()<<"mam wyemitowac" <<numPhotons <<"fotonow";
@@ -109,7 +111,7 @@ void StreamPhotonMap::GeneratePhotons(AmbientLight *light, QList<Geometry*>* geo
 }
 
 //traces photon stream
-void StreamPhotonMap::TracePhoton(LightIntensity photonEnergy, const Ray &startRay, QList<Geometry *> *geometry,
+void StreamPhotonMap::TracePhoton(LightIntensity photonEnergy, const Ray &startRay, const QList<Geometry*>* const &geometry,
                                   QList<Stream *> *photons, Stream* parent, int reflections) {
 
     int closest=-1;
@@ -195,10 +197,10 @@ void StreamPhotonMap::TracePhoton(LightIntensity photonEnergy, const Ray &startR
             //qDebug()<<"dotychczasowy promien strumienia: "<<radius;
             for(int j=0;j<parent->associatedPhoton.count();j++) {
                 float x,y,z;
-                do {//((float)qrand())/RAND_MAX-1.0f;
-                    x = 2.0f*(static_cast <float>(qrand()/static_cast <float>(RAND_MAX)))-1.0f;
-                    y = 2.0f*(static_cast <float>(qrand()/static_cast <float>(RAND_MAX)))-1.0f;
-                    z = 2.0f*(static_cast <float>(qrand()/static_cast <float>(RAND_MAX)))-1.0f;
+                do {
+                    x = randomSignedFloat();
+                    y = randomSignedFloat();
+                    z = randomSignedFloat();
                 } while(x*x+y*y+z*z>1);
                 //pozycja punktu koncowego wektora wyznaczajacego nowy foton stowarzyszony
                 Vector3 newAssociatedPos(x,y,z);
@@ -309,17 +311,17 @@ void StreamPhotonMap::TracePhoton(LightIntensity photonEnergy, const Ray &startR
 }
 
 float StreamPhotonMap::PropabilityOfAbsorption() {
-    return ((float)qrand())/RAND_MAX;
+    return randomUnsignedFloat();
 }
 
 Vector3 StreamPhotonMap::LambertReflectionDirection(const IntersectionResult &ir) {
 
-    float x,y,z;
+    float x, y, z;
     do {
-        x = 2.0f*((float)qrand())/RAND_MAX-1.0f;
-        y = 2.0f*((float)qrand())/RAND_MAX-1.0f;
-        z = 2.0f*((float)qrand())/RAND_MAX-1.0f;
-    } while(x*x+y*y+z*z>1);
+        x = randomSignedFloat();
+        y = randomSignedFloat();
+        z = randomSignedFloat();
+    } while(x*x + y*y + z*z > 1.0f);
 
     Vector3 direction(x,y,z);
 
@@ -329,6 +331,6 @@ Vector3 StreamPhotonMap::LambertReflectionDirection(const IntersectionResult &ir
     return direction;
 }
 
-QList<Stream*> StreamPhotonMap::GetClosestPhotons(Vector3 LPOINT, float radius, int maxPhotons) {
+QList<Stream*> StreamPhotonMap::GetClosestPhotons(const Vector3 &LPOINT, float radius, int maxPhotons) {
     return kdTree->FindClosest(LPOINT, radius, maxPhotons);
 }

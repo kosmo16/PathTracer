@@ -88,6 +88,7 @@ IntersectionResult CornellBox::Intersects(const Ray &ray, float range) const {
             closestDist = ir.distance;
         }
     }
+
     return closest;
 }
 

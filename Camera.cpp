@@ -4,13 +4,14 @@
 #include "BidirectionalPathTracer/NormalPdf.h"
 #include "PhotonMap.h"
 #include "StreamPhotonMap.h"
+#include "Math/randomUtils.h"
 
 #include <QTime>
-//#include <algorithm>
+
 #include <cfloat>
-#include <windows.h>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <windows.h>
 
 using namespace std;
 
@@ -98,13 +99,17 @@ void Camera::Recalculate() {
     }
 }
 
-void Camera::RenderScene(Scene* scene, unsigned int ns) {
+void Camera::RenderScene(const Scene* const &scene, unsigned ns) {
+    BlinnPhongBrdf brdf;
+    NormalPdf pdf;
+    BidirectionalPathTracer bidirectionalPathTracer(&brdf, &pdf);
+
     StartCounter();
 
     Recalculate();
 
-    float pixelW = 1.0f/img->GetWidth();
-    float pixelH = 1.0f/img->GetHeight();
+    float pixelW = 1.0f / img->GetWidth();
+    float pixelH = 1.0f / img->GetHeight();
 
     int numSamples=ns;
 
@@ -114,38 +119,40 @@ void Camera::RenderScene(Scene* scene, unsigned int ns) {
 #ifdef PARALLEL
 #pragma omp parallel for schedule(dynamic, 50)
 #endif
-        for(unsigned int i=0;i<img->GetWidth()*img->GetHeight();i++) {
-            float x = i % img->GetWidth();
-            float y = i / img->GetWidth();
+        for(unsigned i=0;i<img->GetWidth()*img->GetHeight();i++) {
+            int x = i % img->GetWidth();
+            int y = i / img->GetWidth();
 
             LightIntensity currentPixel;
             for(int sY=-numSamples/2;sY<=numSamples/2;sY++) {
                 for(int sX=-numSamples/2;sX<=numSamples/2;sX++) {
-
                     //cast ray into image
-                    float px = 2.0f*((x+pixelW/numSamples*sX)/img->GetWidth()) - 1.0;
-                    float py = 2.0f*((y+pixelH/numSamples*sY)/img->GetHeight()) - 1.0;
+                    float dx = pixelW / numSamples * sX;
+                    float dy = pixelH / numSamples * sY;
+                    float px = 2.0f * (dx + x) * pixelW - 1.0f;
+                    float py = 2.0f * (dy + y) * pixelH - 1.0f;
                     py = -py;
                     px *= xFactor;
                     py *= yFactor;
 
-                    Vector4 origin(0,0,0,1);
-                    Vector4 direction(px,py, 1, 0);
+                    Vector4 origin(0, 0, 0, 1);
+                    Vector4 direction(px, py, 1, 0);
 
-                    origin = invVPMatrix*Vector4(origin);
-                    direction = invVPMatrix*Vector4(direction);
+                    origin = invVPMatrix * Vector4(origin);
+                    direction = invVPMatrix * Vector4(direction);
 
-                    Ray ray(Vector3(origin.x, origin.y, origin.z), Vector3(direction.x, direction.y, direction.z));
+                    Ray ray(origin, direction);
 
                     //and trace it
-                    //currentPixel += bidirectionalPathTracer.CalculateLightIntensity(scene, ray, position);
-                    currentPixel+=rayTracer.TraceRay(ray, scene, position, 6);
+                    // LightIntensity intensity = rayTracer.TraceRay(ray, scene, position, 6);
+                    LightIntensity intensity = bidirectionalPathTracer.TracePath(ray, scene, position);
+                    currentPixel += intensity;
                 }
             }
-            img->SetPixel(x,y,currentPixel/(numSamples*numSamples));
+            img->SetPixel(x, y, currentPixel / (numSamples * numSamples));
         }
 
-        m_renderingTime = GetCounter();//(int)time.elapsed();
+        m_renderingTime = GetCounter();
         mojStrumien<<"Rendering time " << m_renderingTime <<"ms"<<endl;
 
         img->SaveToFile(renderFileName);
@@ -176,8 +183,8 @@ LightIntensity Camera::getLightIntensity(float x, float y,
     return intensity;
 }
 
-void Camera::RenderSceneStream(Scene* scene, unsigned int ns, unsigned int m_numEmittedGlobalPhotons,
-                               unsigned int m_numEmittedCausticPhotons, int numAssociatedPhotons, float radius, int reflections) {
+void Camera::RenderSceneStream(const Scene* const &scene, unsigned ns, unsigned m_numEmittedGlobalPhotons,
+                               unsigned m_numEmittedCausticPhotons, int numAssociatedPhotons, float radius, int reflections) {
     QTime time;
 
     BlinnPhongBrdf brdf;
@@ -226,7 +233,7 @@ void Camera::RenderSceneStream(Scene* scene, unsigned int ns, unsigned int m_num
 
         for(unsigned j=0;j<img->GetHeight();j++)
         {
-            if(j % 25 == 0)
+            if(j % 50 == 0)
             {
                 qDebug() << "j =" << j;
             }
@@ -251,8 +258,8 @@ void Camera::RenderSceneStream(Scene* scene, unsigned int ns, unsigned int m_num
                     for(int n=0;n<numSamples;n++)
                     {
                         //obliczanie losowej pozycji wewnatrz piksela
-                        float dx = floatRand();
-                        float dy = floatRand();
+                        float dx = randomSignedFloat();
+                        float dy = randomSignedFloat();
                         LightIntensity intensity = getLightIntensity(dx + i, dy + j, pxWidth, pxHeight, scene, bidirectionalPathTracer);
                         currentPixel += intensity;
                     }
@@ -285,7 +292,7 @@ void Camera::RenderSceneStream(Scene* scene, unsigned int ns, unsigned int m_num
     }
 }
 
-void Camera::RenderScene(Scene* scene, unsigned ns, unsigned numGlobalMapPhotons, unsigned numCausticMapPhotons)
+void Camera::RenderScene(const Scene* const &scene, unsigned ns, unsigned numGlobalMapPhotons, unsigned numCausticMapPhotons)
 {
     Recalculate();
     StartCounter();
@@ -308,15 +315,17 @@ void Camera::RenderScene(Scene* scene, unsigned ns, unsigned numGlobalMapPhotons
 #ifdef PARALLEL
 #pragma omp parallel for schedule(dynamic, 50)
 #endif
-        for(unsigned int i=0;i<img->GetWidth()*img->GetHeight();i++) {
+        for(unsigned i=0;i<img->GetWidth()*img->GetHeight();i++) {
             float x = i % img->GetWidth();
             float y = i / img->GetWidth();
 
             LightIntensity currentPixel;
             for(int sY=-numSamples/2;sY<=numSamples/2;sY++) {
                 for(int sX=-numSamples/2;sX<=numSamples/2;sX++) {
-                    float px = 2.0f*((x+pixelW/numSamples*sX)/img->GetWidth()) - 1.0;
-                    float py = 2.0f*((y+pixelH/numSamples*sY)/img->GetHeight()) - 1.0;
+                    float dx = pixelW / numSamples * sX;
+                    float dy = pixelH / numSamples * sY;
+                    float px = 2.0f * (x + dx) * pixelW - 1.0f;
+                    float py = 2.0f * (y + dy) * pixelH - 1.0f;
                     py = -py;
                     px *= xFactor;
                     py *= yFactor;
@@ -343,7 +352,7 @@ void Camera::RenderScene(Scene* scene, unsigned ns, unsigned numGlobalMapPhotons
     }
 }
 
-void Camera::VisualizePhotonMap(Scene *scene, int numPhotons, int maxReflections)
+void Camera::VisualizePhotonMap(const Scene* const &scene, int numPhotons, int maxReflections)
 {
     QTime time;
     Recalculate();
@@ -358,7 +367,7 @@ void Camera::VisualizePhotonMap(Scene *scene, int numPhotons, int maxReflections
 #ifdef PARALLEL
 #pragma omp parallel for
 #endif
-        for(unsigned int i=0;i<img->GetWidth()*img->GetHeight();i++) {
+        for(unsigned i=0;i<img->GetWidth()*img->GetHeight();i++) {
             float x = i % img->GetWidth();
             float y = i / img->GetWidth();
             float X = x;
@@ -435,7 +444,7 @@ void Camera::VisualizePhotonMap(Scene *scene, int numPhotons, int maxReflections
     }
 }
 
-void Camera::VisualizeStreamPhotonMap(Scene *scene, int numPhotons, int maxReflections, int numAssociatedPhotons, float radius)
+void Camera::VisualizeStreamPhotonMap(const Scene* const &scene, int numPhotons, int maxReflections, int numAssociatedPhotons, float radius)
 {
     QTime time;
     Recalculate();
@@ -452,7 +461,7 @@ void Camera::VisualizeStreamPhotonMap(Scene *scene, int numPhotons, int maxRefle
 #ifdef PARALLEL
 #pragma omp parallel for
 #endif
-        for(unsigned int i=0;i<img->GetWidth()*img->GetHeight();i++) {
+        for(unsigned i=0;i<img->GetWidth()*img->GetHeight();i++) {
             float x = i % img->GetWidth();
             float y = i / img->GetWidth();
             float X = x;

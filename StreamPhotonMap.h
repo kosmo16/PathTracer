@@ -1,13 +1,13 @@
 #ifndef STREAMPHOTONMAP_H
 #define STREAMPHOTONMAP_H
 
-#include "Math/Vector3.h"
 #include "LightIntensity.h"
-#include <QList>
 #include "Lights/AmbientLight.h"
-#include "Scene.h"
+#include "Math/Vector3.h"
 #include "KDTree.h"
+#include "Scene.h"
 
+#include <QList>
 
 struct SinglePhoton {
     Vector3 position;
@@ -27,7 +27,7 @@ class StreamPhotonMap
 {
 public:
     StreamPhotonMap();
-    ~StreamPhotonMap();
+    virtual ~StreamPhotonMap();
 
     /**
       Generates streams map
@@ -36,7 +36,7 @@ public:
       \param maxReflections maximum number of photon reflections
       \param caustic indicates if generated photon map should be caustic photon map
       */
-    void GeneratePhotonMap(Scene* scene, int numPhotons, int maxReflections, bool caustic=false);
+    void GeneratePhotonMap(const Scene* const &scene, int numPhotons, int maxReflections, bool caustic=false);
 
     /**
       Returns list of closest streams to given LPOINT in given radius.
@@ -44,7 +44,7 @@ public:
       \param radius radius of search
       \param maxPhotons maximum number of streams to find
       */
-    QList<Stream*> GetClosestPhotons(Vector3 LPOINT, float radius, int maxPhotons);
+    QList<Stream*> GetClosestPhotons(const Vector3 &LPOINT, float radius, int maxPhotons);
 
     /**
       Sets radius of stream
@@ -61,8 +61,8 @@ public:
     }
 
 private:
-    void GeneratePhotons(AmbientLight* light, QList<Geometry*>* geometry, int numPhotons, bool caustic, int maxReflections);
-    void TracePhoton(LightIntensity photonEnergy, const Ray &startRay, QList<Geometry *> *geometry,
+    void GeneratePhotons(AmbientLight* light, const QList<Geometry*>* const &geometry, int numPhotons, bool caustic, int maxReflections);
+    void TracePhoton(LightIntensity photonEnergy, const Ray &startRay, const QList<Geometry*>* const &geometry,
                      QList<Stream *> *photons, Stream* parent, int reflections);
     QList<Stream*> photons;
     KDTree<Stream>* kdTree;

@@ -56,7 +56,6 @@ Vector3 Sphere::MapToLocal(const Vector3 &vec) const {
     return local;
 }
 
-
 QDebug operator<<(QDebug dbg, const Sphere &s) {
     dbg.nospace() << "( position"<<s.position<<", radius "<<s.radius<<")";
     return dbg.space();

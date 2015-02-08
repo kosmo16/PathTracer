@@ -1,7 +1,10 @@
 #include "PhotonMap.h"
-#include <cfloat>
-#include "KDTree.h"
+
 #include "Lights/AreaLight.h"
+#include "Math/randomUtils.h"
+#include "KDTree.h"
+
+#include <cfloat>
 
 #define BIAS 0.001f
 PhotonMap::PhotonMap() {
@@ -17,7 +20,7 @@ PhotonMap::~PhotonMap() {
 }
 
 
-void PhotonMap::GeneratePhotonMap(Scene *scene, int numPhotons, int maxReflections, bool caustic) {
+void PhotonMap::GeneratePhotonMap(const Scene* const &scene, int numPhotons, int maxReflections, bool caustic) {
     int numPOINTLights=0;
     //count how much LPOINT lights are in scene
     for(int i=0;i<scene->lights.count();i++) {
@@ -47,7 +50,7 @@ void PhotonMap::GeneratePhotonMap(Scene *scene, int numPhotons, int maxReflectio
 
 
 //generates photons for given light
-void PhotonMap::GeneratePhotons(AmbientLight *light, QList<Geometry*>* geometry, int numPhotons, bool caustic, int maxReflections) {
+void PhotonMap::GeneratePhotons(AmbientLight *light, const QList<Geometry*>* const &geometry, int numPhotons, bool caustic, int maxReflections) {
 
     QList<Photon*> tempPhotons;
     int emittedPhotons = 0;
@@ -85,7 +88,7 @@ void PhotonMap::GeneratePhotons(AmbientLight *light, QList<Geometry*>* geometry,
 
 
 //Traces way of photon in scene
-void PhotonMap::TracePhoton(LightIntensity photonEnergy, const Ray &startRay, QList<Geometry *> *geometry,
+void PhotonMap::TracePhoton(LightIntensity photonEnergy, const Ray &startRay, const QList<Geometry*>* const &geometry,
                             QList<Photon *> *photons, int reflections) {
 
     int closest=-1;
@@ -168,17 +171,17 @@ void PhotonMap::TracePhoton(LightIntensity photonEnergy, const Ray &startRay, QL
 }
 
 float PhotonMap::PropabilityOfAbsorption() {
-    return ((float)qrand())/RAND_MAX;
+    return randomUnsignedFloat();
 }
 
 Vector3 PhotonMap::LambertReflectionDirection(const IntersectionResult &ir) {
 
     float x,y,z;
     do {
-        x = 2.0f*((float)qrand())/RAND_MAX-1.0f;
-        y = 2.0f*((float)qrand())/RAND_MAX-1.0f;
-        z = 2.0f*((float)qrand())/RAND_MAX-1.0f;
-    } while(x*x+y*y+z*z>1);
+        x = randomSignedFloat();
+        y = randomSignedFloat();
+        z = randomSignedFloat();
+    } while(x*x + y*y + z*z > 1.0f);
 
     Vector3 direction(x,y,z);
 

@@ -26,7 +26,7 @@ void RayTracer::SetPhotonMappingParams(float globalRadius, int globalNumPhotons,
     this->causticRadius = causticRadius;
 }
 
-LightIntensity RayTracer::TraceRay(const Ray&ray, Scene*scene, const Vector3 cameraPosition,
+LightIntensity RayTracer::TraceRay(const Ray &ray, const Scene* const &scene, const Vector3 &cameraPosition,
                                    int reflections, float exposure,
                                    PhotonMap* globalMap, PhotonMap* causticMap) {
     int closest=-1;
