@@ -1,6 +1,5 @@
 #include "Camera.h"
 
-#include "BidirectionalPathTracer/BiDirectionalPathTracer.h"
 #include "BidirectionalPathTracer/BlinnPhongBrdf.h"
 #include "BidirectionalPathTracer/NormalPdf.h"
 #include "PhotonMap.h"
@@ -115,7 +114,7 @@ void Camera::RenderScene(Scene* scene, unsigned int ns) {
         img->Clear(LightIntensity(0,0,0));
 
 #ifdef PARALLEL
-        #pragma omp parallel for schedule(dynamic, 50)
+#pragma omp parallel for schedule(dynamic, 50)
 #endif
         for(unsigned int i=0;i<img->GetWidth()*img->GetHeight();i++) {
             float x = i % img->GetWidth();
@@ -155,6 +154,30 @@ void Camera::RenderScene(Scene* scene, unsigned int ns) {
     }
 }
 
+LightIntensity Camera::getLightIntensity(float x, float y,
+                                         float pxWidth, float pxHeight,
+                                         Scene* const &scene,
+                                         BidirectionalPathTracer &bidirectionalPathTracer) const
+{
+    float pX = x * pxWidth - 1.0f;
+    float pY = y * pxHeight - 1.0f;
+    pY = -pY;
+    pX *= xFactor;
+    pY *= yFactor;
+
+    Vector4 origin(0,0,0,1);
+    Vector4 direction(pX,pY,1,0);
+
+    origin = invVPMatrix*Vector4(origin);
+    direction = invVPMatrix*Vector4(direction);
+
+    Ray ray(Vector3(origin.x, origin.y, origin.z), Vector3(direction.x, direction.y, direction.z));
+    // LightIntensity intensity = rayTracer.TraceRayStream(ray, scene, position, 6, 1050, &photonMap, &causticPhotonMap); // default exposure = 750
+    LightIntensity intensity = bidirectionalPathTracer.TracePath(ray, scene, position);
+
+    return intensity;
+}
+
 void Camera::RenderSceneStream(Scene* scene, unsigned int ns, unsigned int m_numEmittedGlobalPhotons,
                                unsigned int m_numEmittedCausticPhotons, int numAssociatedPhotons, float radius, int reflections) {
     QTime time;
@@ -171,11 +194,10 @@ void Camera::RenderSceneStream(Scene* scene, unsigned int ns, unsigned int m_num
     if(img) {
         img->Clear(LightIntensity(0,0,0));
         time.restart();
-StartCounter();
+        StartCounter();
         StreamPhotonMap photonMap;
         photonMap.SetNumAssociatedPhotons(numAssociatedPhotons);
         photonMap.SetRadius(radius);
-
 
         qDebug()<<"generuje mape globalna";
         photonMap.GeneratePhotonMap(scene, m_numEmittedGlobalPhotons, reflections);
@@ -191,111 +213,53 @@ StartCounter();
         m_renderingTime = GetCounter(); //time.elapsed();
         mojStrumien<< m_renderingTime <<";";
 
-
         time.restart();
-StartCounter();
+        StartCounter();
         mojStrumien<<scene->geometry.count()<<";";
         // przed renderingiem usun sciane frontowa ktora sluzyla tylko do odbijania fotonow podczas propagacji aby nie uciekaly ze sceny
         scene->geometry.at(0)->deleteFrontWall();
         qDebug()<<"zaczynam renderowac";
 
-        //wrong sampling method
-        /*
-        #pragma omp parallel for schedule(dynamic, 50)
-        for(unsigned int i=0;i<img->GetWidth()*img->GetHeight();i++) {
-            float x = i % img->GetWidth();
-            float y = i / img->GetWidth();
+        float pxWidth = 2.0f / img->GetWidth();
+        float pxHeight = 2.0f / img->GetHeight();
 
-            LightIntensity currentPixel;
-            for(int sY=-numSamples/2;sY<=numSamples/2;sY++) {
-                for(int sX=-numSamples/2;sX<=numSamples/2;sX++) {
-                    float px = 2.0f*((x+pixelW/numSamples*sX)/img->GetWidth()) - 1.0;
-                    float py = 2.0f*((y+pixelH/numSamples*sY)/img->GetHeight()) - 1.0;
-                    py = -py;
-                    px *= xFactor;
-                    py *= yFactor;
+        float one_numSamples = 1.0f / numSamples;
 
-                    Vector4 origin(0,0,0,1);
-                    Vector4 direction(px,py, 1, 0);
-
-                    origin = invVPMatrix*Vector4(origin);
-                    direction = invVPMatrix*Vector4(direction);
-
-                    Ray ray(Vector3(origin.x, origin.y, origin.z), Vector3(direction.x, direction.y, direction.z));
-
-                    currentPixel+=rayTracer.TraceRayStream(ray, scene, position, 6, 1050, &photonMap, &causticPhotonMap); // default exposure = 750
-                    ileprobek++;
-                }
-            }
-            img->SetPixel(x,y,currentPixel/ileprobek);//(numSamples*numSamples));
-        }
-        */
-
-        //one sample per pixel
-        if(numSamples==1)
+        for(unsigned j=0;j<img->GetHeight();j++)
         {
-            float pxWidth = 2.0f / img->GetWidth();
-            float pxHeight = 2.0f / img->GetHeight();
-            for(unsigned j=0; j<img->GetHeight();j++)
+            if(j % 10 == 0)
             {
-                for(unsigned i=0;i<img->GetWidth();i++)
+                qDebug() << "j =" << j;
+            }
+
+            for(unsigned i=0;i<img->GetWidth();i++)
+            {
+                LightIntensity currentPixel;
+
+                //one sample per pixel
+                if(numSamples == 1)
                 {
-                    LightIntensity currentPixel;
                     //dla kazdego piksela rzutuj promien przez jego srodek
-                    float pX = (0.5f + i) * pxWidth - 1.0f;
-                    float pY = (0.5f + j) * pxHeight - 1.0f;
-                    pY = -pY;
-                    pX *= xFactor;
-                    pY *= yFactor;
-
-                    Vector4 origin(0,0,0,1);
-                    Vector4 direction(pX,pY,1,0);
-
-                    origin = invVPMatrix*Vector4(origin);
-                    direction = invVPMatrix*Vector4(direction);
-
-                    Ray ray(Vector3(origin.x, origin.y, origin.z), Vector3(direction.x, direction.y, direction.z));
-                    currentPixel+=bidirectionalPathTracer.TracePath(ray, scene, position);
-                    //currentPixel+=rayTracer.TraceRayStream(ray, scene, position, 6, 1050, &photonMap, &causticPhotonMap); // default exposure = 750
-                    img->SetPixel(i,j,currentPixel);
+                    float dx = 0.5f;
+                    float dy = 0.5f;
+                    LightIntensity intensity = getLightIntensity(dx + i, dy + j, pxWidth, pxHeight, scene, bidirectionalPathTracer);
+                    currentPixel += intensity;
                 }
-            }
-        }
-        // stochastic oversampling for multiple samples per pixel
-        else
-        {
-            float one_numSamples = 1.0f / numSamples;
-
-            float pxWidth = 2.0f / img->GetWidth();
-            float pxHeight = 2.0f / img->GetHeight();
-            for(unsigned j=0;j<img->GetHeight();j++)
-            {
-                for(unsigned i=0;i<img->GetWidth();i++)
+                //stochastic oversampling for multiple samples per pixel
+                else
                 {
-                    LightIntensity currentPixel;
                     //dla kazdego piksela rzutuj n promieni
                     for(int n=0;n<numSamples;n++)
                     {
                         //obliczanie losowej pozycji wewnatrz piksela
-                        float pX = (floatRand() + i) * pxWidth - 1.0f;
-                        float pY = (floatRand() + j) * pxHeight - 1.0f;
-                        pY = -pY;
-                        pX *= xFactor;
-                        pY *= yFactor;
-
-                        Vector4 origin(0,0,0,1);
-                        Vector4 direction(pX,pY,1,0);
-
-                        origin = invVPMatrix*Vector4(origin);
-                        direction = invVPMatrix*Vector4(direction);
-
-                        Ray ray(Vector3(origin.x, origin.y, origin.z), Vector3(direction.x, direction.y, direction.z));
-                        currentPixel+=bidirectionalPathTracer.TracePath(ray, scene, position);
-                        //currentPixel+=rayTracer.TraceRayStream(ray, scene, position, 6, 1050, &photonMap, &causticPhotonMap); // default exposure = 750
+                        float dx = floatRand();
+                        float dy = floatRand();
+                        LightIntensity intensity = getLightIntensity(dx + i, dy + j, pxWidth, pxHeight, scene, bidirectionalPathTracer);
+                        currentPixel += intensity;
                     }
-                    //qDebug()<<tempprobek;
-                    img->SetPixel(i,j,currentPixel*one_numSamples);
                 }
+
+                img->SetPixel(i, j, currentPixel * one_numSamples);
             }
         }
 
@@ -324,10 +288,9 @@ StartCounter();
 
 void Camera::RenderScene(Scene* scene, unsigned ns, unsigned numGlobalMapPhotons, unsigned numCausticMapPhotons)
 {
-    QTime time;
-
     Recalculate();
     StartCounter();
+
     float pixelW = 1.0f/img->GetWidth();
     float pixelH = 1.0f/img->GetHeight();
 
@@ -342,8 +305,7 @@ void Camera::RenderScene(Scene* scene, unsigned ns, unsigned numGlobalMapPhotons
         PhotonMap causticPhotonMap;
         causticPhotonMap.GeneratePhotonMap(scene, numCausticMapPhotons, 2, true);
 
-        time.restart();
-StartCounter();
+        StartCounter();
 #ifdef PARALLEL
 #pragma omp parallel for schedule(dynamic, 50)
 #endif
@@ -356,7 +318,7 @@ StartCounter();
                 for(int sX=-numSamples/2;sX<=numSamples/2;sX++) {
                     float px = 2.0f*((x+pixelW/numSamples*sX)/img->GetWidth()) - 1.0;
                     float py = 2.0f*((y+pixelH/numSamples*sY)/img->GetHeight()) - 1.0;
-                    py*=-1;
+                    py = -py;
                     px *= xFactor;
                     py *= yFactor;
 
@@ -368,13 +330,13 @@ StartCounter();
 
                     Ray ray(Vector3(origin.x, origin.y, origin.z), Vector3(direction.x, direction.y, direction.z));
 
-                    currentPixel+=rayTracer.TraceRay(ray, scene, position, 6, 750, &photonMap,&causticPhotonMap);
+                    currentPixel += rayTracer.TraceRay(ray, scene, position, 6, 750, &photonMap, &causticPhotonMap);
                 }
             }
             img->SetPixel(x,y,currentPixel/(numSamples*numSamples));
         }
 
-        m_renderingTime = GetCounter();//time.elapsed();
+        m_renderingTime = GetCounter();
         qDebug()<<"Rendering time " << m_renderingTime <<"ms"<<endl;
 
         renderFileName = QString("pm_%1_%2_%3_%4").arg(ns).arg(numGlobalMapPhotons).arg(numCausticMapPhotons).arg(m_renderingTime);
@@ -395,7 +357,7 @@ void Camera::VisualizePhotonMap(Scene *scene, int numPhotons, int maxReflections
 
         time.restart();
 #ifdef PARALLEL
-        #pragma omp parallel for
+#pragma omp parallel for
 #endif
         for(unsigned int i=0;i<img->GetWidth()*img->GetHeight();i++) {
             float x = i % img->GetWidth();
@@ -489,7 +451,7 @@ void Camera::VisualizeStreamPhotonMap(Scene *scene, int numPhotons, int maxRefle
 
         time.restart();
 #ifdef PARALLEL
-        #pragma omp parallel for
+#pragma omp parallel for
 #endif
         for(unsigned int i=0;i<img->GetWidth()*img->GetHeight();i++) {
             float x = i % img->GetWidth();

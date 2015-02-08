@@ -1,12 +1,15 @@
 #ifndef CAMERA_H
 #define CAMERA_H
-#include "Math/Vector3.h"
+
+#include "BidirectionalPathTracer/BiDirectionalPathTracer.h"
 #include "Math/Matrix4x4.h"
 #include "Math/Ray.h"
+#include "Math/Vector3.h"
 #include "Image.h"
-#include <QList>
-#include "Scene.h"
 #include "RayTracer.h"
+#include "Scene.h"
+
+#include <QList>
 
 class PhotonMap;
 
@@ -134,6 +137,10 @@ public:
 
     int renderingTime() const { return m_renderingTime; } // default time in ms /divide by 1000 to get s
 
+    LightIntensity getLightIntensity(float x, float y,
+                                     float pxWidth, float pxHeight,
+                                     Scene * const &scene,
+                                     BidirectionalPathTracer &bidirectionalPathTracer) const;
 private:
     Vector3 position;
     Vector3 target;
