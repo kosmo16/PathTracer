@@ -1,10 +1,10 @@
 #ifndef __BIDIRECTIONAL_PATHTRACER_H__
 #define __BIDIRECTIONAL_PATHTRACER_H__
 
-#include "LightIntensity.h"
 #include "Lights/POINTLight.h"
 #include "Math/Ray.h"
 #include "brdf.h"
+#include "LightIntensity.h"
 #include "Node.h"
 #include "pdf.h"
 #include "Scene.h"
@@ -17,8 +17,8 @@ private:
     static const int EYE_REFLECTIONS = 5;
     static const int LIGHT_REFLECTIONS = 5;
 
-    const Brdf * const &brdf;
-    const Pdf * const &pdf;
+    const Brdf* const &brdf;
+    const Pdf* const &pdf;
 
     LightIntensity GetIntensity(const Node & node) const;
 

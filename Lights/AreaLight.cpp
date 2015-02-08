@@ -3,11 +3,11 @@
 AreaLight::AreaLight(Vector3 center, Vector2 size, Color color, Vector3 attenuation, int density) {
     float stepX = size.x/(density);
     float stepY = size.y/(density);
-    Vector3 corner = center - Vector3(size.x, 0, size.y);
+//    Vector3 corner = center - Vector3(size.x, 0, size.y);
 
     for(int y=-density/2;y<=density/2;y++) {
         for(int x=-density/2;x<=density/2;x++) {
-            POINTLight* p = new POINTLight(center+Vector3(x*stepX, 0, y*stepY), color/(density*density), attenuation);
+            POINTLight* p = new POINTLight(center+Vector3(stepX * x, 0, stepY * y), color/(density*density), attenuation);
             lights.push_back(p);
         }
     }

@@ -1,11 +1,14 @@
 #include "PhotonMap.h"
-#include <cfloat>
-#include "KDTree.h"
+
 #include "Lights/AreaLight.h"
+#include "KDTree.h"
+
+#include <cfloat>
 
 #define BIAS 0.001f
+
 PhotonMap::PhotonMap() {
-    maxPhotons=5000000;
+    maxPhotons = 5000000;
     kdTree = new KDTree<Photon>();
 }
 

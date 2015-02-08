@@ -6,11 +6,11 @@
 #include "StreamPhotonMap.h"
 
 #include <QTime>
-//#include <algorithm>
+
 #include <cfloat>
-#include <windows.h>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <windows.h>
 
 using namespace std;
 

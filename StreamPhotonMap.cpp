@@ -1,14 +1,16 @@
 #include "StreamPhotonMap.h"
-#include <cfloat>
-#include "KDTree.h"
+
 #include "Lights/AreaLight.h"
+#include "KDTree.h"
+
+#include <cfloat>
 
 #define BIAS 0.001f
 
-const float RADIUS=2.5;
+const float RADIUS = 2.5f;
 
 StreamPhotonMap::StreamPhotonMap() {
-    maxPhotons=9000000;
+    maxPhotons = 9000000;
     kdTree = new KDTree<Stream>();
 }
 
