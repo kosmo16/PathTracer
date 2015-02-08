@@ -150,6 +150,9 @@ private:
     Matrix4x4 vpMatrix;
     Matrix4x4 invVPMatrix;
 
+    float xFactor;
+    float yFactor;
+
     RayTracer rayTracer;
 
     void Recalculate();

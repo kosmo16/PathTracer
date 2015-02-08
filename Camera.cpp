@@ -24,7 +24,7 @@ void StartCounter()
 {
     LARGE_INTEGER li;
     if(!QueryPerformanceFrequency(&li))
-    qDebug() << "QueryPerformanceFrequency failed!\n";
+        qDebug() << "QueryPerformanceFrequency failed!\n";
 
     PCFreq = double(li.QuadPart)/1000.0;
 
@@ -60,7 +60,7 @@ Camera::Camera(Vector3 positon, Vector3 target, float nearPlane, float farPlane,
     this->nearPlane = nearPlane;
     this->farPlane = farPlane;
     this->fov = fov;
-    img=0;
+    img = 0;
     renderFileName = "render";
 }
 
@@ -70,6 +70,8 @@ Camera::Camera(Vector3 positon, Vector3 target, float nearPlane, float farPlane,
 void Camera::Recalculate() {
     if(img) {
         projectionMatrix.SetPerspective(fov, ((float)img->GetWidth())/img->GetHeight(), nearPlane, farPlane);
+        xFactor = 1.0f / projectionMatrix.entries[0];
+        yFactor = 1.0f / projectionMatrix.entries[5];
 
         distance = 1.0f/tanf(fov/2);
         viewMatrix.LoadIdentity();
@@ -100,11 +102,6 @@ void Camera::Recalculate() {
 void Camera::RenderScene(Scene* scene, unsigned int ns) {
 
     // QTime time;
-
-    BlinnPhongBrdf brdf;
-    NormalPdf pdf;
-    BidirectionalPathTracer bidirectionalPathTracer(&brdf, &pdf);
-
     StartCounter();
 
     Recalculate();
@@ -131,9 +128,9 @@ void Camera::RenderScene(Scene* scene, unsigned int ns) {
                     //cast ray into image
                     float px = 2.0f*((x+pixelW/numSamples*sX)/img->GetWidth()) - 1.0;
                     float py = 2.0f*((y+pixelH/numSamples*sY)/img->GetHeight()) - 1.0;
-                    py*=-1;
-                    px /= projectionMatrix.entries[0];
-                    py /= projectionMatrix.entries[5];
+                    py = -py;
+                    px *= xFactor;
+                    py *= yFactor;
 
                     Vector4 origin(0,0,0,1);
                     Vector4 direction(px,py, 1, 0);
@@ -170,11 +167,7 @@ void Camera::RenderSceneStream(Scene* scene, unsigned int ns, unsigned int m_num
     StartCounter();
     Recalculate();
 
-    float pixelW = 1.0f/img->GetWidth();
-    float pixelH = 1.0f/img->GetHeight();
-
-
-    int numSamples=ns;
+    int numSamples = ns;
     if(img) {
         img->Clear(LightIntensity(0,0,0));
         time.restart();
@@ -218,9 +211,9 @@ StartCounter();
                 for(int sX=-numSamples/2;sX<=numSamples/2;sX++) {
                     float px = 2.0f*((x+pixelW/numSamples*sX)/img->GetWidth()) - 1.0;
                     float py = 2.0f*((y+pixelH/numSamples*sY)/img->GetHeight()) - 1.0;
-                    py*=-1;
-                    px /= projectionMatrix.entries[0];
-                    py /= projectionMatrix.entries[5];
+                    py = -py;
+                    px *= xFactor;
+                    py *= yFactor;
 
                     Vector4 origin(0,0,0,1);
                     Vector4 direction(px,py, 1, 0);
@@ -243,25 +236,25 @@ StartCounter();
         {
             float pxWidth = 2.0f / img->GetWidth();
             float pxHeight = 2.0f / img->GetHeight();
-            for(int j=0; j<img->GetHeight();j++)
+            for(unsigned j=0; j<img->GetHeight();j++)
             {
-                for(int i=0;i<img->GetWidth();i++)
+                for(unsigned i=0;i<img->GetWidth();i++)
                 {
                     LightIntensity currentPixel;
                     //dla kazdego piksela rzutuj promien przez jego srodek
-                    float pX = -1.0 + (i+ 0.5 )*pxWidth;
-                    float pY = 1.0 - (j+ 0.5 )*pxHeight;
-                    pX /= projectionMatrix.entries[0];
-                    pY /= projectionMatrix.entries[5];
+                    float pX = (0.5f + i) * pxWidth - 1.0f;
+                    float pY = (0.5f + j) * pxHeight - 1.0f;
+                    pY = -pY;
+                    pX *= xFactor;
+                    pY *= yFactor;
 
                     Vector4 origin(0,0,0,1);
-                    Vector4 direction(pX,pY, 1, 0);
+                    Vector4 direction(pX,pY,1,0);
 
                     origin = invVPMatrix*Vector4(origin);
                     direction = invVPMatrix*Vector4(direction);
 
                     Ray ray(Vector3(origin.x, origin.y, origin.z), Vector3(direction.x, direction.y, direction.z));
-                    //bidirectionalPathTracer.CalculateLightIntensity(scene, ray, position);
                     currentPixel+=bidirectionalPathTracer.TracePath(ray, scene, position);
                     //currentPixel+=rayTracer.TraceRayStream(ray, scene, position, 6, 1050, &photonMap, &causticPhotonMap); // default exposure = 750
                     img->SetPixel(i,j,currentPixel);
@@ -273,26 +266,25 @@ StartCounter();
         {
             float one_numSamples = 1.0f / numSamples;
 
-            float losoweX, losoweY;
             float pxWidth = 2.0f / img->GetWidth();
             float pxHeight = 2.0f / img->GetHeight();
-            for(int j=0;j<img->GetHeight();j++)
+            for(unsigned j=0;j<img->GetHeight();j++)
             {
-                for(int i=0;i<img->GetWidth();i++)
+                for(unsigned i=0;i<img->GetWidth();i++)
                 {
                     LightIntensity currentPixel;
                     //dla kazdego piksela rzutuj n promieni
                     for(int n=0;n<numSamples;n++)
                     {
                         //obliczanie losowej pozycji wewnatrz piksela
-
-                        losoweX = -1.0 + (i + floatRand()) * pxWidth;
-                        losoweY = 1.0 - (j + floatRand()) * pxHeight;
-                        losoweX /= projectionMatrix.entries[0];
-                        losoweY /= projectionMatrix.entries[5];
+                        float pX = (floatRand() + i) * pxWidth - 1.0f;
+                        float pY = (floatRand() + j) * pxHeight - 1.0f;
+                        pY = -pY;
+                        pX *= xFactor;
+                        pY *= yFactor;
 
                         Vector4 origin(0,0,0,1);
-                        Vector4 direction(losoweX, losoweY, 1, 0);
+                        Vector4 direction(pX,pY,1,0);
 
                         origin = invVPMatrix*Vector4(origin);
                         direction = invVPMatrix*Vector4(direction);
@@ -310,24 +302,32 @@ StartCounter();
         m_renderingTime = time.elapsed();
         //mojStrumien<<"stary Rendering time " <<  GetCounter() <<"ms"<<endl;
 
-mojStrumien<< GetCounter()<<";";
-mojStrumien<< (QString("%1;%2;%3;%4;%5").arg(ns).arg(m_numEmittedGlobalPhotons).arg(m_numEmittedCausticPhotons).arg(numAssociatedPhotons).arg(radius)).toStdString()<<endl;
+        mojStrumien << GetCounter() << ";";
+        mojStrumien << QString("%1;%2;%3;%4;%5")
+                       .arg(ns)
+                       .arg(m_numEmittedGlobalPhotons)
+                       .arg(m_numEmittedCausticPhotons)
+                       .arg(numAssociatedPhotons)
+                       .arg(radius)
+                       .toStdString() << endl;
 
-
-        renderFileName = QString("kaustycznatrzywiecej odbic_spm_%1_%2_%3_%4_%5_%6").arg(ns).arg(m_numEmittedGlobalPhotons).arg(m_numEmittedCausticPhotons).arg(numAssociatedPhotons).arg(radius).arg(m_renderingTime);
+        renderFileName = QString("kaustycznatrzywiecej odbic_spm_%1_%2_%3_%4_%5_%6")
+                .arg(ns)
+                .arg(m_numEmittedGlobalPhotons)
+                .arg(m_numEmittedCausticPhotons)
+                .arg(numAssociatedPhotons)
+                .arg(radius)
+                .arg(m_renderingTime);
         img->SaveToFile(renderFileName);
     }
-
 }
 
-void Camera::RenderScene(Scene* scene, unsigned int ns, unsigned int numGlobalMapPhotons,
-                         unsigned int numCausticMapPhotons)
+void Camera::RenderScene(Scene* scene, unsigned ns, unsigned numGlobalMapPhotons, unsigned numCausticMapPhotons)
 {
     QTime time;
 
-
     Recalculate();
-StartCounter();
+    StartCounter();
     float pixelW = 1.0f/img->GetWidth();
     float pixelH = 1.0f/img->GetHeight();
 
@@ -341,9 +341,6 @@ StartCounter();
 
         PhotonMap causticPhotonMap;
         causticPhotonMap.GeneratePhotonMap(scene, numCausticMapPhotons, 2, true);
-
-
-
 
         time.restart();
 StartCounter();
@@ -360,8 +357,8 @@ StartCounter();
                     float px = 2.0f*((x+pixelW/numSamples*sX)/img->GetWidth()) - 1.0;
                     float py = 2.0f*((y+pixelH/numSamples*sY)/img->GetHeight()) - 1.0;
                     py*=-1;
-                    px /= projectionMatrix.entries[0];
-                    py /= projectionMatrix.entries[5];
+                    px *= xFactor;
+                    py *= yFactor;
 
                     Vector4 origin(0,0,0,1);
                     Vector4 direction(px,py, 1, 0);
@@ -388,17 +385,13 @@ StartCounter();
 void Camera::VisualizePhotonMap(Scene *scene, int numPhotons, int maxReflections)
 {
     QTime time;
-     Recalculate();
+    Recalculate();
     if(img) {
         img->Clear(LightIntensity(0,0,0));
 
         PhotonMap photonMap;
 
         photonMap.GeneratePhotonMap(scene, numPhotons, maxReflections, true);
-
-
-
-
 
         time.restart();
 #ifdef PARALLEL
@@ -407,18 +400,17 @@ void Camera::VisualizePhotonMap(Scene *scene, int numPhotons, int maxReflections
         for(unsigned int i=0;i<img->GetWidth()*img->GetHeight();i++) {
             float x = i % img->GetWidth();
             float y = i / img->GetWidth();
-            float X,Y;
-            X=x;
-            Y=y;
+            float X = x;
+            float Y = y;
 
-            x= 2.0f*(x/img->GetWidth())-1.0f;
-            y= 2.0f*(y/img->GetHeight())-1.0f;
-            y*=-1;
-            x /= projectionMatrix.entries[0];
-            y /= projectionMatrix.entries[5];
+            x = 2.0f * x / img->GetWidth() - 1.0f;
+            y = 2.0f * y / img->GetHeight() - 1.0f;
+            y = -y;
+            x *= xFactor;
+            y *= yFactor;
 
             Vector4 origin(0,0,0,1);
-            Vector4 direction(x,y, 1, 0);
+            Vector4 direction(x,y,1,0);
 
             origin = invVPMatrix*Vector4(origin);
             direction = invVPMatrix*Vector4(direction);
@@ -448,7 +440,6 @@ void Camera::VisualizePhotonMap(Scene *scene, int numPhotons, int maxReflections
                     resultIntensity = LightIntensity(0,0,0);
                 }
                 else if(closestIntersection.object->GetMaterial()->type==REFRACTIVE) {
-
                     resultIntensity = LightIntensity(0,0,0);
                 }
                 else {
@@ -465,7 +456,6 @@ void Camera::VisualizePhotonMap(Scene *scene, int numPhotons, int maxReflections
                             }
                         }
 
-
                         resultIntensity += (E/(M_PI*r*r));
                     }
                 }
@@ -476,11 +466,13 @@ void Camera::VisualizePhotonMap(Scene *scene, int numPhotons, int maxReflections
         m_renderingTime = time.elapsed();
         qDebug()<<"Rendering time " << m_renderingTime <<"ms";
 
-        renderFileName = QString("vpm_%1_%2_%3").arg(numPhotons).arg(maxReflections).arg(m_renderingTime);
+        renderFileName = QString("vpm_%1_%2_%3")
+                .arg(numPhotons)
+                .arg(maxReflections)
+                .arg(m_renderingTime);
         img->SaveToFile(renderFileName);
     }
 }
-
 
 void Camera::VisualizeStreamPhotonMap(Scene *scene, int numPhotons, int maxReflections, int numAssociatedPhotons, float radius)
 {
@@ -495,10 +487,6 @@ void Camera::VisualizeStreamPhotonMap(Scene *scene, int numPhotons, int maxRefle
 
         photonMap.GeneratePhotonMap(scene, numPhotons, maxReflections, false);
 
-
-
-
-
         time.restart();
 #ifdef PARALLEL
         #pragma omp parallel for
@@ -506,15 +494,14 @@ void Camera::VisualizeStreamPhotonMap(Scene *scene, int numPhotons, int maxRefle
         for(unsigned int i=0;i<img->GetWidth()*img->GetHeight();i++) {
             float x = i % img->GetWidth();
             float y = i / img->GetWidth();
-            float X,Y;
-            X=x;
-            Y=y;
+            float X = x;
+            float Y = y;
 
-            x= 2.0f*(x/img->GetWidth())-1.0f;
-            y= 2.0f*(y/img->GetHeight())-1.0f;
-            y*=-1;
-            x /= projectionMatrix.entries[0];
-            y /= projectionMatrix.entries[5];
+            x = 2.0f * x / img->GetWidth() - 1.0f;
+            y = 2.0f * y / img->GetHeight() - 1.0f;
+            y = -y;
+            x *= xFactor;
+            y *= yFactor;
 
             Vector4 origin(0,0,0,1);
             Vector4 direction(x,y, 1, 0);
@@ -580,11 +567,14 @@ void Camera::VisualizeStreamPhotonMap(Scene *scene, int numPhotons, int maxRefle
         }
 
         m_renderingTime = time.elapsed();
-        qDebug()<<"Rendering time " << m_renderingTime <<"ms";
+        qDebug() << "Rendering time " << m_renderingTime << "ms";
 
-
-
-        renderFileName = QString("vspm_%1_%2_%3_%4_%5").arg(numPhotons).arg(maxReflections).arg(numAssociatedPhotons).arg(radius).arg(m_renderingTime);
+        renderFileName = QString("vspm_%1_%2_%3_%4_%5")
+                .arg(numPhotons)
+                .arg(maxReflections)
+                .arg(numAssociatedPhotons)
+                .arg(radius)
+                .arg(m_renderingTime);
         img->SaveToFile(renderFileName);
     }
 }
