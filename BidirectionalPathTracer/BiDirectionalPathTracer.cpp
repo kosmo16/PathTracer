@@ -8,13 +8,13 @@ const int BidirectionalPathTracer::LIGHT_REFLECTIONS;
 #define DEBUG false
 #define DEBUGRR true
 
-BidirectionalPathTracer::BidirectionalPathTracer(Brdf * const brdf, Pdf * const pdf)
+BidirectionalPathTracer::BidirectionalPathTracer(const Brdf* const &brdf, const Pdf* const &pdf)
     : brdf(brdf),
       pdf(pdf)
 {
 }
 
-LightIntensity BidirectionalPathTracer::TracePath(const Ray &ray, Scene *scene, const Vector3 cameraPosition)
+LightIntensity BidirectionalPathTracer::TracePath(const Ray &ray, const Scene* const &scene, const Vector3 cameraPosition) const
 {
     std::vector<Node> eyePath;
     GeneratePath(eyePath, scene, ray, EYE_REFLECTIONS);
@@ -54,7 +54,7 @@ LightIntensity BidirectionalPathTracer::TracePath(const Ray &ray, Scene *scene, 
     return resultIntensity;
 }
 
-AmbientLight* BidirectionalPathTracer::GetRandomLightRay(const Scene* const &scene, Ray &randomLightRay)
+AmbientLight* BidirectionalPathTracer::GetRandomLightRay(const Scene* const &scene, Ray &randomLightRay) const
 {
     const QList<AmbientLight*> & lights = scene->lights;
     int numberOfLights = lights.size();
@@ -63,7 +63,7 @@ AmbientLight* BidirectionalPathTracer::GetRandomLightRay(const Scene* const &sce
     return randomLight;
 }
 
-LightIntensity BidirectionalPathTracer::GetIntensity(const Node &node)
+LightIntensity BidirectionalPathTracer::GetIntensity(const Node &node) const
 {
     LightIntensity intensity;
     const Material* const &material = node.intersectionResult.object->GetMaterial();
@@ -83,11 +83,10 @@ LightIntensity BidirectionalPathTracer::GetIntensity(const Node &node)
     return intensity;
 }
 
-LightIntensity BidirectionalPathTracer::EvalPath(Scene *scene,
+LightIntensity BidirectionalPathTracer::EvalPath(const Scene* const &scene,
                                                  const std::vector<Node> &eyePath, int i,
                                                  const std::vector<Node> &lightPath, int j,
-                                                 AmbientLight * light,
-                                                 const Vector3 &cameraPosition)
+                                                 AmbientLight* light, const Vector3 &cameraPosition) const
 {
     LightIntensity L(1.0, 1.0, 1.0);
 
@@ -138,12 +137,12 @@ LightIntensity BidirectionalPathTracer::EvalPath(Scene *scene,
     return L;
 }
 
-float BidirectionalPathTracer::WeightPath(int i, int j)
+float BidirectionalPathTracer::WeightPath(int i, int j) const
 {
     return (float) (i + 2 + j);
 }
 
-bool BidirectionalPathTracer::FindIntersectionInScene(Scene *scene, const Ray &ray, IntersectionResult &intersection)
+bool BidirectionalPathTracer::FindIntersectionInScene(const Scene* const &scene, const Ray &ray, IntersectionResult &intersection) const
 {
     int objectId = -1;
     float closestDistToIntersection = FLT_MAX;
@@ -167,18 +166,18 @@ bool BidirectionalPathTracer::FindIntersectionInScene(Scene *scene, const Ray &r
             || intersection.intersectionLPOINTNormal.y != intersection.intersectionLPOINTNormal.y
             || intersection.intersectionLPOINTNormal.z != intersection.intersectionLPOINTNormal.z)
     {
-        //        qDebug() << __LINE__ << ". BidirectionalPathTracer::FindIntersectionInScene - NaN";
-        //        qDebug() << __LINE__ << ". BidirectionalPathTracer::FindIntersectionInScene - intersection: " << intersection;
-        //        qDebug() << __LINE__ << ". BidirectionalPathTracer::FindIntersectionInScene - objectId: " << objectId;
-        //        qDebug() << __LINE__ << ". BidirectionalPathTracer::FindIntersectionInScene - object: " << scene->geometry;
-        //        throw 1l;
+        // qDebug() << __LINE__ << ". BidirectionalPathTracer::FindIntersectionInScene - NaN";
+        // qDebug() << __LINE__ << ". BidirectionalPathTracer::FindIntersectionInScene - intersection: " << intersection;
+        // qDebug() << __LINE__ << ". BidirectionalPathTracer::FindIntersectionInScene - objectId: " << objectId;
+        // qDebug() << __LINE__ << ". BidirectionalPathTracer::FindIntersectionInScene - object: " << scene->geometry;
+        // throw 1l;
         return false;
     }
 
     return objectId != -1;
 }
 
-bool BidirectionalPathTracer::IsVisible(Scene *scene, const Vector3 &a, const Vector3 &b)
+bool BidirectionalPathTracer::IsVisible(const Scene* const &scene, const Vector3 &a, const Vector3 &b) const
 {
     Vector3 dir = b - a;
     float dist = dir.GetLength();
@@ -201,7 +200,7 @@ bool BidirectionalPathTracer::IsVisible(Scene *scene, const Vector3 &a, const Ve
 Ray* BidirectionalPathTracer::RussianRoulette(const IntersectionResult &intersection,
                                               std::vector<Node> &path,
                                               const Vector3 &normal,
-                                              const Vector3 &rayInDirection)
+                                              const Vector3 &rayInDirection) const
 {
     Ray * rayOut;
 
@@ -223,7 +222,6 @@ Ray* BidirectionalPathTracer::RussianRoulette(const IntersectionResult &intersec
         RefractiveMaterial* mat = (RefractiveMaterial*)material;
 
         Vector3 refracted;
-
         if(intersection.type == HIT)
         {
             refracted = rayInDirection.Refract(normal, mat->etaRate);
@@ -235,7 +233,7 @@ Ray* BidirectionalPathTracer::RussianRoulette(const IntersectionResult &intersec
 
         refracted.Normalize();
 
-        if (rand() > RAND_MAX / 2)
+        if (rand() % 2 == 0)
         {
             if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer::RussianRoulette - 2";
             rayOut = new Ray(origin + refracted * BIAS, refracted);
@@ -271,7 +269,7 @@ Ray* BidirectionalPathTracer::RussianRoulette(const IntersectionResult &intersec
     return rayOut;
 }
 
-std::vector<Node>& BidirectionalPathTracer::GeneratePath(std::vector<Node> &path, Scene *scene, const Ray &rayIn, const int &maxReflections)
+std::vector<Node>& BidirectionalPathTracer::GeneratePath(std::vector<Node> &path, const Scene* const &scene, const Ray &rayIn, const int &maxReflections) const
 {
     IntersectionResult intersection;
     if (FindIntersectionInScene(scene, rayIn, intersection))
@@ -286,27 +284,13 @@ std::vector<Node>& BidirectionalPathTracer::GeneratePath(std::vector<Node> &path
         bool intersectionInScene = false;
         do
         {
-            try
+            reflections++;
+
+            Ray * rayOut = RussianRoulette(intersection, path, normal, rayInDirection);
+            if (rayOut != NULL)
             {
-                Ray * rayOut = RussianRoulette(intersection, path, normal, rayInDirection);
-
-                reflections++;
-
-                if (rayOut != NULL)
-                {
-                    intersectionInScene = FindIntersectionInScene(scene, *rayOut, intersection);
-                }
-
+                intersectionInScene = FindIntersectionInScene(scene, *rayOut, intersection);
                 delete rayOut;
-            }
-            catch(long error)
-            {
-                qDebug() << __LINE__ << ". BidirectionalPathTracer::GeneratePath - error: " << error;
-                qDebug() << __LINE__ << ". BidirectionalPathTracer::GeneratePath - intersection: " << intersection;
-                qDebug() << __LINE__ << ". BidirectionalPathTracer::GeneratePath - rayIn: " << rayIn;
-                qDebug() << __LINE__ << ". BidirectionalPathTracer::GeneratePath - normal: " << normal;
-                qDebug() << __LINE__ << ". BidirectionalPathTracer::GeneratePath - rayInDirection: " << rayInDirection;
-                throw '1';
             }
         }
         while (reflections <= maxReflections && intersectionInScene);

@@ -63,7 +63,7 @@ void MainWindow::renderScene()
     int liczbafotonow=0;
 
  //pętla przebiegów renderingu
- for (int przebieg=0; przebieg<11; przebieg++){
+ for (int przebieg=0; przebieg</*11*/2; przebieg++){
 
     //SCENA PIRAMIDA Z BOXOW
  /*

@@ -139,8 +139,8 @@ public:
 
     LightIntensity getLightIntensity(float x, float y,
                                      float pxWidth, float pxHeight,
-                                     Scene * const &scene,
-                                     BidirectionalPathTracer &bidirectionalPathTracer) const;
+                                     const Scene * const &scene,
+                                     const BidirectionalPathTracer &bidirectionalPathTracer) const;
 private:
     Vector3 position;
     Vector3 target;

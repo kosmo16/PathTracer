@@ -154,8 +154,8 @@ void Camera::RenderScene(Scene* scene, unsigned int ns) {
 
 LightIntensity Camera::getLightIntensity(float x, float y,
                                          float pxWidth, float pxHeight,
-                                         Scene* const &scene,
-                                         BidirectionalPathTracer &bidirectionalPathTracer) const
+                                         const Scene* const &scene,
+                                         const BidirectionalPathTracer &bidirectionalPathTracer) const
 {
     float pX = x * pxWidth - 1.0f;
     float pY = y * pxHeight - 1.0f;
@@ -163,8 +163,8 @@ LightIntensity Camera::getLightIntensity(float x, float y,
     pX *= xFactor;
     pY *= yFactor;
 
-    Vector4 origin(0,0,0,1);
-    Vector4 direction(pX,pY,1,0);
+    Vector4 origin(0, 0, 0, 1);
+    Vector4 direction(pX, pY, 1, 0);
 
     origin = invVPMatrix*Vector4(origin);
     direction = invVPMatrix*Vector4(direction);
@@ -216,12 +216,12 @@ void Camera::RenderSceneStream(Scene* scene, unsigned int ns, unsigned int m_num
         mojStrumien<<scene->geometry.count()<<";";
         // przed renderingiem usun sciane frontowa ktora sluzyla tylko do odbijania fotonow podczas propagacji aby nie uciekaly ze sceny
         scene->geometry.at(0)->deleteFrontWall();
-        qDebug()<<"zaczynam renderowac";
+        qDebug() << "zaczynam renderowac";
 
         float pxWidth = 2.0f / img->GetWidth();
         float pxHeight = 2.0f / img->GetHeight();
 
-        qDebug() << "liczba probek:" << numSamples;
+        qDebug() << "liczba probek na piksel: " << numSamples;
         float one_numSamples = 1.0f / numSamples;
 
         for(unsigned j=0;j<img->GetHeight();j++)

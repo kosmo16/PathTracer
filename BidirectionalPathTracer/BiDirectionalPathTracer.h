@@ -10,8 +10,6 @@
 #include "Scene.h"
 
 #include <cfloat>
-#include <algorithm>
-#include <cmath>
 
 class BidirectionalPathTracer
 {
@@ -19,41 +17,42 @@ private:
     static const int EYE_REFLECTIONS = 5;
     static const int LIGHT_REFLECTIONS = 5;
 
-    Brdf * const brdf;
-    Pdf * const pdf;
+    const Brdf * const &brdf;
+    const Pdf * const &pdf;
 
-    LightIntensity GetIntensity(const Node & node);
+    LightIntensity GetIntensity(const Node & node) const;
 
-    AmbientLight* GetRandomLightRay(const Scene* const &scene, Ray &randomLightRay);
+    AmbientLight* GetRandomLightRay(const Scene* const &scene, Ray &randomLightRay) const;
 
     /**
       Calculate Light Intenisty using Bidirectional Path Tracing
       \param ray ray to trace
       \param scene scene
       */
-    LightIntensity CalculateLightIntensity(Scene *scene, const Ray &ray, const Vector3 cameraPosition);
+    LightIntensity CalculateLightIntensity(const Scene* const &scene, const Ray &ray, const Vector3 cameraPosition) const;
 
-    std::vector<Node>& GeneratePath(std::vector<Node> &path, Scene *scene, const Ray &rayIn, const int &maxReflections);
+    std::vector<Node>& GeneratePath(std::vector<Node> &path, const Scene* const &scene, const Ray &rayIn, const int &maxReflections) const;
 
-    bool FindIntersectionInScene(Scene *scene, const Ray &ray, IntersectionResult &intersection);
+    bool FindIntersectionInScene(const Scene* const &scene, const Ray &ray, IntersectionResult &intersection) const;
 
-    float WeightPath(int i, int j);
+    float WeightPath(int i, int j) const;
 
-    LightIntensity EvalPath(Scene *scene,
+    LightIntensity EvalPath(const Scene* const &scene,
                             const std::vector<Node> &eyePath, int i,
-                            const std::vector<Node> &lightPath, int j, AmbientLight *light, const Vector3 &cameraPosition);
+                            const std::vector<Node> &lightPath, int j,
+                            AmbientLight *light, const Vector3 &cameraPosition) const;
 
-    bool IsVisible(Scene *scene, const Vector3 &a, const Vector3 &b);
+    bool IsVisible(const Scene* const &scene, const Vector3 &a, const Vector3 &b) const;
 
-    void changeL(const Geometry* const &intersectionObject, LightIntensity &L, const IntersectionResult &intersection);
+    void changeL(const Geometry* const &intersectionObject, LightIntensity &L, const IntersectionResult &intersection) const;
 
     Ray * RussianRoulette(const IntersectionResult &intersection,
                           std::vector<Node> &path,
                           const Vector3 &normal,
-                          const Vector3 &rayInDirection);
+                          const Vector3 &rayInDirection) const;
 
 public:
-    BidirectionalPathTracer(Brdf * const brdf, Pdf * const pdf);
+    BidirectionalPathTracer(const Brdf* const &brdf, const Pdf* const &pdf);
 
     /**
       Traces ray with use of photon map.
@@ -62,7 +61,7 @@ public:
       \param cameraPosition position of camera
       \param maxReflections maximum number of ray reflections
       */
-    LightIntensity TracePath(const Ray &ray, Scene *scene, const Vector3 cameraPosition);
+    LightIntensity TracePath(const Ray &ray, const Scene* const &scene, const Vector3 cameraPosition) const;
 
 };
 
