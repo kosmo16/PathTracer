@@ -16,7 +16,7 @@ AmbientLight::AmbientLight(Color c) : color(c) {
     type = AMBIENT;
 }
 
-bool AmbientLight::IsInShadow(const IntersectionResult* const &ir, const QList<Geometry *> &geometry) const {
+bool AmbientLight::IsInShadow(const IntersectionResult* const &/*ir*/, const QList<Geometry *> &/*geometry*/) const {
     return false;
 }
 
@@ -41,11 +41,11 @@ LightIntensity AmbientLight::GetLightIntensity(const Vector3 &cameraPosition,
     return color;
 }
 
-Ray AmbientLight::GetPhoton(bool useProjectionMap) const {
+Ray AmbientLight::GetPhoton(bool /*useProjectionMap*/) const {
     return Ray();
 }
 
-void AmbientLight::CreateProjectionMap(const Scene *s) {
+void AmbientLight::CreateProjectionMap(const Scene */*s*/) {
 
 }
 

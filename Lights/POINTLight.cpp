@@ -103,7 +103,6 @@ LightIntensity POINTLight::GetLightIntensity(const Vector3 &cameraPosition,
         Vector3 normal = ir->intersectionLPOINTNormal;
         Vector3 light(position - ir->LPOINT);
 
-        float lightDistance = light.GetLength();
         normal.Normalize();
         light.Normalize();
 

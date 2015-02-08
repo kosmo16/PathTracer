@@ -59,13 +59,10 @@ void MainWindow::renderScene()
     camera.SetResultFileName("output_image");  //default filename of output image, particular rendering methods override it using actual params for filename
     camera.SetPhotonMappingParams(5, 400, 3, 100); //default setup of parameters (searching radius and number of searched photons for global and caustic map
 
-
     int liczbaodbic=0;
     int liczbafotonow=0;
-    int liczbafotonowPM=0;
+
  //pętla przebiegów renderingu
-
-
  for (int przebieg=0; przebieg<11; przebieg++){
 
     //SCENA PIRAMIDA Z BOXOW

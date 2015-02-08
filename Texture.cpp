@@ -73,7 +73,7 @@ float Texture::GetWhiteToBlackPixelRatio() const {
     float all = width*height;
     float white = 0;
 
-    for(int i=0;i<width*height;i++) {
+    for(unsigned i=0;i<width*height;i++) {
         if(image->pixel(i%width, i/width)==qRgb(255,255,255))
             white++;
     }

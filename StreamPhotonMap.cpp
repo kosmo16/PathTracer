@@ -218,7 +218,6 @@ void StreamPhotonMap::TracePhoton(LightIntensity photonEnergy, const Ray &startR
                 */
 
                 //check if ray from old associated photon to new temp LPOINT intersects something
-                int closestFlag=-1;
                 float closestDistance=FLT_MAX;
                 IntersectionResult tempClosestIntersection;
                 Ray oldAssociatedToNew(parent->associatedPhoton[j].position, newAssociatedPos - parent->associatedPhoton[j].position);
@@ -228,13 +227,12 @@ void StreamPhotonMap::TracePhoton(LightIntensity photonEnergy, const Ray &startR
                     if(iresult.type!=MISS) {
                         if(closestDistance>iresult.distance) {
                             closestDistance = iresult.distance;
-                            closestFlag = k;
                             tempClosestIntersection = iresult;
                         }
                     }
                 }
 
-                //jesli promieñ nowego fotonu trafil w geometrie
+                //jesli promien nowego fotonu trafil w geometrie
                 if(tempClosestIntersection.type!=MISS)
                 {
                     //qDebug()<<"znalazlem przeciecie stowarzyszonego";

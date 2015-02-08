@@ -99,8 +99,6 @@ void Camera::Recalculate() {
 }
 
 void Camera::RenderScene(Scene* scene, unsigned int ns) {
-
-    // QTime time;
     StartCounter();
 
     Recalculate();
@@ -223,11 +221,12 @@ void Camera::RenderSceneStream(Scene* scene, unsigned int ns, unsigned int m_num
         float pxWidth = 2.0f / img->GetWidth();
         float pxHeight = 2.0f / img->GetHeight();
 
+        qDebug() << "liczba probek:" << numSamples;
         float one_numSamples = 1.0f / numSamples;
 
         for(unsigned j=0;j<img->GetHeight();j++)
         {
-            if(j % 10 == 0)
+            if(j % 25 == 0)
             {
                 qDebug() << "j =" << j;
             }

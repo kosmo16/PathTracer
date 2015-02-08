@@ -28,7 +28,7 @@ AreaLight::~AreaLight() {
     inShadows.clear();
 }
 
-bool AreaLight::IsInShadow(const IntersectionResult* const &ir, const QList<Geometry *> &geometry) const {
+bool AreaLight::IsInShadow(const IntersectionResult* const &/*ir*/, const QList<Geometry *> &/*geometry*/) const {
     return false;
 }
 

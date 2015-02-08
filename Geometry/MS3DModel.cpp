@@ -1,11 +1,15 @@
-#include <cstdio>
 #include "MS3DModel.h"
-#include <string.h>
-#include <QDebug>
-#include "Triangle.h"
+
 #include "Box.h"
-#define PI 3.14156
+#include "Triangle.h"
+
+#include <QDebug>
+
 #include <cfloat>
+#include <cstdio>
+#include <cstring>
+
+#define PI 3.14156
 
 MS3DModel::MS3DModel()
 {
@@ -20,8 +24,8 @@ MS3DModel::MS3DModel()
 	meshes=NULL;
 	materials=NULL;
 
-        position.Zero();
-        scale = 1;
+	position.Zero();
+	scale = 1;
 }
 
 MS3DModel::~MS3DModel()
@@ -29,53 +33,38 @@ MS3DModel::~MS3DModel()
 	int i;
 	for(i=0;i<numMeshes;i++)delete[] meshes[i].trianglesIndices;
 
-
-	numMeshes=0;
 	if(meshes!=NULL)
 	{
 		delete[] meshes;
-		meshes=NULL;
 	}
 
-	numMaterials=0;
 	if(materials!=NULL)
 	{
 		delete[] materials;
-		materials=NULL;
 	}
 
-	numTriangles=0;
 	if(triangles!=NULL)
 	{
 		delete[] triangles;
-		triangles=NULL;
 	}
 
-	numVertices=0;
 	if(vertices!=NULL)
 	{
 		delete[] vertices;
-		vertices=NULL;
 	}
-
 }
-
-
 
 void MS3DModel::Load(const char* filename)
 {
 	FILE *pf;
-	int i;
-	char tempChar;
-	float tempFloat;
-	int tempInt;
+    int i;
 	char tempString[40];
 	pf = fopen(filename, "rb");
 	
 	if(!pf)
 	{
-            qDebug()<<"no file";
-            //		MessageBox(NULL,"Nie mo¿na za³adowaæ pliku", "B³¹d", MB_OK);
+		qDebug()<<"no file";
+		// MessageBox(NULL, "Nie moÅ¼na zaÅ‚adowaÄ‡ pliku", "BÅ‚Ä…d", MB_OK);
 		return;
 	}
 
@@ -89,7 +78,7 @@ void MS3DModel::Load(const char* filename)
 
 	if(strcmp(id, "MS3D000000")!=0 || version!=4)
 	{
-                //MessageBox(NULL,"To nie jest plik modelu milkshape", "B³¹d", MB_OK);
+		// MessageBox(NULL, "To nie jest plik modelu milkshape", "BÅ‚Ä…d", MB_OK);
 		return;
 	}
 	//====================
@@ -98,8 +87,7 @@ void MS3DModel::Load(const char* filename)
 	//====================
 	fread(&numVertices, sizeof(short), 1,pf);
 	
-        vertices = new MS3DVertex[numVertices];
-
+	vertices = new MS3DVertex[numVertices];
 	
 	for(i=0;i<numVertices;i++)
 	{
@@ -114,9 +102,8 @@ void MS3DModel::Load(const char* filename)
 	//====================
 	fread(&numTriangles, sizeof(short), 1, pf);
 
-        triangles = new MS3DTriangle[numTriangles];
+	triangles = new MS3DTriangle[numTriangles];
 	
-
 	for(i=0;i<numTriangles;i++)
 	{
 		fread(tempString, sizeof(short), 1, pf); //flags
@@ -132,7 +119,7 @@ void MS3DModel::Load(const char* filename)
 	//Read meshes data
 	//====================
 	fread(&numMeshes, sizeof(short), 1, pf);
-        meshes = new MS3DMesh[numMeshes];
+	meshes = new MS3DMesh[numMeshes];
 
 	for(i=0;i<numMeshes;i++)
 	{
@@ -148,7 +135,7 @@ void MS3DModel::Load(const char* filename)
 	//Read materials data
 	//====================
 	fread(&numMaterials, sizeof(short), 1, pf);
-        materials = new MS3DMaterial[numMaterials];
+	materials = new MS3DMaterial[numMaterials];
 
 	for(i=0;i<numMaterials;i++)
 	{
@@ -162,24 +149,22 @@ void MS3DModel::Load(const char* filename)
 		fread(tempString, sizeof(char), 1, pf); //mode
 		fread(materials[i].texture, sizeof(char), 128, pf);
 		fread(materials[i].alphamap, sizeof(char), 128, pf);
-
-
 	}
 
-        bboxMin = Vector3(5000,5000,5000);
-        bboxMax = Vector3(-5000,-5000,-5000);
-        for(int i=0;i<numVertices;i++) {
-            if(vertices[i].position[0]>bboxMax.x)bboxMax.x = vertices[i].position[0];
-            if(vertices[i].position[1]>bboxMax.y)bboxMax.y = vertices[i].position[1];
-            if(vertices[i].position[2]>bboxMax.z)bboxMax.z = vertices[i].position[2];
+	bboxMin = Vector3(5000,5000,5000);
+	bboxMax = Vector3(-5000,-5000,-5000);
+	for(int i=0;i<numVertices;i++) {
+		if(vertices[i].position[0]>bboxMax.x)bboxMax.x = vertices[i].position[0];
+		if(vertices[i].position[1]>bboxMax.y)bboxMax.y = vertices[i].position[1];
+		if(vertices[i].position[2]>bboxMax.z)bboxMax.z = vertices[i].position[2];
 
-            if(vertices[i].position[0]<bboxMin.x)bboxMin.x = vertices[i].position[0];
-            if(vertices[i].position[1]<bboxMin.y)bboxMin.y = vertices[i].position[1];
-            if(vertices[i].position[2]<bboxMin.z)bboxMin.z = vertices[i].position[2];
-        }
+		if(vertices[i].position[0]<bboxMin.x)bboxMin.x = vertices[i].position[0];
+		if(vertices[i].position[1]<bboxMin.y)bboxMin.y = vertices[i].position[1];
+		if(vertices[i].position[2]<bboxMin.z)bboxMin.z = vertices[i].position[2];
+	}
 
 	fclose(pf);
-       // qDebug()<<"ok"<<bboxMin<<bboxMax;
+	// qDebug()<<"ok"<<bboxMin<<bboxMax;
 }
 
 void MS3DModel::SetPositionAndScale(const Vector3 &position, float scale) {
@@ -188,7 +173,6 @@ void MS3DModel::SetPositionAndScale(const Vector3 &position, float scale) {
 }
 
 IntersectionResult MS3DModel::Intersects(const Ray &ray, float range) const {
-
     //calculate model's transformed bounding box
     Vector3 bboxMinTransformed = scale*bboxMin+position;
     Vector3 bboxMaxTransformed = scale*bboxMax+position;
@@ -209,14 +193,12 @@ IntersectionResult MS3DModel::Intersects(const Ray &ray, float range) const {
                 int triangleIndex = meshes[i].trianglesIndices[j];
                 const MS3DTriangle* tri = &triangles[triangleIndex];
 
-
                 Triangle t(scale*Vector3(vertices[tri->vertexIndices[0]].position)+position,
                            scale*Vector3(vertices[tri->vertexIndices[1]].position)+position,
                            scale*Vector3(vertices[tri->vertexIndices[2]].position)+position,
                            Vector3(tri->vertexNormal[0]),
                            Vector3(tri->vertexNormal[1]),
                            Vector3(tri->vertexNormal[2]));
-
 
                 IntersectionResult ir = t.Intersects(ray, range);
                 if(ir.type!=MISS && ir.distance < closestDist) {
@@ -227,7 +209,7 @@ IntersectionResult MS3DModel::Intersects(const Ray &ray, float range) const {
         }
     }
 
-        closest.object = this;
+    closest.object = this;
     return closest;
 }
 
