@@ -212,3 +212,4 @@ IntersectionResult MS3DModel::Intersects(const Ray &ray, float range) const {
     closest.object = this;
     return closest;
 }
+

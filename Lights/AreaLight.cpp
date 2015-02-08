@@ -60,7 +60,7 @@ LightIntensity AreaLight::GetLightIntensity(const Vector3 &cameraPosition,
 
 Ray AreaLight::GetPhoton(bool useProjectionMap) const {
 
-    int i = qrand() % lights.count();
+    int i = qrand()%lights.count();
 
     Ray r = lights.at(i)->GetPhoton(useProjectionMap);
 

@@ -1,8 +1,6 @@
 #ifndef __VECTOR4_H__
 #define __VECTOR4_H__
-
 #include "Vector3.h"
-
 #include <QDebug>
 
 class Vector4

@@ -33,7 +33,7 @@ public:
       \param maxReflections maximum number of photon reflections
       \param caustic indicates if generated photon map should be caustic photon map
       */
-    void GeneratePhotonMap(const Scene* const &scene, int numPhotons, int maxReflections, bool caustic=false);
+    void GeneratePhotonMap(Scene* scene, int numPhotons, int maxReflections, bool caustic=false);
 
     /**
       Returns list of closest photons to given LPOINT in given radius.
@@ -45,10 +45,10 @@ public:
 
 private:
     //generates photons from single light
-    void GeneratePhotons(AmbientLight* light, const QList<Geometry*>* const &geometry, int numPhotons, bool caustic, int maxReflections);
+    void GeneratePhotons(AmbientLight* light, QList<Geometry*>* geometry, int numPhotons, bool caustic, int maxReflections);
 
     //trace photon in scene and saves informatino to photon map
-    void TracePhoton(LightIntensity photonEnergy, const Ray &startRay, const QList<Geometry *>* const &geometry,
+    void TracePhoton(LightIntensity photonEnergy, const Ray &startRay, QList<Geometry *> *geometry,
                      QList<Photon *> *photons, int reflections);
     QList<Photon*> photons;
     KDTree<Photon>* kdTree;

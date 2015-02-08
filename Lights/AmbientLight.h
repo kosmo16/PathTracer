@@ -1,6 +1,5 @@
 #ifndef AMBIENTLIGHT_H
 #define AMBIENTLIGHT_H
-
 #include "LightIntensity.h"
 #include "Math/Vector3.h"
 #include "Math/Ray.h"
@@ -15,6 +14,8 @@ enum LightSourceType {
     AREA,
     AMBIENT
 };
+
+float floatRand();
 
 /**
   Ambient Light, base class of all lights

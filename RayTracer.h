@@ -25,7 +25,7 @@ public:
       \param globalMap global photon map
       \param causticMap caustic photon map
       */
-    LightIntensity TraceRay(const Ray &ray, const Scene* const &scene, const Vector3 &cameraPosition,
+    LightIntensity TraceRay(const Ray&ray, Scene*scene, const Vector3 cameraPosition,
                             int maxReflections, float exposure=1,
                             PhotonMap*globalMap=0, PhotonMap* causticMap=0);
 

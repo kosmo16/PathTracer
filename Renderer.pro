@@ -28,7 +28,6 @@ HEADERS += \
     Lights/POINTLight.h \
     Math/Matrix4x4.h \
     Math/Plane.h \
-    Math/randomUtils.h \
     Math/Ray.h \
     Math/Vector2.h \
     Math/Vector3.h \
@@ -65,7 +64,6 @@ SOURCES += main.cpp \
     Lights/POINTLight.cpp \
     Math/Matrix4x4.cpp \
     Math/Plane.cpp \
-    Math/randomUtils.cpp \
     Math/Ray.cpp \
     Math/Vector2.cpp \
     Math/Vector3.cpp \

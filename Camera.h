@@ -101,7 +101,7 @@ public:
         \param scene scene
         \param numSamples number of samples per pixel
     */
-    void RenderScene(const Scene* const &scene, unsigned numSamples=1);
+    void RenderScene(Scene* scene, unsigned int numSamples=1);
 
     /** Renders scene with photon mapping
         \param scene scene
@@ -109,7 +109,8 @@ public:
         \param numGlobalMapPhotons number of global map photons
         \param numCausticMapPhotons number of caustic map photons
     */
-    void RenderScene(const Scene* const &scene, unsigned numSamples, unsigned numGlobalMapPhotons, unsigned numCausticMapPhotons);
+    void RenderScene(Scene* scene, unsigned int numSamples, unsigned int numGlobalMapPhotons,
+                     unsigned int numCausticMapPhotons);
 
     /** Renders scene with streamed photon mapping
         \param scene scene
@@ -119,10 +120,10 @@ public:
         \param numAssociatedPhotons number of associated photons
         \param radius radius of photons stream
     */
-    void RenderSceneStream(const Scene* const &scene, unsigned ns, unsigned numEmittedGlobalPhotons, unsigned m_numEmittedCausticPhotons, int numAssociatedPhotons, float radius, int reflections);
+    void RenderSceneStream(Scene* scene, unsigned int ns, unsigned int numEmittedGlobalPhotons, unsigned int m_numEmittedCausticPhotons, int numAssociatedPhotons, float radius, int reflections);
 
-    void VisualizePhotonMap(const Scene* const &scene, int numPhotons, int maxReflections);
-    void VisualizeStreamPhotonMap(const Scene* const &scene, int numPhotons, int maxReflections, int numAssociatedPhotons, float radius);
+    void VisualizePhotonMap(Scene* scene, int numPhotons, int maxReflections);
+    void VisualizeStreamPhotonMap(Scene* scene, int numPhotons, int maxReflections, int numAssociatedPhotons, float radius);
 
     void SetResultFileName(const char* filename) {
         renderFileName = QString(filename);
@@ -138,7 +139,7 @@ public:
 
     LightIntensity getLightIntensity(float x, float y,
                                      float pxWidth, float pxHeight,
-                                     const Scene* const &scene,
+                                     const Scene * const &scene,
                                      const BidirectionalPathTracer &bidirectionalPathTracer) const;
 private:
     Vector3 position;

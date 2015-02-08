@@ -48,4 +48,5 @@ protected:
     Material* material;
 };
 
+
 #endif // GEOMETRY_H

@@ -58,7 +58,7 @@ AmbientLight* BidirectionalPathTracer::GetRandomLightRay(const Scene* const &sce
 {
     const QList<AmbientLight*> & lights = scene->lights;
     int numberOfLights = lights.size();
-    AmbientLight* randomLight = lights[qrand() % numberOfLights];
+    AmbientLight* randomLight = lights[rand() % numberOfLights];
     randomLightRay = randomLight->GetPhoton(false);
     return randomLight;
 }
@@ -129,6 +129,7 @@ LightIntensity BidirectionalPathTracer::EvalPath(const Scene* const &scene,
             L = light->GetLightIntensity(cameraPosition, &eyeNode.intersectionResult, scene->geometry, eyePath[i + 1].intersectionResult.LPOINT, L * eyePath[i + 1].weight);
         }
 
+
         if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer::EvalPath - eyeNode - L: " << L;
     }
 
@@ -166,7 +167,6 @@ bool BidirectionalPathTracer::FindIntersectionInScene(const Scene* const &scene,
             || intersection.intersectionLPOINTNormal.z != intersection.intersectionLPOINTNormal.z)
     {
         // qDebug() << __LINE__ << ". BidirectionalPathTracer::FindIntersectionInScene - NaN";
-        // qDebug() << __LINE__ << ". BidirectionalPathTracer::FindIntersectionInScene - ray: " << ray;
         // qDebug() << __LINE__ << ". BidirectionalPathTracer::FindIntersectionInScene - intersection: " << intersection;
         // qDebug() << __LINE__ << ". BidirectionalPathTracer::FindIntersectionInScene - objectId: " << objectId;
         // qDebug() << __LINE__ << ". BidirectionalPathTracer::FindIntersectionInScene - object: " << scene->geometry;
@@ -230,9 +230,10 @@ Ray* BidirectionalPathTracer::RussianRoulette(const IntersectionResult &intersec
         {
             refracted = rayInDirection.Refract(-normal, 1.0f / mat->etaRate);
         }
+
         refracted.Normalize();
 
-        if (qrand() % 2 == 0)
+        if (rand() % 2 == 0)
         {
             if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer::RussianRoulette - 2";
             rayOut = new Ray(origin + refracted * BIAS, refracted);
@@ -271,9 +272,7 @@ Ray* BidirectionalPathTracer::RussianRoulette(const IntersectionResult &intersec
 std::vector<Node>& BidirectionalPathTracer::GeneratePath(std::vector<Node> &path, const Scene* const &scene, const Ray &rayIn, const int &maxReflections) const
 {
     IntersectionResult intersection;
-
-    bool intersectionInScene = FindIntersectionInScene(scene, rayIn, intersection);
-    if (intersectionInScene)
+    if (FindIntersectionInScene(scene, rayIn, intersection))
     {
         // const Vector3 &origin = intersection.LPOINT;
         const Vector3 &normal = intersection.intersectionLPOINTNormal;
@@ -282,6 +281,7 @@ std::vector<Node>& BidirectionalPathTracer::GeneratePath(std::vector<Node> &path
         if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer::GeneratePath - rayInDirection: " << rayInDirection;
 
         int reflections = 0;
+        bool intersectionInScene = false;
         do
         {
             reflections++;

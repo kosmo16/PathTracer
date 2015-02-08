@@ -82,9 +82,8 @@ IntersectionResult Triangle::Intersects(const Ray& ray, float range) const {
     //interpolate normal at intersection LPOINT
     planeIntersect.intersectionLPOINTNormal = u*normals[0]+v*normals[1]+w*normals[2];
     planeIntersect.intersectionLPOINTNormal.Normalize();
+
 #endif
-
     planeIntersect.object = this;
-
     return planeIntersect;
 }
