@@ -75,7 +75,7 @@ LightIntensity BidirectionalPathTracer::EvalPath(const Scene* const &scene,
     {
         // Mno¿enie * fabs(Dot(eye[i].dirOut, eye[i].normalGeometric)) *  ??eye[i].material->f(eye[i].dirIn, eye[i].dirOut)??
         //L *= GetIntensity(eye[i]) / (eye[i].brdfWeight * eye[i].relativeWeight);
-        L *= GetIntensity(eye[i]) * (eye[i].weight * 0.2);
+        L *= GetIntensity(eye[i]) * /*(eye[i].brdfWeight) **/ fabs(eye[i].intersectionResult.intersectionLPOINTNormal.DotProduct(eye[i].outDirection));;
     }
 
     Vector3 w = light[nLight-1].intersectionResult.LPOINT - eye[nEye-1].intersectionResult.LPOINT;
@@ -83,12 +83,12 @@ LightIntensity BidirectionalPathTracer::EvalPath(const Scene* const &scene,
     //Vec3f ww = -w;
     //DOT
     //L *= GetIntensity(eye[nEye - 1]) / (eye[nEye-1].relativeWeight * light[nLight-1].relativeWeight);
-    L *= GetIntensity(eye[nEye - 1]);// * (0.2*0.2) ;
+    //L *= GetIntensity(eye[nEye - 1]);// * (0.2*0.2) ;
 
     for (int i = nLight-2; i >= 0; --i)
     {
           //L *= GetIntensity(light[i]) / (light[i].brdfWeight * light[i].relativeWeight);
-        L *= GetIntensity(light[i]) * (light[i].weight * 0.2);
+        L *= GetIntensity(light[i]) */* (light[i].brdfWeight) **/ fabs(light[i].intersectionResult.intersectionLPOINTNormal.DotProduct(light[i].outDirection));
     }
 
     return L;
