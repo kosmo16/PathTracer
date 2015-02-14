@@ -38,6 +38,10 @@ private:
     float WeightPath(int i, int j) const;
 
     LightIntensity EvalPath(const Scene* const &scene,
+                                                     const std::vector<Node> &eye, int nEye,
+                                                     const std::vector<Node> &light, int nLight) const;
+
+    LightIntensity EvalPath(const Scene* const &scene,
                             const std::vector<Node> &eyePath, int i,
                             const std::vector<Node> &lightPath, int j,
                             AmbientLight *light, const Vector3 &cameraPosition) const;
