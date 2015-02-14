@@ -35,13 +35,9 @@ MainWindow::MainWindow(QWidget *parent)
     display.setImage(m_image);
 
     connect(renderButton, SIGNAL(clicked()), this, SLOT(renderScene()));
-
-
-
 }
 
 //w celach testowych na sztywno wpisze droge parametrow
-
 
 MainWindow::~MainWindow()
 {

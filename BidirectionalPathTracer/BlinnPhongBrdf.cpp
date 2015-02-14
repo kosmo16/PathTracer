@@ -28,7 +28,37 @@ float BlinnPhongBrdf::computeRatio(
     float normalizationFactor = 0.0397436 * n + 0.0856832;
     float f0 = fZero(n);
 
-    float rho = R_d * M_1_PI * (1.0f - fDiff(f0, N, L)) + normalizationFactor * fSpec(f0, E, H) * power(N.DotProduct(H), n) / max(N.DotProduct(L), N.DotProduct(E));
+    float fDiff_f0_N_L = fDiff(f0, N, L);
+    float left = R_d * M_1_PI * (1.0f - fDiff_f0_N_L);
+
+    float fSpec_f0_E_H = fSpec(f0, E, H);
+    float NdotH = N.DotProduct(H);
+    float NdotL = N.DotProduct(L);
+    float NdotE = N.DotProduct(E);
+    float right = normalizationFactor * fSpec_f0_E_H * power(NdotH, n) / max(NdotL, NdotE);
+
+    float rho = left + right;
+    if(rho < 0.0f)
+    {
+        qDebug().nospace() << __LINE__ << ". R_d: " << R_d;
+        qDebug().nospace() << __LINE__ << ". f0: " << f0;
+
+        qDebug().nospace() << __LINE__ << ". fDiff_f0_N_L: " << fDiff_f0_N_L;
+        qDebug().nospace() << __LINE__ << ". left: " << left;
+
+        qDebug().nospace() << __LINE__ << ". fSpec_f0_E_H: " << fSpec_f0_E_H;
+        qDebug().nospace() << __LINE__ << ". NdotH: " << NdotH;
+        qDebug().nospace() << __LINE__ << ". NdotL: " << NdotL;
+        qDebug().nospace() << __LINE__ << ". NdotE: " << NdotE;
+        qDebug().nospace() << __LINE__ << ". right: " << right;
+
+        qDebug().nospace() << __LINE__ << ". rho: " << rho;
+        throw 1u;
+    }
+    if(rho > 1.0f)
+    {
+        throw 1l;
+    }
     return rho;
 }
 

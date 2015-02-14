@@ -46,7 +46,8 @@ HEADERS += \
     rendererpanel.h \
     Scene.h \
     StreamPhotonMap.h \
-    Texture.h
+    Texture.h \
+    BidirectionalPathTracer/dotBrdf.h
 
 SOURCES += main.cpp \
     BidirectionalPathTracer/BidirectionalPathTracer.cpp \
@@ -83,4 +84,5 @@ SOURCES += main.cpp \
     rendererpanel.cpp \
     Scene.cpp \
     StreamPhotonMap.cpp \
-    Texture.cpp
+    Texture.cpp \
+    BidirectionalPathTracer/dotBrdf.cpp

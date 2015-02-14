@@ -1,6 +1,7 @@
 #include "Camera.h"
 
-#include "BidirectionalPathTracer/BlinnPhongBrdf.h"
+//#include "BidirectionalPathTracer/BlinnPhongBrdf.h"
+#include "BidirectionalPathTracer/DotBrdf.h"
 #include "BidirectionalPathTracer/NormalPdf.h"
 #include "Math/randomUtils.h"
 #include "PhotonMap.h"
@@ -181,7 +182,8 @@ void Camera::RenderSceneStream(Scene* scene, unsigned int ns, unsigned int m_num
                                unsigned int m_numEmittedCausticPhotons, int numAssociatedPhotons, float radius, int reflections) {
     QTime time;
 
-    BlinnPhongBrdf brdf;
+    // BlinnPhongBrdf brdf;
+    DotBrdf brdf;
     NormalPdf pdf;
     BidirectionalPathTracer bidirectionalPathTracer(&brdf, &pdf);
 
