@@ -1,7 +1,13 @@
 #include "Node.h"
 
-Node::Node(const IntersectionResult &intersectionResult, float brdfWeight, float relativeWeight)
-    : brdfWeight(brdfWeight), relativeWeight(relativeWeight), intersectionResult(intersectionResult)
+Node::Node(const IntersectionResult &intersectionResult,
+           float brdfWeight, float relativeWeight,
+           const Vector3 &inDirection, const Vector3 &outDirection)
+    : intersectionResult(intersectionResult),
+      brdfWeight(brdfWeight),
+      relativeWeight(relativeWeight),
+      inDirection(inDirection),
+      outDirection(outDirection)
 {
     if(brdfWeight != brdfWeight)
     {

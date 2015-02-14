@@ -7,12 +7,16 @@ class Node
 {
 //private:
 public:
+    IntersectionResult intersectionResult;
     float brdfWeight;
     float relativeWeight;
-    IntersectionResult intersectionResult;
+    Vector3 inDirection;
+    Vector3 outDirection;
 
 public:
-    Node(const IntersectionResult &intersectionResult, float brdfWeight, float relativeWeight);
+    Node(const IntersectionResult &intersectionResult,
+         float brdfWeight, float relativeWeight,
+         const Vector3 &inDirection, const Vector3 &outDirection);
     virtual ~Node();
 
     float getWeight() const;

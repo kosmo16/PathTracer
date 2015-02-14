@@ -211,7 +211,7 @@ Ray BidirectionalPathTracer::RussianRoulette(const IntersectionResult &intersect
         Vector3 reflected = rayInDirection.Reflect(normal);
         reflected.Normalize();
         Ray rayOut(origin + reflected * BIAS, reflected);
-        path.push_back(Node(intersection, 1.0f, 1.0f / path.size()));
+        path.push_back(Node(intersection, 1.0f, 1.0f / path.size(), rayInDirection, rayOut.direction));
         return rayOut;
     }
     else if(material->type == REFRACTIVE)
@@ -236,7 +236,7 @@ Ray BidirectionalPathTracer::RussianRoulette(const IntersectionResult &intersect
         {
             if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer::RussianRoulette - 2";
             Ray rayOut(origin + refracted * BIAS, refracted);
-            path.push_back(Node(intersection, 1.0f - reflectionCoef, 1.0f / path.size()));
+            path.push_back(Node(intersection, 1.0f - reflectionCoef, 1.0f / path.size(), rayInDirection, rayOut.direction));
             return rayOut;
         }
         else
@@ -245,7 +245,7 @@ Ray BidirectionalPathTracer::RussianRoulette(const IntersectionResult &intersect
             Vector3 reflected = rayInDirection.Reflect(normal);
             reflected.Normalize();
             Ray rayOut(origin + reflected * BIAS, reflected);
-            path.push_back(Node(intersection, reflectionCoef, 1.0f / path.size()));
+            path.push_back(Node(intersection, reflectionCoef, 1.0f / path.size(), rayInDirection, rayOut.direction));
             return rayOut;
         }
     }
@@ -264,7 +264,7 @@ Ray BidirectionalPathTracer::RussianRoulette(const IntersectionResult &intersect
             if(DEBUGRR) qDebug() << __LINE__ << ". BidirectionalPathTracer::RussianRoulette - weight: " << weight;
             throw 1l;
         }
-        path.push_back(Node(intersection, weight, 1.0f / path.size()));
+        path.push_back(Node(intersection, weight, 1.0f / path.size(), rayInDirection, rayOut.direction));
 
         return rayOut;
     }
