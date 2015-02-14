@@ -110,8 +110,7 @@ LightIntensity BidirectionalPathTracer::EvalPath(const Scene* const &scene,
         }
         else
         {
-            const Node &lightNode = lightPath[lightNodeNumber - 1];
-            L = light->GetLightIntensity(cameraPosition, &lightNode.intersectionResult, scene->geometry, lightNode.intersectionResult.LPOINT, L * lightNode.getWeight());
+            L = light->GetLightIntensity(cameraPosition, &lightNode.intersectionResult, scene->geometry, lightPath[lightNodeNumber - 1].intersectionResult.LPOINT, L * lightPath[lightNodeNumber - 1].getWeight());
         }
 
         if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer::EvalPath - lightNode - L: " << L;
@@ -124,13 +123,11 @@ LightIntensity BidirectionalPathTracer::EvalPath(const Scene* const &scene,
 
         if (eyeNodeNumber == i)
         {
-            const Node &tempLightNode = lightPath[j];
-            L = light->GetLightIntensity(cameraPosition, &eyeNode.intersectionResult, scene->geometry, tempLightNode.intersectionResult.LPOINT, L * tempLightNode.getWeight());
+            L = light->GetLightIntensity(cameraPosition, &eyeNode.intersectionResult, scene->geometry, lightPath[j].intersectionResult.LPOINT, L * lightPath[j].getWeight());
         }
         else
         {
-            const Node &tempEyeNode = eyePath[i + 1];
-            L = light->GetLightIntensity(cameraPosition, &eyeNode.intersectionResult, scene->geometry, tempEyeNode.intersectionResult.LPOINT, L * tempEyeNode.getWeight());
+            L = light->GetLightIntensity(cameraPosition, &eyeNode.intersectionResult, scene->geometry, eyePath[i + 1].intersectionResult.LPOINT, L * eyePath[i + 1].getWeight());
         }
 
         if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer::EvalPath - eyeNode - L: " << L;
