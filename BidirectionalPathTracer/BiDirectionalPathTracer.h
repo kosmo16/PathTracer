@@ -53,6 +53,8 @@ private:
                         const Vector3 &normal,
                         const Vector3 &rayInDirection) const;
 
+    bool shouldReflect(const Material* const &material) const;
+
 public:
     BidirectionalPathTracer(const Brdf* const &brdf, const Pdf* const &pdf);
 

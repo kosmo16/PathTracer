@@ -14,7 +14,7 @@ enum MaterialType {
 
 /**
   Base class of material.
-  By defual all materials can have texture
+  By default all materials can have texture
   */
 class Material
 {

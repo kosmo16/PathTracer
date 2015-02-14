@@ -120,7 +120,7 @@ public:
         \param numAssociatedPhotons number of associated photons
         \param radius radius of photons stream
     */
-    void RenderSceneStream(Scene* scene, unsigned int ns, unsigned int numEmittedGlobalPhotons, unsigned int m_numEmittedCausticPhotons, int numAssociatedPhotons, float radius, int reflections);
+    void RenderSceneStream(Scene *scene, unsigned ns, unsigned numEmittedGlobalPhotons, unsigned m_numEmittedCausticPhotons, int numAssociatedPhotons, float radius, int reflections);
 
     void VisualizePhotonMap(Scene* scene, int numPhotons, int maxReflections);
     void VisualizeStreamPhotonMap(Scene* scene, int numPhotons, int maxReflections, int numAssociatedPhotons, float radius);

@@ -43,12 +43,12 @@ LightIntensity BidirectionalPathTracer::TracePath(const Ray &ray, const Scene* c
         }
 
         //Direct ilumination
-//        LightIntensity fromLights;
-//        for (int j = 0; j < scene->lights.size(); j++)
-//        {
-//            fromLights += scene->lights.at(j)->GetLightIntensity(cameraPosition, &eyePath[i].intersectionResult, scene->geometry);
-//            if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer::TracePath - direct - fromLights: " << fromLights;
-//        }
+        //        LightIntensity fromLights;
+        //        for (int j = 0; j < scene->lights.size(); j++)
+        //        {
+        //            fromLights += scene->lights.at(j)->GetLightIntensity(cameraPosition, &eyePath[i].intersectionResult, scene->geometry);
+        //            if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer::TracePath - direct - fromLights: " << fromLights;
+        //        }
 
         //resultIntensity += fromLights;
     }
@@ -73,9 +73,9 @@ LightIntensity BidirectionalPathTracer::EvalPath(const Scene* const &scene,
 
     for (int i = 0; i < nEye - 1; ++i)
     {
-        // Mno¿enie * fabs(Dot(eye[i].dirOut, eye[i].normalGeometric)) *  ??eye[i].material->f(eye[i].dirIn, eye[i].dirOut)??
+        // Mnozenie * fabs(Dot(eye[i].dirOut, eye[i].normalGeometric)) *  ??eye[i].material->f(eye[i].dirIn, eye[i].dirOut)??
         //L *= GetIntensity(eye[i]) / (eye[i].brdfWeight * eye[i].relativeWeight);
-        L *= GetIntensity(eye[i]) * /*(eye[i].brdfWeight) **/ fabs(eye[i].intersectionResult.intersectionLPOINTNormal.DotProduct(eye[i].outDirection));;
+        L *= GetIntensity(eye[i]) * /*(eye[i].brdfWeight) **/ fabs(eye[i].intersectionResult.intersectionLPOINTNormal.DotProduct(eye[i].outDirection));
     }
 
     Vector3 w = light[nLight-1].intersectionResult.LPOINT - eye[nEye-1].intersectionResult.LPOINT;
@@ -87,7 +87,7 @@ LightIntensity BidirectionalPathTracer::EvalPath(const Scene* const &scene,
 
     for (int i = nLight-2; i >= 0; --i)
     {
-          //L *= GetIntensity(light[i]) / (light[i].brdfWeight * light[i].relativeWeight);
+        //L *= GetIntensity(light[i]) / (light[i].brdfWeight * light[i].relativeWeight);
         L *= GetIntensity(light[i]) */* (light[i].brdfWeight) **/ fabs(light[i].intersectionResult.intersectionLPOINTNormal.DotProduct(light[i].outDirection));
     }
 
@@ -107,7 +107,7 @@ LightIntensity BidirectionalPathTracer::GetIntensity(const Node &node) const
     else
     {
         return ((DiffuseMaterial*)material)->diffuse;
-       // if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer::GetIntensity - false - weight: " << weight << ", color: " << color << ", intensity: " << intensity;
+        // if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer::GetIntensity - false - weight: " << weight << ", color: " << color << ", intensity: " << intensity;
     }
 }
 
@@ -299,6 +299,33 @@ Ray BidirectionalPathTracer::RussianRoulette(const IntersectionResult &intersect
     }
 
     throw NULL;
+}
+
+bool BidirectionalPathTracer::shouldReflect(const Material* const &material) const
+{
+    bool should = false;
+    switch (material->type) {
+    case DIFFUSE:
+    {
+        DiffuseMaterial* diffuse = (DiffuseMaterial*)(material);
+        break;
+    }
+    case REFLECTIVE:
+    {
+        ReflectiveMaterial* reflective = (ReflectiveMaterial*)(material);
+        break;
+    }
+    case REFRACTIVE:
+    {
+        RefractiveMaterial* refractive = (RefractiveMaterial*)(material);
+        break;
+    }
+    default:
+    {
+        break;
+    }
+    }
+    return should;
 }
 
 std::vector<Node>& BidirectionalPathTracer::GeneratePath(std::vector<Node> &path, const Scene* const &scene, const Ray &rayIn, const int &maxReflections) const

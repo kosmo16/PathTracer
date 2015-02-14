@@ -1,7 +1,8 @@
 #include "Camera.h"
 
 //#include "BidirectionalPathTracer/BlinnPhongBrdf.h"
-#include "BidirectionalPathTracer/DotBrdf.h"
+//#include "BidirectionalPathTracer/dotBrdf.h"
+#include "BidirectionalPathTracer/outNormalBrdf.h"
 #include "BidirectionalPathTracer/NormalPdf.h"
 #include "Math/randomUtils.h"
 #include "PhotonMap.h"
@@ -178,12 +179,13 @@ LightIntensity Camera::getPixelColor(float x, float y,
     return intensity;
 }
 
-void Camera::RenderSceneStream(Scene* scene, unsigned int ns, unsigned int m_numEmittedGlobalPhotons,
-                               unsigned int m_numEmittedCausticPhotons, int numAssociatedPhotons, float radius, int reflections) {
+void Camera::RenderSceneStream(Scene* scene, unsigned ns, unsigned m_numEmittedGlobalPhotons,
+                               unsigned m_numEmittedCausticPhotons, int numAssociatedPhotons, float radius, int reflections) {
     QTime time;
 
     // BlinnPhongBrdf brdf;
-    DotBrdf brdf;
+    // DotBrdf brdf;
+    OutNormalBrdf brdf;
     NormalPdf pdf;
     BidirectionalPathTracer bidirectionalPathTracer(&brdf, &pdf);
 

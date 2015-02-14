@@ -14,8 +14,10 @@ HEADERS += \
     BidirectionalPathTracer/BidirectionalPathTracer.h \
     BidirectionalPathTracer/BlinnPhongBrdf.h \
     BidirectionalPathTracer/brdf.h \
+    BidirectionalPathTracer/dotBrdf.h \
     BidirectionalPathTracer/Node.h \
     BidirectionalPathTracer/normalPdf.h \
+    BidirectionalPathTracer/outNormalBrdf.h \
     BidirectionalPathTracer/pdf.h \
     Geometry/Box.h \
     Geometry/CornellBox.h \
@@ -46,15 +48,16 @@ HEADERS += \
     rendererpanel.h \
     Scene.h \
     StreamPhotonMap.h \
-    Texture.h \
-    BidirectionalPathTracer/dotBrdf.h
+    Texture.h
 
 SOURCES += main.cpp \
     BidirectionalPathTracer/BidirectionalPathTracer.cpp \
     BidirectionalPathTracer/BlinnPhongBrdf.cpp \
     BidirectionalPathTracer/brdf.cpp \
+    BidirectionalPathTracer/dotBrdf.cpp \
     BidirectionalPathTracer/Node.cpp \
     BidirectionalPathTracer/normalPdf.cpp \
+    BidirectionalPathTracer/outNormalBrdf.cpp \
     BidirectionalPathTracer/pdf.cpp \
     Geometry/Box.cpp \
     Geometry/CornellBox.cpp \
@@ -84,5 +87,4 @@ SOURCES += main.cpp \
     rendererpanel.cpp \
     Scene.cpp \
     StreamPhotonMap.cpp \
-    Texture.cpp \
-    BidirectionalPathTracer/dotBrdf.cpp
+    Texture.cpp
