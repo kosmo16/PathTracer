@@ -71,7 +71,7 @@ LightIntensity BidirectionalPathTracer::GetIntensity(const Node &node) const
     if (type == REFRACTIVE || type == REFLECTIVE)
     {
         float weight = node.brdfWeight * node.relativeWeight;
-        intensity = weight * LightIntensity(1.0, 1.0, 1.0);
+        intensity = weight * LightIntensity(1.0f, 1.0f, 1.0f);
         if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer::GetIntensity - true - intensity: " << intensity;
     }
     else
@@ -89,7 +89,7 @@ LightIntensity BidirectionalPathTracer::EvalPath(const Scene* const &scene,
                                                  const std::vector<Node> &lightPath, int j,
                                                  AmbientLight* light, const Vector3 &cameraPosition) const
 {
-    LightIntensity L(1.0, 1.0, 1.0);
+    LightIntensity L(1.0f, 1.0f, 1.0f);
 
     // sciezka cienia
     const Node & eyeNode = eyePath[i];
@@ -115,7 +115,6 @@ LightIntensity BidirectionalPathTracer::EvalPath(const Scene* const &scene,
 
         if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer::EvalPath - lightNode - L: " << L;
     }
-
 
     for (int eyeNodeNumber = i; eyeNodeNumber >= 0; --eyeNodeNumber)
     {
@@ -216,7 +215,7 @@ Ray BidirectionalPathTracer::RussianRoulette(const IntersectionResult &intersect
     }
     else if(material->type == REFRACTIVE)
     {
-        double reflectionCoef = std::max(0.0, std::min(1.0, 0.05 + 0.11 * (1 + rayInDirection.DotProduct(normal))));
+        double reflectionCoef = std::max(0.0f, std::min(1.0f, 0.05f + 0.11f * (1.0f + rayInDirection.DotProduct(normal))));
 
         const RefractiveMaterial* const &mat = (RefractiveMaterial*)material;
 
