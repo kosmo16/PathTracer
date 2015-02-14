@@ -1,5 +1,5 @@
-#ifndef NODE_H
-#define NODE_H
+#ifndef __NODE_H__
+#define __NODE_H__
 
 #include "RayTracer.h"
 
@@ -7,13 +7,15 @@ class Node
 {
 //private:
 public:
-    float weight;
+    float brdfWeight;
+    float relativeWeight;
     IntersectionResult intersectionResult;
 
 public:
-    Node(float weight, const IntersectionResult &intersectionResult);
-    Node(const IntersectionResult &intersectionResult, float weight);
-    ~Node();
+    Node(const IntersectionResult &intersectionResult, float brdfWeight, float relativeWeight);
+    virtual ~Node();
+
+    float getWeight() const;
 };
 
-#endif // NODE_H
+#endif

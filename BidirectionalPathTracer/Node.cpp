@@ -1,23 +1,23 @@
 #include "Node.h"
 
-Node::Node(float weight, const IntersectionResult &intersectionResult)
-    : weight(weight), intersectionResult(intersectionResult)
+Node::Node(const IntersectionResult &intersectionResult, float brdfWeight, float relativeWeight)
+    : brdfWeight(brdfWeight), relativeWeight(relativeWeight), intersectionResult(intersectionResult)
 {
-    if(weight != weight)
+    if(brdfWeight != brdfWeight)
     {
-        qDebug() << "Node::Node w ir - weight: " << weight << ", intersectionResult: " << intersectionResult;
+        qDebug() << __LINE__ << ". Node::Node w ir - brdfWeight: " << brdfWeight << ", intersectionResult: " << intersectionResult;
     }
-}
-
-Node::Node(const IntersectionResult &intersectionResult, float weight)
-    : weight(weight), intersectionResult(intersectionResult)
-{
-    if(weight != weight)
+    if(relativeWeight != relativeWeight)
     {
-        qDebug() << "Node::Node ir w - weight: " << weight << ", intersectionResult: " << intersectionResult;
+        qDebug() << __LINE__ << ". Node::Node w ir - relativeWeight: " << relativeWeight << ", intersectionResult: " << intersectionResult;
     }
 }
 
 Node::~Node()
 {
+}
+
+float Node::getWeight() const
+{
+    return brdfWeight * relativeWeight;
 }

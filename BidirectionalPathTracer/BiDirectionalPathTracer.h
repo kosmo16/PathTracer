@@ -44,12 +44,10 @@ private:
 
     bool IsVisible(const Scene* const &scene, const Vector3 &a, const Vector3 &b) const;
 
-    void changeL(const Geometry* const &intersectionObject, LightIntensity &L, const IntersectionResult &intersection) const;
-
-    Ray * RussianRoulette(const IntersectionResult &intersection,
-                          std::vector<Node> &path,
-                          const Vector3 &normal,
-                          const Vector3 &rayInDirection) const;
+    Ray RussianRoulette(const IntersectionResult &intersection,
+                        std::vector<Node> &path,
+                        const Vector3 &normal,
+                        const Vector3 &rayInDirection) const;
 
 public:
     BidirectionalPathTracer(const Brdf* const &brdf, const Pdf* const &pdf);
@@ -61,7 +59,7 @@ public:
       \param cameraPosition position of camera
       \param maxReflections maximum number of ray reflections
       */
-    LightIntensity TracePath(const Ray &ray, const Scene* const &scene, const Vector3 cameraPosition) const;
+    LightIntensity TracePath(const Ray &ray, const Scene* const &scene, const Vector3 &cameraPosition) const;
 
 };
 
