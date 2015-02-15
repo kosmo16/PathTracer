@@ -139,8 +139,7 @@ public:
 
     LightIntensity getPixelColor(float x, float y,
                                  float pxWidth, float pxHeight,
-                                 const Scene * const &scene,
-                                 const BidirectionalPathTracer &bidirectionalPathTracer) const;
+                                  Scene * scene);
 private:
     Vector3 position;
     Vector3 target;

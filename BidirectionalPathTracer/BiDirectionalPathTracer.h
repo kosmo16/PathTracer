@@ -14,7 +14,7 @@
 class BidirectionalPathTracer
 {
 private:
-    static const int EYE_REFLECTIONS = 5;
+    static const int EYE_REFLECTIONS = 0;
     static const int LIGHT_REFLECTIONS = 5;
 
     const Brdf* const &brdf;
@@ -39,12 +39,12 @@ private:
 
     LightIntensity EvalPath(const Scene* const &scene,
                                                      const std::vector<Node> &eye, int nEye,
-                                                     const std::vector<Node> &light, int nLight) const;
+                                                     const std::vector<Node> &light, int nLight, AmbientLight *l, const Vector3 &cameraPosition) const;
 
-    LightIntensity EvalPath(const Scene* const &scene,
-                            const std::vector<Node> &eyePath, int i,
-                            const std::vector<Node> &lightPath, int j,
-                            AmbientLight *light, const Vector3 &cameraPosition) const;
+//    LightIntensity EvalPath(const Scene* const &scene,
+//                            const std::vector<Node> &eyePath, int i,
+//                            const std::vector<Node> &lightPath, int j,
+//                            AmbientLight *light, const Vector3 &cameraPosition) const;
 
     bool IsVisible(const Scene* const &scene, const Vector3 &a, const Vector3 &b) const;
 
@@ -65,7 +65,7 @@ public:
       \param cameraPosition position of camera
       \param maxReflections maximum number of ray reflections
       */
-    LightIntensity TracePath(const Ray &ray, const Scene* const &scene, const Vector3 &cameraPosition) const;
+    LightIntensity TracePath(const Ray &ray, const Scene* const &scene, const Vector3 &cameraPosition, int n);
 
 };
 
