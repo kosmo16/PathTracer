@@ -142,20 +142,23 @@ void MainWindow::renderScene()
     Scene scene;
     Sphere* sphere1 = new Sphere(Vector3(-4.6,-6.8,-2), 3.5);
     Sphere* sphere2 = new Sphere(Vector3(4.6,-6.8,-2), 3.5);
+    //Box* box1 = new Box(Vector3(0,-6.8,0), Vector3(3.5,3.5,3.5));
 
     ReflectiveMaterial mat;
     RefractiveMaterial mat2(0.45f);
-    DiffuseMaterial mat3(Color(1,1,1),Color(1,1,1),Color(0,0,0), 15, 0.0f);
+    DiffuseMaterial mat3(Color(0,0,0),Color(0,1,0),Color(0,0,0), 15, 0.0f);
     //cornel box musi byc na poczatku listy geometrii aby przy renderingu (funkcja traceraystream)z listy usuwane byly dwa ostatnie trojkaty sciany frontowej
     scene.AddGeometry(new CornellBox(Vector3(0,0,0), Vector3(20,20,20)));
     sphere1->SetMaterial(&mat);
     sphere2->SetMaterial(&mat2);
+    //box1->SetMaterial(&mat3);
     scene.AddGeometry(sphere1);
     scene.AddGeometry(sphere2);
+    //scene.AddGeometry(box1);
     //LPOINT LIGHT
     //scene.AddLight(new POINTLight(Vector3(0, 9.5, -3),Color(1.0,1.0,1.0),Vector3(1,0.1f,0.0f)));
     //AREA LIGHT
-    scene.AddLight(new AreaLight(Vector3(0, 9.5, -3),Vector2(3,3),Color(1.0,1.0,1.0),Vector3(1,0.1f,0.0f),4));
+    scene.AddLight(new AreaLight(Vector3(0, 9.5, -1),Vector2(3,3),Color(1.0,1.0,1.0),Vector3(1,0.1f,0.0f),4));
 
 
     //SCENA KATAKAUSTYCZNA

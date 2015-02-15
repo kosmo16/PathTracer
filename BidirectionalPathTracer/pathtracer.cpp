@@ -87,7 +87,11 @@ bool PathTracer::FindIntersectionInScene(Scene* scene, const Ray &ray, Intersect
 
 Ray PathTracer::CalculateNode(const IntersectionResult &closestIntersection, std::vector<Node> &path, const Vector3 &rayInDirection)
 {
-    if(closestIntersection.object->GetMaterial()->type==REFLECTIVE) {
+    if (closestIntersection.object->GetMaterial()->type==EMMISIVE)
+    {
+        path.push_back(Node(NULL, 0, 0, LightIntensity(1.0, 1.0, 1.0)));
+    }
+    else if(closestIntersection.object->GetMaterial()->type==REFLECTIVE) {
         Vector3 reflected = rayInDirection.Reflect(closestIntersection.intersectionLPOINTNormal);
         reflected.Normalize();
         path.push_back(Node(closestIntersection, 0, 0, LightIntensity(1.0, 1.0, 1.0)));
@@ -141,7 +145,7 @@ Ray PathTracer::CalculateNode(const IntersectionResult &closestIntersection, std
         direction.Normalize();
         Ray randomRay(closestIntersection.LPOINT + direction*BIAS, direction);
         float NdotRD = fabs(N.DotProduct(randomRay.direction));
-        LightIntensity BRDF = mat->diffuse * (2.0f * NdotRD);
+        LightIntensity BRDF = mat->diffuse * (1.0f * NdotRD);
         //LightIntensity REFLECTED = TracePath(randomRay, scene, cameraPosition, n - 1);
         path.push_back(Node(closestIntersection, 0, 0, BRDF));
         //resultIntensity += BRDF * REFLECTED;

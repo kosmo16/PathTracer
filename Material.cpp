@@ -55,3 +55,8 @@ RefractiveMaterial::RefractiveMaterial(float etaRate, Texture *texture) : Materi
     this->etaRate = etaRate;
     type = REFRACTIVE;
 }
+
+EmmisiveMaterial::EmmisiveMaterial(LightIntensity light) : Material() {
+    this->light = light;
+    type = EMMISIVE;
+}

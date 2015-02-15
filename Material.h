@@ -9,7 +9,8 @@
 enum MaterialType {
     DIFFUSE,
     REFLECTIVE,
-    REFRACTIVE
+    REFRACTIVE,
+    EMMISIVE
 };
 
 /**
@@ -102,6 +103,20 @@ public:
     RefractiveMaterial(float etaRate, Texture* texture);
 
     float etaRate;
+};
+
+/**
+  Refractive material class
+  */
+class EmmisiveMaterial : public Material {
+public:
+    /**
+      Creates refractive material with given ratio of light speed in given media.
+      Material is created without texture
+      */
+    EmmisiveMaterial(LightIntensity light);
+
+    LightIntensity light;
 };
 
 #endif // MATERIAL_H
