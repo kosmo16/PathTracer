@@ -205,11 +205,11 @@ LightIntensity PathTracer::EvalPath(std::vector<Node> &eyePath, int nEye, std::v
 
         float NdotRD1 = fabs(lightPath[nLight - 1].intersectionResult.intersectionLPOINTNormal.DotProduct(out));
 
-
         if (lightPath[nLight - 1].intersectionResult.object->GetMaterial()->type == DIFFUSE)
         {
-            DiffuseMaterial* mat = (DiffuseMaterial*)lightPath[nLight - 1].intersectionResult.object->GetMaterial();
-            result *= mat->diffuse * (2.0f * NdotRD1);
+            // DiffuseMaterial* mat = (DiffuseMaterial*)lightPath[nLight - 1].intersectionResult.object->GetMaterial();
+            // result *= mat->diffuse * (2.0f * NdotRD1);
+            result *= (2.0f * NdotRD1);
         }
         else
         {

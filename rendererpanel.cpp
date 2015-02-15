@@ -73,5 +73,27 @@ RenderingMethod RendererPanel::renderingMethod() const
 
 void RendererPanel::updateRenderingTime(int time)
 {
-    m_timeLabel->setText(QString("Rendering time: %1 ms").arg(time));
+    int milis = time % 1000;
+    time /= 1000;
+    int secs = time % 60;
+    time /= 60;
+    int mins = time % 60;
+    time /= 60;
+    int hours = time;
+    if(hours != 0)
+    {
+        m_timeLabel->setText(QString("Rendering time: %1h %2min %3s %4 ms").arg(hours).arg(mins).arg(secs).arg(milis));
+    }
+    else if(mins != 0)
+    {
+        m_timeLabel->setText(QString("Rendering time: %1min %2s %3ms").arg(mins).arg(secs).arg(milis));
+    }
+    else if(secs != 0)
+    {
+        m_timeLabel->setText(QString("Rendering time: %1s %2ms").arg(secs).arg(milis));
+    }
+    else
+    {
+        m_timeLabel->setText(QString("Rendering time: %1ms").arg(milis));
+    }
 }
