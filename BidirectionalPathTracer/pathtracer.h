@@ -26,13 +26,14 @@ public:
       \param globalMap global streamed photon map
       \param causticMap caustic streamed photon map
       */
-    LightIntensity TracePath(const Ray&ray, Scene *scene, const Vector3 cameraPosition,
-                            int n);
+    LightIntensity TracePath(const Ray&ray, Scene*scene, const Vector3 cameraPosition, int n);
 
     std::vector<Node>& GeneratePath(std::vector<Node> &path, Scene*scene, const Ray &rayIn, int maxReflections);
 
     bool FindIntersectionInScene(Scene* scene, const Ray &ray, IntersectionResult &intersection);
     Ray CalculateNode(const IntersectionResult &closestIntersection, std::vector<Node> &path, const Vector3 &rayInDirection);
+
+    LightIntensity EvalPath(std::vector<Node> &eyePath, int nEye, std::vector<Node> &lightPath, int nLight, Scene *scene);
 };
 
 #endif // PATHTRACER_H

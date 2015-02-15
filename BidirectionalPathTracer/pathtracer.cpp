@@ -183,6 +183,61 @@ std::vector<Node>& PathTracer::GeneratePath(std::vector<Node> &path, Scene*scene
     return path;
 }
 
+LightIntensity PathTracer::EvalPath(std::vector<Node> &eyePath, int nEye, std::vector<Node> &lightPath, int nLight, Scene *scene)
+{
+    LightIntensity result(1.0f, 1.0f, 1.0f);
+
+    for (int i = 0; i < nEye - 1; i++)
+    {
+        result *= eyePath[i].intensity;
+    }
+
+    for (int i = 0; i < nLight - 1; i++)
+    {
+        result *= lightPath[i].intensity;
+    }
+
+    if (IsVisible(scene, eyePath[nEye - 1].intersectionResult.LPOINT, lightPath[nLight - 1].intersectionResult.LPOINT))
+    {
+        Vector3 out = eyePath[nEye - 1].intersectionResult.LPOINT - lightPath[nLight - 1].intersectionResult.LPOINT;
+        out.Normalize();
+        Vector3 out2 = -out;
+
+        float NdotRD1 = fabs(lightPath[nLight - 1].intersectionResult.intersectionLPOINTNormal.DotProduct(out));
+
+
+        if (lightPath[nLight - 1].intersectionResult.object->GetMaterial()->type == DIFFUSE)
+        {
+            DiffuseMaterial* mat = (DiffuseMaterial*)lightPath[nLight - 1].intersectionResult.object->GetMaterial();
+            result *= mat->diffuse * (2.0f * NdotRD1);
+        }
+        else
+        {
+            return LightIntensity();
+            //result *= (2.0f * NdotRD1);
+        }
+
+        float NdotRD2 = fabs(eyePath[nEye - 1].intersectionResult.intersectionLPOINTNormal.DotProduct(out2));
+
+        if (eyePath[nEye - 1].intersectionResult.object->GetMaterial()->type == DIFFUSE)
+        {
+            DiffuseMaterial* mat = (DiffuseMaterial*)eyePath[nEye - 1].intersectionResult.object->GetMaterial();
+            result *= mat->diffuse * (2.0f * NdotRD2);
+        }
+        else
+        {
+            return LightIntensity();
+            //result *= (2.0f * NdotRD2);
+        }
+
+        return result;
+    }
+    else
+    {
+        return LightIntensity();
+    }
+}
+
 LightIntensity PathTracer::TracePath(const Ray&ray, Scene*scene, const Vector3 cameraPosition, int n)
 {
     std::vector<Node> eyePath;
@@ -193,58 +248,24 @@ LightIntensity PathTracer::TracePath(const Ray&ray, Scene*scene, const Vector3 c
     GetRandomLightRay(scene, lightRay);
     GeneratePath(lightPath, scene, lightRay, LIGHT_REFLECTIONS);
 
-    LightIntensity result(1.0f, 1.0f, 1.0f);
+    LightIntensity result;
+    int paths = 0;
 
-    if (eyePath.size() == 0 || lightPath.size() == 0)
+    for (int i = 0; i < eyePath.size(); i++)
     {
-        return LightIntensity();
-    }
-
-    for (int i = 0; i < eyePath.size() - 1; i++)
-    {
-        result *= eyePath[i].intensity;
-    }
-
-    for (int i = 0; i < lightPath.size() - 1; i++)
-    {
-        result *= lightPath[i].intensity;
-    }
-
-    if (IsVisible(scene, eyePath[eyePath.size() - 1].intersectionResult.LPOINT, lightPath[lightPath.size() - 1].intersectionResult.LPOINT))
-    {
-        Vector3 out = eyePath[eyePath.size() - 1].intersectionResult.LPOINT - lightPath[lightPath.size() - 1].intersectionResult.LPOINT;
-        out.Normalize();
-        Vector3 out2 = -out;
-
-        float NdotRD1 = fabs(lightPath[lightPath.size() - 1].intersectionResult.intersectionLPOINTNormal.DotProduct(out));
-
-
-        if (lightPath[lightPath.size() - 1].intersectionResult.object->GetMaterial()->type == DIFFUSE)
+        for (int j = 0; j < lightPath.size(); j++)
         {
-            DiffuseMaterial* mat = (DiffuseMaterial*)lightPath[lightPath.size() - 1].intersectionResult.object->GetMaterial();
-            result *= mat->diffuse * (2.0f * NdotRD1);
-        }
-        else
-        {
-            result *= (2.0f * NdotRD1);
-        }
+            LightIntensity partResult = EvalPath(eyePath, i + 1, lightPath, j + 1, scene);
 
-        float NdotRD2 = fabs(eyePath[eyePath.size() - 1].intersectionResult.intersectionLPOINTNormal.DotProduct(out2));
-
-        if (eyePath[eyePath.size() - 1].intersectionResult.object->GetMaterial()->type == DIFFUSE)
-        {
-            DiffuseMaterial* mat = (DiffuseMaterial*)eyePath[eyePath.size() - 1].intersectionResult.object->GetMaterial();
-            result *= mat->diffuse * (2.0f * NdotRD2);
-        }
-        else
-        {
-            result *= (2.0f * NdotRD2);
+            //if (partResult.r != 0.0 || partResult.g != 0.0 || partResult.b != 0.0)
+            {
+                //paths++;
+                result += partResult / (i + j + 2) ;
+            }
         }
     }
-    else
-    {
-        return LightIntensity();
-    }
+
+  //  result /= paths;
 
 
 //    int closest=-1;
