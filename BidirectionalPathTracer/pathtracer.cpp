@@ -46,22 +46,20 @@ bool IsVisible( Scene* scene, const Vector3 &a, const Vector3 &b)
     return true;
 }
 
-Vector3 UniformSampleHemisphere(Vector3 normal)
+Vector3 UniformSampleHemisphere(const Vector3 &normal)
 {
-    float x, y, z;
-    do {
-        x = 2.0f*((float)rand()) / RAND_MAX - 1.0f;
-        y = 2.0f*((float)rand()) / RAND_MAX - 1.0f;
-        z = 2.0f*((float)rand()) / RAND_MAX - 1.0f;
-    } while (x*x + y*y + z*z > 1);
+    float phi = randomUnsignedFloat(2.0f * M_PI);
+    float rq = randomUnsignedFloat(1.0f);
+    float r = sqrtf(rq);
 
-    Vector3 direction(x, y, z);
-    direction.Normalize();
+    Vector3 V(cosf(phi) * r, sinf(phi) * r, sqrtf(1.0f - rq));
+    V.Normalize();
 
-    if (direction.DotProduct(normal) < 0)
-        direction *= -1;
-
-    return direction;
+    if (V.DotProduct(normal) < 0.0f)
+    {
+        V = -V;
+    }
+    return V;
 }
 
 bool PathTracer::FindIntersectionInScene(Scene* scene, const Ray &ray, IntersectionResult &intersection)
@@ -87,7 +85,7 @@ bool PathTracer::FindIntersectionInScene(Scene* scene, const Ray &ray, Intersect
     return objectId != -1;
 }
 
-Ray PathTracer::CalculateNode(const IntersectionResult &closestIntersection, std::vector<Node> &path, const Vector3 &normal, const Vector3 &rayInDirection)
+Ray PathTracer::CalculateNode(const IntersectionResult &closestIntersection, std::vector<Node> &path, const Vector3 &rayInDirection)
 {
     if(closestIntersection.object->GetMaterial()->type==REFLECTIVE) {
         Vector3 reflected = rayInDirection.Reflect(closestIntersection.intersectionLPOINTNormal);
@@ -166,33 +164,26 @@ Ray PathTracer::CalculateNode(const IntersectionResult &closestIntersection, std
 //    }
 }
 
-std::vector<Node>& PathTracer::GeneratePath(std::vector<Node> &path, Scene*scene, const Ray &rayIn, int &maxReflections)
+std::vector<Node>& PathTracer::GeneratePath(std::vector<Node> &path, Scene*scene, const Ray &firstRay, int maxReflections)
 {
+    Ray rayIn = firstRay;
+
     IntersectionResult intersection;
-
-    if (FindIntersectionInScene(scene, rayIn, intersection))
+    bool intersectionInScene = FindIntersectionInScene(scene, rayIn, intersection);
+    int reflections = 0;
+    while (reflections <= maxReflections && intersectionInScene)
     {
-        // const Vector3 &origin = intersection.LPOINT;
-        const Vector3 &normal = intersection.intersectionLPOINTNormal;
-        const Vector3 &rayInDirection = rayIn.direction;
-        int reflections = 0;
+        reflections++;
 
-        bool intersectionInScene = false;
-        do
-        {
-            reflections++;
-
-            Ray rayOut = CalculateNode(intersection, path, normal, rayInDirection);
-            intersectionInScene = FindIntersectionInScene(scene, rayOut, intersection);
-        }
-        while (reflections <= maxReflections && intersectionInScene);
+        Ray rayOut = CalculateNode(intersection, path, rayIn.direction);
+        intersectionInScene = FindIntersectionInScene(scene, rayOut, intersection);
+        rayIn = rayOut;
     }
 
     return path;
 }
 
-LightIntensity PathTracer::TracePath(const Ray&ray, Scene*scene, const Vector3 cameraPosition,
-                        int n)
+LightIntensity PathTracer::TracePath(const Ray&ray, Scene*scene, const Vector3 cameraPosition, int n)
 {
     std::vector<Node> eyePath;
     GeneratePath(eyePath, scene, ray, EYE_REFLECTIONS);

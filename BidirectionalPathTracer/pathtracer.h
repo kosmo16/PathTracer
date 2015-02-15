@@ -29,10 +29,10 @@ public:
     LightIntensity TracePath(const Ray&ray, Scene *scene, const Vector3 cameraPosition,
                             int n);
 
-    std::vector<Node>& GeneratePath(std::vector<Node> &path, Scene*scene, const Ray &rayIn, int &maxReflections);
+    std::vector<Node>& GeneratePath(std::vector<Node> &path, Scene*scene, const Ray &rayIn, int maxReflections);
 
     bool FindIntersectionInScene(Scene* scene, const Ray &ray, IntersectionResult &intersection);
-    Ray CalculateNode(const IntersectionResult &closestIntersection, std::vector<Node> &path, const Vector3 &normal, const Vector3 &rayInDirection);
+    Ray CalculateNode(const IntersectionResult &closestIntersection, std::vector<Node> &path, const Vector3 &rayInDirection);
 };
 
 #endif // PATHTRACER_H

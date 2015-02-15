@@ -1,4 +1,4 @@
-#include "windows.h"
+#include <windows.h>
 #include "MainWindow.h"
 #include "Geometry/Sphere.h"
 #include "Geometry/Box.h"
@@ -19,12 +19,12 @@ MainWindow::MainWindow(QWidget *parent)
     setlocale(LC_ALL,"C");
     //omp_set_dynamic(1);
     display.resize(512,512);
-    layout = new QHBoxLayout;
+    layout = new QHBoxLayout();
     layout->addWidget(&display);
 
     layout->addWidget(m_rendererPanel);
 
-    mainLayout = new QVBoxLayout;
+    mainLayout = new QVBoxLayout();
     renderButton = new QPushButton("Render");
     mainLayout->addLayout(layout);
     mainLayout->addWidget(renderButton);
@@ -42,7 +42,6 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete m_image;
-    m_image = 0x0;
 }
 
 void MainWindow::renderScene()

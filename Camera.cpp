@@ -269,6 +269,7 @@ void Camera::RenderSceneStream(Scene* scene, unsigned ns, unsigned m_numEmittedG
                 img->SetPixel(i, j, currentPixel * one_numSamples);
             }
         }
+        qDebug() << "koniec";
 
         m_renderingTime = time.elapsed();
         //mojStrumien<<"stary Rendering time " <<  GetCounter() <<"ms"<<endl;
