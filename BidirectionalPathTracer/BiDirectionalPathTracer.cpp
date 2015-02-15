@@ -14,48 +14,191 @@ BidirectionalPathTracer::BidirectionalPathTracer(const Brdf* const &brdf, const 
 {
 }
 
-LightIntensity BidirectionalPathTracer::TracePath(const Ray &ray, const Scene* const &scene, const Vector3 &cameraPosition) const
-{
-    std::vector<Node> eyePath;
-    GeneratePath(eyePath, scene, ray, EYE_REFLECTIONS);
+//LightIntensity BidirectionalPathTracer::TracePath(const Ray &ray, const Scene* const &scene, const Vector3 &cameraPosition) const
+//{
+//    std::vector<Node> eyePath;
+//    GeneratePath(eyePath, scene, ray, EYE_REFLECTIONS);
 
-    std::vector<Node> lightPath;
-    Ray lightRay;
-    AmbientLight * light = GetRandomLightRay(scene, lightRay);
-    GeneratePath(lightPath, scene, lightRay, LIGHT_REFLECTIONS);
+//    std::vector<Node> lightPath;
+//    Ray lightRay;
+//    AmbientLight * light = GetRandomLightRay(scene, lightRay);
+//    GeneratePath(lightPath, scene, lightRay, LIGHT_REFLECTIONS);
 
-    LightIntensity resultIntensity = EvalPath(scene, eyePath, EYE_REFLECTIONS, lightPath, LIGHT_REFLECTIONS);
+//    LightIntensity resultIntensity = EvalPath(scene, eyePath, EYE_REFLECTIONS, lightPath, LIGHT_REFLECTIONS,
+//                                              light, cameraPosition);
 
-//    for (std::vector<Node>::size_type i = 1; i <= eyePath.size(); i++)
-//    {
-//        const Vector3 &eyePoint = eyePath[i - 1].intersectionResult.LPOINT;
+////    for (std::vector<Node>::size_type i = 1; i <= eyePath.size(); i++)
+////    {
+////        const Vector3 &eyePoint = eyePath[i - 1].intersectionResult.LPOINT;
 
-//        for (std::vector<Node>::size_type j = 1; j <= lightPath.size(); j++)
-//        {
-//            const Vector3 &lightPoint = lightPath[j - 1].intersectionResult.LPOINT;
-
-//            if (IsVisible(scene, eyePoint, lightPoint))
-//            {
-//                float weightPath = WeightPath(i, j);
-//                LightIntensity evalPath = EvalPath(scene, eyePath, i, lightPath, j);
-//                resultIntensity += evalPath / weightPath;
-//            }
-//        }
-
-//        //Direct ilumination
-////        LightIntensity fromLights;
-////        for (int j = 0; j < scene->lights.size(); j++)
+////        for (std::vector<Node>::size_type j = 1; j <= lightPath.size(); j++)
 ////        {
-////            fromLights += scene->lights.at(j)->GetLightIntensity(cameraPosition, &eyePath[i].intersectionResult, scene->geometry);
-////            if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer::TracePath - direct - fromLights: " << fromLights;
+////            const Vector3 &lightPoint = lightPath[j - 1].intersectionResult.LPOINT;
+
+////            if (IsVisible(scene, eyePoint, lightPoint))
+////            {
+////                float weightPath = WeightPath(i, j);
+////                LightIntensity evalPath = EvalPath(scene, eyePath, i, lightPath, j);
+////                resultIntensity += evalPath / weightPath;
+////            }
 ////        }
 
-//        //resultIntensity += fromLights;
-//    }
+////        //Direct ilumination
+//////        LightIntensity fromLights;
+//////        for (int j = 0; j < scene->lights.size(); j++)
+//////        {
+//////            fromLights += scene->lights.at(j)->GetLightIntensity(cameraPosition, &eyePath[i].intersectionResult, scene->geometry);
+//////            if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer::TracePath - direct - fromLights: " << fromLights;
+//////        }
 
-    return resultIntensity;
+////        //resultIntensity += fromLights;
+////    }
+
+//    return resultIntensity;
+//}
+
+///TEST
+LightIntensity BidirectionalPathTracer::TracePath(const Ray &ray, const Scene* const &scene, const Vector3 &cameraPosition, int n)
+{
+    // Return if the max recursion depth is exceeded
+
+
+
+            // Find the intersection
+            int closest=-1;
+            float closestDist=FLT_MAX;
+            IntersectionResult closestIntersection;
+
+            for(int j=0;j<scene->geometry.count();j++) {
+                IntersectionResult result = scene->geometry.at(j)->Intersects(ray);
+                if(result.type!=MISS) {
+                    if(closestDist>result.distance) {
+                        closestDist = result.distance;
+                        closest = j;
+                        closestIntersection = result;
+                    }
+                }
+            }
+
+            LightIntensity resultIntensity;
+
+
+
+            if(closest == -1) {
+                return resultIntensity;
+            }
+
+            if (n > EYE_REFLECTIONS)
+            {
+               LightIntensity fromLights;
+               for (int j = 0; j < scene->lights.size(); j++)
+               {
+                   fromLights += scene->lights.at(j)->GetLightIntensity(cameraPosition,&closestIntersection, scene->geometry);
+                   if(DEBUG) qDebug() << __LINE__ << ". BidirectionalPathTracer::TracePath - direct - fromLights: " << fromLights;
+               }
+               return fromLights;
+            }
+
+            // Store the required data into temp objects
+            Material *M = closestIntersection.object->GetMaterial();
+            Vector3 P = closestIntersection.LPOINT;
+            Vector3 N = closestIntersection.intersectionLPOINTNormal;
+            Vector3 RO = ray.origin;
+            Vector3 RD = ray.direction;
+
+            // Initialize the total color vector
+
+            if(M->type==REFLECTIVE) {
+                Vector3 reflected = ray.direction.Reflect(closestIntersection.intersectionLPOINTNormal);
+                reflected.Normalize();
+                Ray newRay(closestIntersection.LPOINT+reflected*BIAS, reflected);
+
+                resultIntensity += TracePath(newRay, scene, cameraPosition, n + 1);
+            }
+            else if(M->type==REFRACTIVE) {
+                float reflectionCoef = max(0.0, min(1.0, 0.05+0.11*(pow(1+ray.direction.DotProduct(closestIntersection.intersectionLPOINTNormal), 1))));
+                LightIntensity reflectedIntensity;
+                LightIntensity refractedIntensity;
+
+                RefractiveMaterial* mat = (RefractiveMaterial*)closestIntersection.object->GetMaterial();
+
+                Vector3 refracted;
+                if(closestIntersection.type==HIT)
+                    refracted = ray.direction.Refract(closestIntersection.intersectionLPOINTNormal, mat->etaRate);
+                else
+                    refracted = ray.direction.Refract(-closestIntersection.intersectionLPOINTNormal, 1.0f/mat->etaRate);
+                refracted.Normalize();
+
+                Ray newRay(closestIntersection.LPOINT+refracted*BIAS, refracted);
+
+                refractedIntensity += TracePath(newRay, scene, cameraPosition, n + 1);
+
+                Vector3 reflected = ray.direction.Reflect(closestIntersection.intersectionLPOINTNormal);
+                reflected.Normalize();
+                newRay = Ray(closestIntersection.LPOINT+reflected*BIAS, reflected);
+
+                reflectedIntensity += TracePath(newRay, scene, cameraPosition, n + 1);
+
+                resultIntensity += reflectionCoef*reflectedIntensity + (1-reflectionCoef)*refractedIntensity;
+            }
+            else {//diffusive material
+                DiffuseMaterial* mat = (DiffuseMaterial*)closestIntersection.object->GetMaterial();
+
+                Ray randomRay(P, pdf->computeDirection(ray.direction, closestIntersection.intersectionLPOINTNormal));
+                float NdotRD = fabs(N.DotProduct(randomRay.direction));
+                LightIntensity BRDF = mat->diffuse*(2.0f * NdotRD);
+                LightIntensity REFLECTED = TracePath(randomRay, scene, cameraPosition, n + 1);
+                resultIntensity += BRDF * REFLECTED;
+            }
+
+
+
+
+
+
+            // Calculate the russian roulette probabilities
+//            float Kd = M.getReflectance().length();
+//            float Ks = M.getReflectivity();
+//            float Pp = Kd / (Kd + Ks);
+//            float Pr = ThreadLocalRandom.current().nextFloat();
+
+
+
+
+//            // Refractive BRDF
+//            if (M.type == REFRACTIVE)
+//            {
+//                weight *= M.getRefractivity();
+//                Ray refractedRay = new Ray(P, RD.refract(N, 1.0f, M.getIndexOfRefraction()).normalize());
+//                color = color.add(pathTrace(refractedRay, n + 1, weight));
+//            }
+
+//            if (Pr < Pp && Kd + Ks != 0.0f)
+//            // Choose diffuse BRDF with probability Pp
+//            {
+//                // Diffuse BRDF
+//                if (M.getReflectance().length() > 0.0f)
+//                {
+//                    Ray randomRay = new Ray(P, N.randomHemisphere());
+//                    float NdotRD = Math.abs(N.dot(randomRay.getDir()));
+//                    Vec3f BRDF = M.getReflectance().scale(2.0f * NdotRD);
+//                    Vec3f REFLECTED = pathTrace(randomRay, n + 1, weight);
+//                    color = color.add(BRDF.scale(REFLECTED));
+//                }
+           // } else
+            // Choose reflective BRDF with probability 1 - Pp
+//            {
+//                // Reflective BRDF
+//                if (M.getReflectivity() > 0.0f)
+//                {
+//                    weight *= M.getReflectivity();
+//                    Ray reflectedRay = new Ray(P, RD.reflect(N).normalize());
+//                    color = color.add(pathTrace(reflectedRay, n + 1, weight));
+//                }
+//            }
+
+            return resultIntensity;//MathUtils.clamp(color, 0.0f, Config.min_radiance);
 }
-
 AmbientLight* BidirectionalPathTracer::GetRandomLightRay(const Scene* const &scene, Ray &randomLightRay) const
 {
     const QList<AmbientLight*> & lights = scene->lights;
@@ -67,20 +210,27 @@ AmbientLight* BidirectionalPathTracer::GetRandomLightRay(const Scene* const &sce
 
 LightIntensity BidirectionalPathTracer::EvalPath(const Scene* const &scene,
                                                  const std::vector<Node> &eye, int nEye,
-                                                 const std::vector<Node> &light, int nLight) const
+                                                 const std::vector<Node> &light, int nLight,
+                                                 AmbientLight * l, const Vector3 &cameraPosition) const
 {
-    LightIntensity L(0.0, 0.0, 0.0);
+    LightIntensity L(1.0, 1.0, 1.0);
 
-    for (int i = 0; i < nLight; ++i)
+    for (int i = 0; i < light.size(); ++i)
     {
         L *= GetIntensity(light[i]);
+
+//        for(int j=0;j<scene->lights.count();j++) {
+//            L += scene->lights.at(j)->GetLightIntensity(cameraPosition, &light[i].intersectionResult, scene->geometry);
+//        }
     }
 
 
-    for (int i = 0; i < nEye; ++i)
-    {
-        L *= GetIntensity(eye[i]);
-    }
+
+
+//    for (int i = 0; i < nEye; ++i)
+//    {
+//        L *= GetIntensity(eye[i]);
+//    }
 
     return L;
 }

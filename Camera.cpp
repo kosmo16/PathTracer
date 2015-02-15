@@ -158,7 +158,7 @@ void Camera::RenderScene(Scene* scene, unsigned int ns) {
 LightIntensity Camera::getPixelColor(float x, float y,
                                      float pxWidth, float pxHeight,
                                      const Scene* const &scene,
-                                     const BidirectionalPathTracer &bidirectionalPathTracer) const
+                                     BidirectionalPathTracer &bidirectionalPathTracer)
 {
     float pX = x * pxWidth - 1.0f;
     float pY = y * pxHeight - 1.0f;
@@ -174,7 +174,7 @@ LightIntensity Camera::getPixelColor(float x, float y,
 
     Ray ray(origin, direction);
     // LightIntensity intensity = rayTracer.TraceRayStream(ray, scene, position, 6, 1050, &photonMap, &causticPhotonMap); // default exposure = 750
-    LightIntensity intensity = bidirectionalPathTracer.TracePath(ray, scene, position);
+    LightIntensity intensity = bidirectionalPathTracer.TracePath(ray, scene, position, 0);
 
     return intensity;
 }
