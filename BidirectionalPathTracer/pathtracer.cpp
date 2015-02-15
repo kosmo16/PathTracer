@@ -266,7 +266,7 @@ LightIntensity PathTracer::TracePath(const Ray&ray, Scene*scene, const Vector3 c
 
     if (eyePath.size() > 0 && eyePath[eyePath.size() - 1].intersectionResult.object->GetMaterial()->type == EMMISIVE)
     {
-        result = eyePath[eyePath.size() - 1].intersectionResult.object->GetMaterial()->light;
+        result = ((EmmisiveMaterial*)(eyePath[eyePath.size() - 1].intersectionResult.object->GetMaterial()))->light;
 
         for (int i = 0; i < eyePath.size() - 1; i++)
         {

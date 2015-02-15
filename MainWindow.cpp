@@ -156,7 +156,7 @@ void MainWindow::renderScene()
     scene.AddGeometry(sphere2);
 
     const Vector3 c(0.0f, 9.5f, -1.0f);
-    const float d = 1.0f;
+    const float d = 3.0f;
 
     Triangle* emisiveTriangle1 = new Triangle(Vector3(c.x+d, c.y, c.z+d), Vector3(c.x+d, c.y, c.z-d), Vector3(c.x-d, c.y, c.z+d));
     Triangle* emisiveTriangle2 = new Triangle(Vector3(c.x-d, c.y, c.z-d), Vector3(c.x-d, c.y, c.z+d), Vector3(c.x+d, c.y, c.z-d));
@@ -169,7 +169,7 @@ void MainWindow::renderScene()
     //LPOINT LIGHT
     //scene.AddLight(new POINTLight(Vector3(0, 9.5, -3),Color(1.0,1.0,1.0),Vector3(1,0.1f,0.0f)));
     //AREA LIGHT
-    scene.AddLight(new AreaLight(c,Vector2(3,3),Color(1.0,1.0,1.0),Vector3(1,0.1f,0.0f),4));
+    scene.AddLight(new AreaLight(c,Vector2(d,d),Color(1.0,1.0,1.0),Vector3(1,0.1f,0.0f),4));
 
 
     //SCENA KATAKAUSTYCZNA
