@@ -15,7 +15,7 @@ class BidirectionalPathTracer
 {
 private:
     static const int EYE_REFLECTIONS = 0;
-    static const int LIGHT_REFLECTIONS = 1;
+    static const int LIGHT_REFLECTIONS = 5;
 
     const Brdf* const &brdf;
     const Pdf* const &pdf;
