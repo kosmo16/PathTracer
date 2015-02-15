@@ -1,12 +1,12 @@
 #ifndef __BIDIRECTIONAL_PATHTRACER_H__
 #define __BIDIRECTIONAL_PATHTRACER_H__
 
+#include "BidirectionalPathTracer/brdf.h"
+#include "BidirectionalPathTracer/Node.h"
+#include "BidirectionalPathTracer/pdf.h"
 #include "Lights/POINTLight.h"
 #include "Math/Ray.h"
-#include "brdf.h"
 #include "LightIntensity.h"
-#include "Node.h"
-#include "pdf.h"
 #include "Scene.h"
 
 #include <cfloat>
