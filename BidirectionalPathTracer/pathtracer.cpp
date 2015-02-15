@@ -96,7 +96,7 @@ Ray PathTracer::CalculateNode(const IntersectionResult &closestIntersection, std
         return Ray(closestIntersection.LPOINT+reflected*BIAS, reflected);
     }
     else if(closestIntersection.object->GetMaterial()->type==REFRACTIVE) {
-        float reflectionCoef = max(0.0, min(1.0, 0.05+0.11*(pow(1+rayInDirection.DotProduct(closestIntersection.intersectionLPOINTNormal), 1))));
+        float reflectionCoef = max(0.0, min(1.0, 0.05+0.11*(pow(1.0+rayInDirection.DotProduct(closestIntersection.intersectionLPOINTNormal), 1))));
         LightIntensity reflectedIntensity;
         LightIntensity refractedIntensity;
 
@@ -285,7 +285,7 @@ LightIntensity PathTracer::TracePath(const Ray&ray, Scene*scene, const Vector3 c
 //        resultIntensity += TracePath(newRay, scene, cameraPosition, n - 1);
 //    }
 //    else if(closestIntersection.object->GetMaterial()->type==REFRACTIVE && n>0) {
-//        float reflectionCoef = max(0.0, min(1.0, 0.05+0.11*(pow(1+ray.direction.DotProduct(closestIntersection.intersectionLPOINTNormal), 1))));
+//        float reflectionCoef = max(0.0, min(1.0, 0.05+0.11*(pow(1.0+ray.direction.DotProduct(closestIntersection.intersectionLPOINTNormal), 1))));
 //        LightIntensity reflectedIntensity;
 //        LightIntensity refractedIntensity;
 

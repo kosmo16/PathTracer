@@ -17,7 +17,8 @@ public:
 public:
     Node(const IntersectionResult &intersectionResult,
          float brdfWeight, float relativeWeight,
-        LightIntensity intensity/* const Vector3 &inDirection, const Vector3 &outDirection*/);
+         /*const Vector3 &inDirection, const Vector3 &outDirection,*/
+         LightIntensity intensity);
     virtual ~Node();
 
     float getWeight() const;

@@ -11,7 +11,6 @@ QT += core gui
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 # Input
 HEADERS += \
-    BidirectionalPathTracer/BidirectionalPathTracer.h \
     BidirectionalPathTracer/BlinnPhongBrdf.h \
     BidirectionalPathTracer/brdf.h \
     BidirectionalPathTracer/dotBrdf.h \
@@ -53,7 +52,6 @@ HEADERS += \
     BidirectionalPathTracer/hemispherePdf.h
 
 SOURCES += main.cpp \
-    BidirectionalPathTracer/BidirectionalPathTracer.cpp \
     BidirectionalPathTracer/BlinnPhongBrdf.cpp \
     BidirectionalPathTracer/brdf.cpp \
     BidirectionalPathTracer/dotBrdf.cpp \
