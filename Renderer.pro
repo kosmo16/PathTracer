@@ -11,15 +11,13 @@ QT += core gui
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 # Input
 HEADERS += \
+    BidirectionalPathTracer/BidirectionalPathTracer.h \
     BidirectionalPathTracer/BlinnPhongBrdf.h \
     BidirectionalPathTracer/brdf.h \
     BidirectionalPathTracer/dotBrdf.h \
-    BidirectionalPathTracer/hemispherePdf.h \
     BidirectionalPathTracer/Node.h \
     BidirectionalPathTracer/outNormalBrdf.h \
-    BidirectionalPathTracer/pathtracer.h \
     BidirectionalPathTracer/pdf.h \
-    BidirectionalPathTracer/semicirclePdf.h \
     Geometry/Box.h \
     Geometry/CornellBox.h \
     Geometry/Geometry.h \
@@ -49,18 +47,19 @@ HEADERS += \
     rendererpanel.h \
     Scene.h \
     StreamPhotonMap.h \
-    Texture.h
+    Texture.h \
+    BidirectionalPathTracer/pathtracer.h \
+    BidirectionalPathTracer/semicirclePdf.h \
+    BidirectionalPathTracer/hemispherePdf.h
 
 SOURCES += main.cpp \
+    BidirectionalPathTracer/BidirectionalPathTracer.cpp \
     BidirectionalPathTracer/BlinnPhongBrdf.cpp \
     BidirectionalPathTracer/brdf.cpp \
     BidirectionalPathTracer/dotBrdf.cpp \
-    BidirectionalPathTracer/hemispherePdf.cpp \
     BidirectionalPathTracer/Node.cpp \
     BidirectionalPathTracer/outNormalBrdf.cpp \
-    BidirectionalPathTracer/pathtracer.cpp \
     BidirectionalPathTracer/pdf.cpp \
-    BidirectionalPathTracer/semicirclePdf.cpp \
     Geometry/Box.cpp \
     Geometry/CornellBox.cpp \
     Geometry/MS3DModel.cpp \
@@ -89,4 +88,7 @@ SOURCES += main.cpp \
     rendererpanel.cpp \
     Scene.cpp \
     StreamPhotonMap.cpp \
-    Texture.cpp
+    Texture.cpp \
+    BidirectionalPathTracer/pathtracer.cpp \
+    BidirectionalPathTracer/semicirclePdf.cpp \
+    BidirectionalPathTracer/hemispherePdf.cpp
