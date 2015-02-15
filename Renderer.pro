@@ -16,7 +16,6 @@ HEADERS += \
     BidirectionalPathTracer/brdf.h \
     BidirectionalPathTracer/dotBrdf.h \
     BidirectionalPathTracer/Node.h \
-    BidirectionalPathTracer/normalPdf.h \
     BidirectionalPathTracer/outNormalBrdf.h \
     BidirectionalPathTracer/pdf.h \
     Geometry/Box.h \
@@ -49,7 +48,9 @@ HEADERS += \
     Scene.h \
     StreamPhotonMap.h \
     Texture.h \
-    BidirectionalPathTracer/pathtracer.h
+    BidirectionalPathTracer/pathtracer.h \
+    BidirectionalPathTracer/semicirclePdf.h \
+    BidirectionalPathTracer/hemispherePdf.h
 
 SOURCES += main.cpp \
     BidirectionalPathTracer/BidirectionalPathTracer.cpp \
@@ -57,7 +58,6 @@ SOURCES += main.cpp \
     BidirectionalPathTracer/brdf.cpp \
     BidirectionalPathTracer/dotBrdf.cpp \
     BidirectionalPathTracer/Node.cpp \
-    BidirectionalPathTracer/normalPdf.cpp \
     BidirectionalPathTracer/outNormalBrdf.cpp \
     BidirectionalPathTracer/pdf.cpp \
     Geometry/Box.cpp \
@@ -89,4 +89,6 @@ SOURCES += main.cpp \
     Scene.cpp \
     StreamPhotonMap.cpp \
     Texture.cpp \
-    BidirectionalPathTracer/pathtracer.cpp
+    BidirectionalPathTracer/pathtracer.cpp \
+    BidirectionalPathTracer/semicirclePdf.cpp \
+    BidirectionalPathTracer/hemispherePdf.cpp

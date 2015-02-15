@@ -1,5 +1,7 @@
 #include "pdf.h"
 
+#include "Math/randomUtils.h"
+
 Pdf::Pdf()
 {
 }
@@ -8,11 +10,18 @@ Pdf::~Pdf()
 {
 }
 
-Vector3 Pdf::rotate(float angle, Vector3 axis, const Vector3 & v)
+Vector3 Pdf::rotate(const Vector3 &v, const Vector3 &axis, float angle)
 {
-    // https://www.opengl.org/sdk/docs/man2/xhtml/glRotate.xml
+    float axisSquaredLength = axis.GetSquaredLength();
+    static const float Epsilon = 0.001f;
+    static const float mini = 1.0f - Epsilon;
+    static const float maxi = 1.0f + Epsilon;
+    if(axisSquaredLength < mini|| axisSquaredLength > maxi)
+    {
+        throw string("os musi byc znormalizowana");
+    }
 
-    axis.Normalize();
+    // https://www.opengl.org/sdk/docs/man2/xhtml/glRotate.xml
 
     float s = sin(angle);
     float c = cos(angle);
@@ -35,4 +44,23 @@ Vector3 Pdf::rotate(float angle, Vector3 axis, const Vector3 & v)
                xz * one_c - sy, yz * one_c + sx, zz * one_c + c, 0.0f,
                0.0f, 0.0f, 0.0f, 1.0f);
     return m * v;
+}
+
+const Vector3& Pdf::randomRotate(const Vector3 &vectorToRotate, const Vector3 &axis)
+{
+    // kat obrotu
+    // -PI_2 <= t <= PI_2
+    float t = randomSignedFloat(M_PI_2);
+
+    const Vector3 &rotatedVector = rotate(vectorToRotate, axis, t);
+    return rotatedVector;
+}
+
+const Vector3& Pdf::randomRotate(const Vector3 &vectorToRotate, const Vector3 &planeVector1, const Vector3 &planeVector2)
+{
+    // wektor normalny plaszczyzny
+    const Vector3 A = planeVector1.CrossProduct(planeVector2);
+
+    const Vector3 &rotatedVector = randomRotate(vectorToRotate, A);
+    return rotatedVector;
 }
