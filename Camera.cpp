@@ -230,6 +230,7 @@ void Camera::RenderSceneStream(Scene* scene, unsigned ns, unsigned m_numEmittedG
         qDebug() << "liczba probek na piksel: " << numSamples;
         float one_numSamples = 1.0f / numSamples;
 
+        #pragma omp parallel for schedule(dynamic, 50)
         for(unsigned j=0;j<img->GetHeight();j++)
         {
             if(j % 25 == 0)

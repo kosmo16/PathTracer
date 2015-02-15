@@ -4,8 +4,8 @@
 
 
 
- int EYE_REFLECTIONS  = 3;
-int LIGHT_REFLECTIONS = 0;
+ int EYE_REFLECTIONS  = 4;
+int LIGHT_REFLECTIONS = 4;
 
 PathTracer::PathTracer()
 {
