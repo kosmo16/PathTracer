@@ -2,22 +2,18 @@
 
 #define BIAS 0.001f
 
-
-
- int EYE_REFLECTIONS  = 3;
+int EYE_REFLECTIONS   = 3;
 int LIGHT_REFLECTIONS = 0;
 
 PathTracer::PathTracer()
 {
-
 }
 
 PathTracer::~PathTracer()
 {
-
 }
 
-AmbientLight* GetRandomLightRay( Scene* scene, Ray &randomLightRay)
+AmbientLight* GetRandomLightRay(Scene* scene, Ray &randomLightRay)
 {
     const QList<AmbientLight*> & lights = scene->lights;
     int numberOfLights = lights.size();
@@ -26,7 +22,7 @@ AmbientLight* GetRandomLightRay( Scene* scene, Ray &randomLightRay)
     return randomLight;
 }
 
-bool IsVisible( Scene* scene, const Vector3 &a, const Vector3 &b)
+bool IsVisible(Scene* scene, const Vector3 &a, const Vector3 &b)
 {
     Vector3 dir = b - a;
     float dist = dir.GetLength();
@@ -127,7 +123,6 @@ Ray PathTracer::CalculateNode(const IntersectionResult &closestIntersection, std
         //refractedIntensity += TracePath(newRay, scene, cameraPosition, n-1);
 
 
-
 //        Vector3 reflected = ray.direction.Reflect(closestIntersection.intersectionLPOINTNormal);
 //        reflected.Normalize();
 //        newRay = Ray(closestIntersection.LPOINT+reflected*BIAS, reflected);
@@ -166,7 +161,7 @@ Ray PathTracer::CalculateNode(const IntersectionResult &closestIntersection, std
 //    }
 }
 
-std::vector<Node>& PathTracer::GeneratePath(std::vector<Node> &path, Scene*scene, const Ray &rayIn, int &maxReflections)
+std::vector<Node>& PathTracer::GeneratePath(std::vector<Node> &path, Scene* scene, const Ray &rayIn, int &maxReflections)
 {
     IntersectionResult intersection;
 
@@ -191,8 +186,7 @@ std::vector<Node>& PathTracer::GeneratePath(std::vector<Node> &path, Scene*scene
     return path;
 }
 
-LightIntensity PathTracer::TracePath(const Ray&ray, Scene*scene, const Vector3 cameraPosition,
-                        int n)
+LightIntensity PathTracer::TracePath(const Ray &ray, Scene* scene, const Vector3 cameraPosition, int n)
 {
     std::vector<Node> eyePath;
     GeneratePath(eyePath, scene, ray, EYE_REFLECTIONS);

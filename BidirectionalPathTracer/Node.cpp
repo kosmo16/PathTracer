@@ -2,15 +2,15 @@
 
 Node::Node(const IntersectionResult &intersectionResult,
            float brdfWeight, float relativeWeight,
-           LightIntensity intensity)///const Vector3 &inDirection, const Vector3 &outDirection)
+           // const Vector3 &inDirection, const Vector3 &outDirection
+           LightIntensity intensity)
     : intersectionResult(intersectionResult),
       brdfWeight(brdfWeight),
       relativeWeight(relativeWeight),
-      inDirection(inDirection),
-      outDirection(outDirection)
+      /*inDirection(inDirection),
+      outDirection(outDirection),*/
+      intensity(intensity)
 {
-    this->intensity = intensity;
-
     if(brdfWeight != brdfWeight)
     {
         qDebug() << __LINE__ << ". Node::Node w ir - brdfWeight: " << brdfWeight << ", intersectionResult: " << intersectionResult;
