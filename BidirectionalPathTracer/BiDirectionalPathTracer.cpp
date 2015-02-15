@@ -199,7 +199,7 @@ bool BidirectionalPathTracer::FindIntersectionInScene(const Scene* const &scene,
         // qDebug() << __LINE__ << ". BidirectionalPathTracer::FindIntersectionInScene - intersection: " << intersection;
         // qDebug() << __LINE__ << ". BidirectionalPathTracer::FindIntersectionInScene - objectId: " << objectId;
         // qDebug() << __LINE__ << ". BidirectionalPathTracer::FindIntersectionInScene - object: " << scene->geometry;
-        // throw 1l;
+        throw 1l;
         return false;
     }
 
