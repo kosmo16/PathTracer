@@ -89,7 +89,9 @@ Ray PathTracer::CalculateNode(const IntersectionResult &closestIntersection, std
 {
     if (closestIntersection.object->GetMaterial()->type==EMMISIVE)
     {
-        path.push_back(Node(NULL, 0, 0, LightIntensity(1.0, 1.0, 1.0)));
+        EmmisiveMaterial* mat = (EmmisiveMaterial*)closestIntersection.object->GetMaterial();
+        path.push_back(Node(closestIntersection, 0, 0, mat->light));
+        return Ray();
     }
     else if(closestIntersection.object->GetMaterial()->type==REFLECTIVE) {
         Vector3 reflected = rayInDirection.Reflect(closestIntersection.intersectionLPOINTNormal);
@@ -180,8 +182,16 @@ std::vector<Node>& PathTracer::GeneratePath(std::vector<Node> &path, Scene*scene
         reflections++;
 
         Ray rayOut = CalculateNode(intersection, path, rayIn.direction);
-        intersectionInScene = FindIntersectionInScene(scene, rayOut, intersection);
-        rayIn = rayOut;
+
+        if (intersection.object->GetMaterial()->type == EMMISIVE)
+        {
+            intersectionInScene = false;
+        }
+        else
+        {
+            intersectionInScene = FindIntersectionInScene(scene, rayOut, intersection);
+            rayIn = rayOut;
+        }
     }
 
     return path;
@@ -253,107 +263,30 @@ LightIntensity PathTracer::TracePath(const Ray&ray, Scene*scene, const Vector3 c
     GeneratePath(lightPath, scene, lightRay, LIGHT_REFLECTIONS);
 
     LightIntensity result;
-    int paths = 0;
 
-    for (int i = 0; i < eyePath.size(); i++)
+    if (eyePath.size() > 0 && eyePath[eyePath.size() - 1].intersectionResult.object->GetMaterial()->type == EMMISIVE)
     {
-        for (int j = 0; j < lightPath.size(); j++)
-        {
-            LightIntensity partResult = EvalPath(eyePath, i + 1, lightPath, j + 1, scene);
+        result = eyePath[eyePath.size() - 1].intersectionResult.object->GetMaterial()->light;
 
-            //if (partResult.r != 0.0 || partResult.g != 0.0 || partResult.b != 0.0)
+        for (int i = 0; i < eyePath.size() - 1; i++)
+        {
+            result *= eyePath[i].intensity;
+        }
+    }
+    else
+    {
+        for (int i = 0; i < eyePath.size(); i++)
+        {
+            for (int j = 0; j < lightPath.size(); j++)
             {
-                //paths++;
-                result += partResult / (i + j + 2) ;
+                LightIntensity partResult = EvalPath(eyePath, i + 1, lightPath, j + 1, scene);
+
+                {
+                    result += partResult / (i + j + 2) ;
+                }
             }
         }
     }
-
-  //  result /= paths;
-
-
-//    int closest=-1;
-//    float closestDist=FLT_MAX;
-//    IntersectionResult closestIntersection;
-
-//    for(int j=0;j<scene->geometry.count();j++) {
-//        IntersectionResult result = scene->geometry.at(j)->Intersects(ray);
-//        if(result.type!=MISS) {
-//            if(closestDist>result.distance) {
-//                closestDist = result.distance;
-//                closest = j;
-//                closestIntersection = result;
-//            }
-//        }
-//    }
-
-//    LightIntensity resultIntensity;
-
-//    if(closest == -1) {
-//        return resultIntensity;
-//    }
-
-//    if(closestIntersection.object->GetMaterial()->type==REFLECTIVE && n>0) {
-//        Vector3 reflected = ray.direction.Reflect(closestIntersection.intersectionLPOINTNormal);
-//        reflected.Normalize();
-//        Ray newRay(closestIntersection.LPOINT+reflected*BIAS, reflected);
-
-//        resultIntensity += TracePath(newRay, scene, cameraPosition, n - 1);
-//    }
-//    else if(closestIntersection.object->GetMaterial()->type==REFRACTIVE && n>0) {
-//        float reflectionCoef = max(0.0, min(1.0, 0.05+0.11*(pow(1.0+ray.direction.DotProduct(closestIntersection.intersectionLPOINTNormal), 1))));
-//        LightIntensity reflectedIntensity;
-//        LightIntensity refractedIntensity;
-
-//        RefractiveMaterial* mat = (RefractiveMaterial*)closestIntersection.object->GetMaterial();
-
-//        Vector3 refracted;
-//        if(closestIntersection.type==HIT)
-//            refracted = ray.direction.Refract(closestIntersection.intersectionLPOINTNormal, mat->etaRate);
-//        else
-//            refracted = ray.direction.Refract(-closestIntersection.intersectionLPOINTNormal, 1.0f/mat->etaRate);
-//        refracted.Normalize();
-
-//        Ray newRay(closestIntersection.LPOINT+refracted*BIAS, refracted);
-
-//        refractedIntensity += TracePath(newRay, scene, cameraPosition, n-1);
-
-//        Vector3 reflected = ray.direction.Reflect(closestIntersection.intersectionLPOINTNormal);
-//        reflected.Normalize();
-//        newRay = Ray(closestIntersection.LPOINT+reflected*BIAS, reflected);
-
-//        //reflectedIntensity += TracePath(newRay, scene, cameraPosition, n-1);
-
-//        resultIntensity = /*reflectionCoef*reflectedIntensity + */(1-reflectionCoef)*refractedIntensity;
-//    }
-//    else if(n > 0) {
-//        DiffuseMaterial* mat = (DiffuseMaterial*)closestIntersection.object->GetMaterial();
-//        Vector3 N = closestIntersection.intersectionLPOINTNormal;
-//        Ray randomRay(closestIntersection.LPOINT, UniformSampleHemisphere(N));
-//        float NdotRD = fabs(N.DotProduct(randomRay.direction));
-//        LightIntensity BRDF = mat->diffuse * (2.0f * NdotRD);
-//        LightIntensity REFLECTED = TracePath(randomRay, scene, cameraPosition, n - 1);
-//        resultIntensity += BRDF * REFLECTED;
-
-
-////        LightIntensity fromLights;
-////        for(int j=0;j<scene->lights.count();j++) {
-////            fromLights += scene->lights.at(j)->GetLightIntensity(cameraPosition, &closestIntersection, scene->geometry);
-////        }
-////        resultIntensity += 0.75 * fromLights;
-//    }
-//    else
-//    {
-//        return LightIntensity(1.0, 1.0, 1.0);
-//    }
-//    else
-//    {
-//        LightIntensity fromLights;
-//        for(int j=0;j<scene->lights.count();j++) {
-//            fromLights += scene->lights.at(j)->GetLightIntensity(cameraPosition, &closestIntersection, scene->geometry);
-//        }
-//        resultIntensity += fromLights;
-//    }
 
     return result;
 }
