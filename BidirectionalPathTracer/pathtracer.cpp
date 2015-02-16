@@ -199,7 +199,9 @@ std::vector<Node>& PathTracer::GeneratePath(std::vector<Node> &path, Scene*scene
     return path;
 }
 
-LightIntensity PathTracer::EvalPath(std::vector<Node> &eyePath, int nEye, std::vector<Node> &lightPath, int nLight, Scene *scene)
+LightIntensity PathTracer::EvalPath(std::vector<Node> &eyePath, int nEye,
+                                    std::vector<Node> &lightPath, int nLight,
+                                    Scene *scene)
 {
     LightIntensity result(1.0f, 1.0f, 1.0f);
 
@@ -261,7 +263,7 @@ LightIntensity PathTracer::TracePath(const Ray&ray, Scene*scene, const Vector3 c
 
     std::vector<Node> lightPath;
     Ray lightRay;
-    GetRandomLightRay(scene, lightRay);
+    AmbientLight *theChosenLight = GetRandomLightRay(scene, lightRay);
     GeneratePath(lightPath, scene, lightRay, LIGHT_REFLECTIONS);
 
     LightIntensity result;
@@ -279,14 +281,16 @@ LightIntensity PathTracer::TracePath(const Ray&ray, Scene*scene, const Vector3 c
     {
         for (int i = 0; i < eyePath.size(); i++)
         {
+            LightIntensity directLightIntensity = theChosenLight->GetLightIntensity(eyePath[i].intersectionResult.LPOINT, &eyePath[i].intersectionResult, scene->geometry);
+
             for (int j = 0; j < lightPath.size(); j++)
             {
                 LightIntensity partResult = EvalPath(eyePath, i + 1, lightPath, j + 1, scene);
 
-                {
-                    result += partResult / (i + j + 2) ;
-                }
+                result += partResult / (i + j + 2) ;
             }
+
+            result += directLightIntensity * 0.01f;
         }
     }
 

@@ -33,7 +33,9 @@ public:
     bool FindIntersectionInScene(Scene* scene, const Ray &ray, IntersectionResult &intersection);
     Ray CalculateNode(const IntersectionResult &closestIntersection, std::vector<Node> &path, const Vector3 &rayInDirection);
 
-    LightIntensity EvalPath(std::vector<Node> &eyePath, int nEye, std::vector<Node> &lightPath, int nLight, Scene *scene);
+    LightIntensity EvalPath(std::vector<Node> &eyePath, int nEye,
+                            std::vector<Node> &lightPath, int nLight,
+                            Scene *scene);
 };
 
 #endif // PATHTRACER_H
