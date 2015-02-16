@@ -290,7 +290,7 @@ LightIntensity PathTracer::TracePath(const Ray&ray, Scene*scene, const Vector3 c
                 result += partResult / (i + j + 2) ;
             }
 
-            result += directLightIntensity * 0.01f;
+            result += directLightIntensity * 0.5f / (i + eyePath.size());
         }
     }
 
