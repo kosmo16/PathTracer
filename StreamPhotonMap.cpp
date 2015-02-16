@@ -93,7 +93,7 @@ void StreamPhotonMap::GeneratePhotons(AmbientLight *light, QList<Geometry*>* geo
     qDebug()<<"Wyemitowalem "<<emittedPhotons<<" fotonow wiodacych";
 
     //przeskaluj energie kazdego fotonu przez liczbe zapisanych do mapy fotonow
-    float scale;
+    float scale;// TODO initialize scale
     if(caustic) {
         if(light->type == LPOINT || light->type == AREA)
             scale = (1.0f/tempPhotons.count())*light->GetProjectionMapRatio();

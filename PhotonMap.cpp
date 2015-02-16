@@ -70,7 +70,7 @@ void PhotonMap::GeneratePhotons(AmbientLight *light, QList<Geometry*>* geometry,
     qDebug()<<"Wyemitowalem "<<emittedPhotons<<" fotonow";
 
     //scale energy of photons
-    float scale;
+    float scale;// TODO initialize scale
     if(caustic) {
         if(light->type == LPOINT || light->type == AREA)
             scale = (1.0f/tempPhotons.count())*light->GetProjectionMapRatio();

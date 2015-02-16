@@ -272,18 +272,18 @@ LightIntensity PathTracer::TracePath(const Ray&ray, Scene*scene, const Vector3 c
     {
         result = ((EmmisiveMaterial*)(eyePath[eyePath.size() - 1].intersectionResult.object->GetMaterial()))->light;
 
-        for (int i = 0; i < eyePath.size() - 1; i++)
+        for (std::vector<Node>::size_type i = 0; i < eyePath.size() - 1; i++)
         {
             result *= eyePath[i].intensity;
         }
     }
     else
     {
-        for (int i = 0; i < eyePath.size(); i++)
+        for (std::vector<Node>::size_type i = 0; i < eyePath.size(); i++)
         {
             LightIntensity directLightIntensity = theChosenLight->GetLightIntensity(eyePath[i].intersectionResult.LPOINT, &eyePath[i].intersectionResult, scene->geometry);
 
-            for (int j = 0; j < lightPath.size(); j++)
+            for (std::vector<Node>::size_type j = 0; j < lightPath.size(); j++)
             {
                 LightIntensity partResult = EvalPath(eyePath, i + 1, lightPath, j + 1, scene);
 
