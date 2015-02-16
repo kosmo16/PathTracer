@@ -143,10 +143,9 @@ void MainWindow::renderScene()
     Sphere* sphere1 = new Sphere(Vector3(-4.6,-6.8,-2), 3.5);
     Sphere* sphere2 = new Sphere(Vector3(4.6,-6.8,-2), 3.5);
     //Box* box1 = new Box(Vector3(0,-6.8,0), Vector3(3.5,3.5,3.5));
-
     ReflectiveMaterial mat;
     RefractiveMaterial mat2(0.45f);
-    DiffuseMaterial mat3(Color(0,0,0),Color(0,1,0),Color(0,0,0), 15, 0.0f);
+    // DiffuseMaterial mat3(Color(0,0,0),Color(0,1,0),Color(0,0,0), 15, 0.0f);
     //cornel box musi byc na poczatku listy geometrii aby przy renderingu (funkcja traceraystream)z listy usuwane byly dwa ostatnie trojkaty sciany frontowej
     scene.AddGeometry(new CornellBox(Vector3(0,0,0), Vector3(20,20,20)));
     sphere1->SetMaterial(&mat);
@@ -154,14 +153,13 @@ void MainWindow::renderScene()
     //box1->SetMaterial(&mat3);
     scene.AddGeometry(sphere1);
     scene.AddGeometry(sphere2);
-
     const Vector3 c(0.0f, 9.5f, -1.0f);
     const float d = 3.0f;
-
     Triangle* emisiveTriangle1 = new Triangle(Vector3(c.x+d, c.y, c.z+d), Vector3(c.x+d, c.y, c.z-d), Vector3(c.x-d, c.y, c.z+d));
     Triangle* emisiveTriangle2 = new Triangle(Vector3(c.x-d, c.y, c.z-d), Vector3(c.x-d, c.y, c.z+d), Vector3(c.x+d, c.y, c.z-d));
-    emisiveTriangle1->SetMaterial(new EmmisiveMaterial(LightIntensity(1.0f, 1.0f, 1.0f)));
-    emisiveTriangle2->SetMaterial(new EmmisiveMaterial(LightIntensity(1.0f, 1.0f, 1.0f)));
+    EmmisiveMaterial emmisiveMat(LightIntensity(1.0f, 1.0f, 1.0f));
+    emisiveTriangle1->SetMaterial(&emmisiveMat);
+    emisiveTriangle2->SetMaterial(&emmisiveMat);
     scene.AddGeometry(emisiveTriangle1);
     scene.AddGeometry(emisiveTriangle2);
 

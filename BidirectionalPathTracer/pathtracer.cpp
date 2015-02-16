@@ -26,18 +26,20 @@ AmbientLight* GetRandomLightRay( Scene* scene, Ray &randomLightRay)
     return randomLight;
 }
 
-bool IsVisible( Scene* scene, const Vector3 &a, const Vector3 &b)
+bool IsVisible(Scene* scene, const Vector3 &a, const Vector3 &b)
 {
+    static const float EPSILON = 0.0001f;
+
     Vector3 dir = b - a;
-    float dist = dir.GetLength();
+    float dist = -EPSILON + dir.GetLength();
     dir.Normalize();
-    Ray ray = Ray(a, dir);
+    Ray ray(a, dir);
 
     for (int i = 0; i < scene->geometry.count(); i++)
     {
         IntersectionResult result = scene->geometry.at(i)->Intersects(ray, dist);
 
-        if (result.type != MISS)
+        if (result.type != MISS && result.distance > EPSILON)
         {
             return false;
         }
